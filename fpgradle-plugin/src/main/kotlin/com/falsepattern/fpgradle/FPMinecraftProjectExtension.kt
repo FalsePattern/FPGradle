@@ -78,7 +78,7 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
 
         publish.maven.sources.convention(true)
         publish.maven.group.convention(provider { group.toString() })
-        publish.maven.artifact.convention(provider { "$name-mc1.7.10" })
+        publish.maven.artifact.convention(mod.modid.map { "$it-mc1.7.10" })
         publish.maven.version.convention(mod.version)
         publish.maven.userEnv.convention("MAVEN_DEPLOY_USER")
         publish.maven.passEnv.convention("MAVEN_DEPLOY_PASSWORD")

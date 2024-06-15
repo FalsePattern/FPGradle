@@ -40,29 +40,10 @@ abstract class GitTagVersionSource: ValueSource<GitTagVersion, GitTagVersionSour
 
         try {
             return Git.open(gitRepoDir).use { git ->
-                val repo = git.repository
-
-                val head = repo.exactRef("HEAD") ?: return@use null
-
-                val currentHash = head.objectId
-
                 val isClean = git.status().call().isClean
 
-                if (isClean) {
-                    val tags = git.tagList().call()
-                    for (tag in tags) {
-                        if (tag.objectId == currentHash) {
-                            val version = tag.name.substring(10)
-
-                            return@use GitTagVersion(version, true)
-                        }
-                    }
-                }
-
-                val branch = repo.branch
-                val shortHash = currentHash.name().substring(0, 7)
-                val version = "$branch-$shortHash"
-                return@use GitTagVersion(version, isClean)
+                val describe = git.describe().setTags(true).call()
+                return@use GitTagVersion(describe, isClean)
             }
         } catch (_: IOException) {}
         return null

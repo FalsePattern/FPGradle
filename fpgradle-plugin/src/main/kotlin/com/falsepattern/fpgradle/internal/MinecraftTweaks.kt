@@ -104,7 +104,7 @@ class MinecraftTweaks(ctx: ConfigurationContext): InitTask {
                 }
             }
 
-            ext<BasePluginExtension>().archivesName = mc.mod.modid
+            ext<BasePluginExtension>().archivesName = mc.publish.maven.artifact
         }
     }
 }
