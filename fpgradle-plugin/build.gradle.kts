@@ -11,6 +11,11 @@ kotlin {
     jvmToolchain(8)
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 repositories {
     maven {
         url = uri("https://mvn.falsepattern.com/fpgradle/")
