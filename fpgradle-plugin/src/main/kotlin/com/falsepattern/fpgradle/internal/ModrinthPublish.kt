@@ -25,6 +25,7 @@ package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.*
+import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import com.modrinth.minotaur.Minotaur
 import com.modrinth.minotaur.dependencies.DependencyType.REQUIRED
 import com.modrinth.minotaur.dependencies.ModDependency
@@ -51,7 +52,7 @@ class ModrinthPublish: FPPlugin() {
                     }
                 }
                 changelog = mc.publish.changelog
-                uploadFile.set(tasks.named("jar"))
+                uploadFile.set(tasks.named<ReobfuscatedJar>("reobfJar"))
                 gameVersions.add(minecraft.mcVersion)
                 loaders.add("forge")
                 for (dep in mc.publish.modrinth.dependencies.get()) {
