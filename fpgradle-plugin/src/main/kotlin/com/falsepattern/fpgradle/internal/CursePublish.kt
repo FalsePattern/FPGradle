@@ -51,6 +51,7 @@ class CursePublish: FPPlugin() {
                     changelogType = Constants.CHANGELOG_MARKDOWN
                     changelog = mc.publish.changelog
                     val version = mc.mod.version
+                    displayName = version
                     releaseType = version.map { when {
                         it.contains("-a") -> Constants.RELEASE_TYPE_ALPHA
                         it.contains("-b") -> Constants.RELEASE_TYPE_BETA
