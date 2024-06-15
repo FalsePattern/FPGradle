@@ -24,6 +24,7 @@
 package com.falsepattern.fpgradle.module.git
 
 import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.api.errors.GitAPIException
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
@@ -45,7 +46,7 @@ abstract class GitTagVersionSource: ValueSource<GitTagVersion, GitTagVersionSour
                 val describe = git.describe().setTags(true).call()
                 return@use GitTagVersion(describe, isClean)
             }
-        } catch (_: IOException) {}
+        } catch (_: IOException) {} catch (_: GitAPIException) {}
         return null
     }
 }
