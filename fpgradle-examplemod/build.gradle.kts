@@ -61,15 +61,46 @@ minecraft_fp {
     }
 
     // optional
-    // Use this if you want to publish on maven
-//    publish {
-//        repoUrl  = "https://example.com/"
-//        repoName = "example"
-//        sources  = true                    //Convention
-//        group    = "${project.group}"      //Convention
-//        artifact = "${mod.modid}-mc1.7.10" //Convention
-//        version  = "${mod.version}"        //Convention
-//        userEnv  = "MAVEN_DEPLOY_USER"     //Convention
-//        passEnv  = "MAVEN_DEPLOY_PASSWORD" //Convention
-//    }
+    // Use this if you want to publish on maven/curse/modrinth
+    publish {
+//        // optional
+//        // If not set, tries to read CHANGELOG.md (or the file specified in the CHANGELOG_FILE env var, if set)
+//        changelog = "https://github.com/myname/mymod/releases/tag/{version}"
+//        // optional
+//        maven {
+//            repoUrl  = "https://example.com/"
+//            repoName = "example"
+//            sources  = true                    //Convention
+//            group    = "${project.group}"      //Convention
+//            artifact = "${mod.modid}-mc1.7.10" //Convention
+//            version  = "${mod.version}"        //Convention
+//            userEnv  = "MAVEN_DEPLOY_USER"     //Convention
+//            passEnv  = "MAVEN_DEPLOY_PASSWORD" //Convention
+//        }
+//
+//        // optional
+//        curseforge {
+//            projectId = "123456"
+//            tokenEnv = "CURSEFORGE_TOKEN" //Convention
+//
+//            // optional
+//            dependencies {
+//                required("foo")
+//                required("bar")
+//                incompatible("baz")
+//            }
+//        }
+//
+//        // optional
+//        modrinth {
+//            projectId = "blah123"
+//            tokenEnv = "MODRINTH_TOKEN" //Convention
+//
+//            // optional
+//            dependencies {
+//                required("bar")
+//                incompatible("qux")
+//            }
+//        }
+    }
 }

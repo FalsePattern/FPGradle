@@ -44,11 +44,17 @@ dependencies {
     // JTweaker (stubpackage)
     implementation("com.falsepattern:jtweaker:0.2.2")
 
-    //MappingGenerator
+    // MappingGenerator
     implementation("io.github.LegacyModdingMC:MappingGenerator:0.1.2")
 
-    //IntelliJ
+    // IntelliJ
     implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.8")
+
+    // CurseGradle
+    implementation("io.github.CDAGaming:CurseGradle:1.6.1")
+
+    // Minotaur
+    implementation("com.modrinth.minotaur:Minotaur:2.8.7")
 }
 
 val add: NamedDomainObjectContainer<PluginDeclaration>.(pluginID: String, pluginClass: String) ->

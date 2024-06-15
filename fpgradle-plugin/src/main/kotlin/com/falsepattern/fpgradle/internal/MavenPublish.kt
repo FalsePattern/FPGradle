@@ -12,6 +12,7 @@ class MavenPublish(ctx: ConfigurationContext): InitTask {
     private val publishing = project.ext<PublishingExtension>()
 
     override fun postInit() = with(project) {
+        val mvn = mc.publish.maven
         with(publishing) {
             publications {
                 create<MavenPublication>("maven") {
@@ -20,20 +21,20 @@ class MavenPublish(ctx: ConfigurationContext): InitTask {
                     if (mc.api.packages.get().isNotEmpty() || mc.api.packagesNoRecurse.get().isNotEmpty())
                         artifact(tasks.named("apiJar"))
 
-                    groupId = mc.publish.group.get()
-                    artifactId = mc.publish.artifact.get()
-                    version = mc.publish.version.get()
+                    groupId = mvn.group.get()
+                    artifactId = mvn.artifact.get()
+                    version = mvn.version.get()
                 }
             }
             repositories {
-                if (!mc.publish.repoUrl.isPresent)
+                if (!mvn.repoUrl.isPresent)
                     return@repositories
 
                 maven {
-                    url = mc.publish.repoUrl.get()
-                    name = mc.publish.repoName.get()
-                    val user = System.getenv(mc.publish.userEnv.get())
-                    val pass = System.getenv(mc.publish.passEnv.get())
+                    url = mvn.repoUrl.get()
+                    name = mvn.repoName.get()
+                    val user = System.getenv(mvn.userEnv.get())
+                    val pass = System.getenv(mvn.passEnv.get())
                     if (user != null && pass != null) {
                         credentials {
                             username = user

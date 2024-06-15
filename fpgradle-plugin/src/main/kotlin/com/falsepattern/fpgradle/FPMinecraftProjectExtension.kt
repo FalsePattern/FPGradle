@@ -1,5 +1,10 @@
 package com.falsepattern.fpgradle
 
+import com.matthewprenger.cursegradle.CurseRelation
+import com.modrinth.minotaur.dependencies.Dependency
+import com.modrinth.minotaur.dependencies.DependencyType
+import com.modrinth.minotaur.dependencies.ModDependency
+import com.modrinth.minotaur.dependencies.VersionDependency
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -37,12 +42,23 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
         tokens.version.convention("MOD_VERSION")
         tokens.rootPkg.convention("ROOT_PKG")
 
-        publish.sources.convention(true)
-        publish.group.convention(provider { group.toString() })
-        publish.artifact.convention(provider { "$name-mc1.7.10" })
-        publish.version.convention(mod.version)
-        publish.userEnv.convention("MAVEN_DEPLOY_USER")
-        publish.passEnv.convention("MAVEN_DEPLOY_PASSWORD")
+        publish.changelog.convention(provider {
+            val changelogFile = file(System.getenv("CHANGELOG_FILE") ?: "CHANGELOG.md")
+            if (changelogFile.exists())
+                changelogFile.readText()
+            else
+                "No changelog was provided."
+        })
+
+        publish.maven.sources.convention(true)
+        publish.maven.group.convention(provider { group.toString() })
+        publish.maven.artifact.convention(provider { "$name-mc1.7.10" })
+        publish.maven.version.convention(mod.version)
+        publish.maven.userEnv.convention("MAVEN_DEPLOY_USER")
+        publish.maven.passEnv.convention("MAVEN_DEPLOY_PASSWORD")
+
+        publish.curseforge.tokenEnv.convention("CURSEFORGE_TOKEN")
+        publish.modrinth.tokenEnv.convention("MODRINTH_TOKEN")
     } }
 
     //region java
@@ -151,14 +167,69 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
 
     //region publish
     abstract class Publish: ExtensionAware {
-        abstract val repoUrl: Property<URI>
-        abstract val repoName: Property<String>
-        abstract val sources: Property<Boolean>
-        abstract val group: Property<String>
-        abstract val artifact: Property<String>
-        abstract val version: Property<String>
-        abstract val userEnv: Property<String>
-        abstract val passEnv: Property<String>
+        abstract val changelog: Property<String>
+        abstract class Maven: ExtensionAware {
+            abstract val repoUrl: Property<URI>
+            abstract val repoName: Property<String>
+            abstract val sources: Property<Boolean>
+            abstract val group: Property<String>
+            abstract val artifact: Property<String>
+            abstract val version: Property<String>
+            abstract val userEnv: Property<String>
+            abstract val passEnv: Property<String>
+        }
+        @get:Nested
+        abstract val maven: Maven
+        fun maven(action: Maven.() -> Unit) {
+            action(maven)
+        }
+
+        abstract class CurseForge: ExtensionAware {
+            abstract val projectId: Property<String>
+            abstract val tokenEnv: Property<String>
+            abstract val relations: ListProperty<CurseRelation.() -> Unit>
+
+            inner class Dependencies {
+                fun required(id: String) = relations.add { requiredDependency(id) }
+                fun optional(id: String) = relations.add { optionalDependency(id) }
+                fun incompatible(id: String) = relations.add { incompatible(id) }
+                fun embedded(id: String) = relations.add { embeddedLibrary(id) }
+                fun tool(id: String) = relations.add { tool(id) }
+            }
+            fun dependencies(action: Dependencies.() -> Unit) {
+                action(Dependencies())
+            }
+        }
+        @get:Nested
+        abstract val curseforge: CurseForge
+        fun curseforge(action: CurseForge.() -> Unit) {
+            action(curseforge)
+        }
+
+        abstract class Modrinth: ExtensionAware {
+            abstract val projectId: Property<String>
+            abstract val tokenEnv: Property<String>
+            abstract val dependencies: ListProperty<() -> Dependency>
+
+            inner class Dependencies(val variant: (String, DependencyType) -> Dependency) {
+                fun required(id: String) = dependencies.add { variant(id, DependencyType.REQUIRED) }
+                fun optional(id: String) = dependencies.add { variant(id, DependencyType.OPTIONAL) }
+                fun incompatible(id: String) = dependencies.add { variant(id, DependencyType.INCOMPATIBLE) }
+                fun embedded(id: String) = dependencies.add { variant(id, DependencyType.EMBEDDED) }
+            }
+            fun dependencies(action: Dependencies.() -> Unit) {
+                action(Dependencies(::ModDependency))
+            }
+
+            fun versionDependencies(action: Dependencies.() -> Unit) {
+                action(Dependencies(::VersionDependency))
+            }
+        }
+        @get:Nested
+        abstract val modrinth: Modrinth
+        fun modrinth(action: Modrinth.() -> Unit) {
+            action(modrinth)
+        }
     }
     @get:Nested
     abstract val publish: Publish
