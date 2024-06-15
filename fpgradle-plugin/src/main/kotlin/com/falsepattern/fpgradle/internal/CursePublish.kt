@@ -25,54 +25,50 @@ package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.*
-import com.matthewprenger.cursegradle.CurseGradlePlugin
+import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
+import net.darkhax.curseforgegradle.Constants
+import net.darkhax.curseforgegradle.CurseForgeGradlePlugin
+import net.darkhax.curseforgegradle.TaskPublishCurseForge
 import org.gradle.api.Project
-import org.gradle.jvm.tasks.Jar
-import org.gradle.kotlin.dsl.named
+import org.gradle.api.publish.plugins.PublishingPlugin
+import org.gradle.kotlin.dsl.*
 
 class CursePublish: FPPlugin() {
-    override fun addPlugins() = listOf(CurseGradlePlugin::class)
+    override fun addPlugins() = listOf(CurseForgeGradlePlugin::class)
 
     override fun Project.onPluginPostInitBeforeDeps() {
         val projectId = mc.publish.curseforge.projectId
         val token = mc.publish.curseforge.tokenEnv.map { System.getenv(it) }
         if (projectId.isPresent) {
-            with(curseforge) {
-                apiKey = token.getOrElse("")
-                project {
-                    id = projectId.get()
-                    changelogType = "markdown"
-                    changelog = mc.publish.changelog
-                    val version = mc.mod.version.get()
-                    releaseType = when {
-                        version.contains("-a") -> "alpha"
-                        version.contains("-b") -> "beta"
-                        else -> "release"
-                    }
-                    addGameVersion(minecraft.mcVersion)
-                    addGameVersion("Forge")
-                    mainArtifact(tasks.named<Jar>("jar").flatMap { it.archiveFile }.map { it.asFile }.get()) {
-                        displayName = mc.mod.version.get()
-                    }
-
-                    for (relation in mc.publish.curseforge.relations.get())
-                        relations(relation)
-
-                    if (mc.mixin.use) relations {
-                        requiredDependency("unimixins")
-                    }
-                }
-                options {
-                    javaIntegration = false
-                    forgeGradleIntegration = false
-                }
-            }
-            tasks.named("curseforge").configure {
+            val publishCurseForge = tasks.register<TaskPublishCurseForge>("curseforge") {
+                group = PublishingPlugin.PUBLISH_TASK_GROUP
+                description = "Publish the mod to CurseForge"
                 dependsOn("build")
+                val theFile = tasks.named<ReobfuscatedJar>("reobfJar").flatMap { it.archiveFile }
+                apiToken = token
+                disableVersionDetection()
+                upload(projectId, theFile) {
+                    changelogType = Constants.CHANGELOG_MARKDOWN
+                    changelog = mc.publish.changelog
+                    val version = mc.mod.version
+                    releaseType = version.map { when {
+                        it.contains("-a") -> Constants.RELEASE_TYPE_ALPHA
+                        it.contains("-b") -> Constants.RELEASE_TYPE_BETA
+                        else -> Constants.RELEASE_TYPE_RELEASE
+                    } }
+                    addGameVersion(minecraft.mcVersion, "Forge")
+                    addModLoader("Forge")
+                    for (relation in mc.publish.curseforge.relations.get())
+                        relation()
+
+                    if (mc.mixin.use) {
+                        addRequirement("unimixins")
+                    }
+                }
             }
             if (token.isPresent) {
-                tasks.named("publish").configure {
-                    dependsOn("curseforge")
+                tasks.named(PublishingPlugin.PUBLISH_LIFECYCLE_TASK_NAME).configure {
+                    dependsOn(publishCurseForge)
                 }
             }
         }

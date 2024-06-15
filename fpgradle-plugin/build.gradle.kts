@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.falsepattern"
-version = "0.1.8"
+version = "0.1.9"
 
 kotlin {
     jvmToolchain(21)
@@ -61,8 +61,8 @@ dependencies {
     // IntelliJ
     implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.8")
 
-    // CurseGradle
-    implementation("io.github.CDAGaming:CurseGradle:1.6.1")
+    // CurseForgeGradle
+    implementation("net.darkhax.curseforgegradle:CurseForgeGradle:1.1.24")
 
     // Minotaur
     implementation("com.modrinth.minotaur:Minotaur:2.8.7")

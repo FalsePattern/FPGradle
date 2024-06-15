@@ -26,7 +26,6 @@ package com.falsepattern.fpgradle
 import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
 import com.gtnewhorizons.retrofuturagradle.minecraft.MinecraftTasks
 import com.gtnewhorizons.retrofuturagradle.modutils.ModUtils
-import com.matthewprenger.cursegradle.CurseExtension
 import com.modrinth.minotaur.ModrinthExtension
 import io.freefair.gradle.plugins.lombok.LombokExtension
 import io.github.legacymoddingmc.mappinggenerator.MappingGeneratorExtension
@@ -42,7 +41,6 @@ import org.gradle.plugins.ide.idea.model.IdeaModel
 
 private inline fun <reified T : Any> Project.ext(): T = extensions.getByType<T>()
 val Project.mc get() = ext<FPMinecraftProjectExtension>()
-val Project.curseforge get() = ext<CurseExtension>()
 val Project.modrinth get() = ext<ModrinthExtension>()
 val Project.minecraft get() = ext<MinecraftExtension>()
 val Project.minecraftTasks get() = ext<MinecraftTasks>()

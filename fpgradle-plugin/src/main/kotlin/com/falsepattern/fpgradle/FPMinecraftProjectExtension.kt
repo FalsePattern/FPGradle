@@ -23,11 +23,11 @@
 
 package com.falsepattern.fpgradle
 
-import com.matthewprenger.cursegradle.CurseRelation
 import com.modrinth.minotaur.dependencies.Dependency
 import com.modrinth.minotaur.dependencies.DependencyType
 import com.modrinth.minotaur.dependencies.ModDependency
 import com.modrinth.minotaur.dependencies.VersionDependency
+import net.darkhax.curseforgegradle.UploadArtifact
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.plugins.ExtensionAware
@@ -225,14 +225,14 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
         abstract class CurseForge: ExtensionAware {
             abstract val projectId: Property<String>
             abstract val tokenEnv: Property<String>
-            abstract val relations: ListProperty<CurseRelation.() -> Unit>
+            abstract val relations: ListProperty<UploadArtifact.() -> Unit>
 
             inner class Dependencies {
-                fun required(id: String) = relations.add { requiredDependency(id) }
-                fun optional(id: String) = relations.add { optionalDependency(id) }
-                fun incompatible(id: String) = relations.add { incompatible(id) }
-                fun embedded(id: String) = relations.add { embeddedLibrary(id) }
-                fun tool(id: String) = relations.add { tool(id) }
+                fun required(id: String) = relations.add { addRequirement(id) }
+                fun optional(id: String) = relations.add { addOptional(id) }
+                fun incompatible(id: String) = relations.add { addIncompatibility(id) }
+                fun embedded(id: String) = relations.add { addEmbedded(id) }
+                fun tool(id: String) = relations.add { addTool(id) }
             }
             fun dependencies(action: Dependencies.() -> Unit) {
                 action(Dependencies())
