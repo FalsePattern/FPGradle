@@ -26,16 +26,16 @@ dependencies {
     implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:8.6")
 
     // JGit
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.8.0.202311291450-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:6.10.0.202406032230-r")
 
     // Apache Commons Lang
     implementation("org.apache.commons:commons-lang3:3.14.0")
 
     // Apache Commons IO
-    implementation("commons-io:commons-io:2.15.1")
+    implementation("commons-io:commons-io:2.16.1")
 
     // Gson
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.11.0")
 
     // RFG
     implementation("com.gtnewhorizons:retrofuturagradle:1.3.36-fp")
