@@ -47,7 +47,7 @@ class CursePublish: FPPlugin() {
                 val theFile = tasks.named<ReobfuscatedJar>("reobfJar").flatMap { it.archiveFile }
                 apiToken = token
                 disableVersionDetection()
-                upload(projectId, theFile) {
+                upload(projectId.get(), theFile) {
                     changelogType = Constants.CHANGELOG_MARKDOWN
                     changelog = mc.publish.changelog
                     val version = mc.mod.version
