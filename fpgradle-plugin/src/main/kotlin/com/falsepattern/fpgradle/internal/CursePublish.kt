@@ -25,10 +25,9 @@ package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.*
-import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
-import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import com.matthewprenger.cursegradle.CurseGradlePlugin
 import org.gradle.api.Project
+import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.named
 
 class CursePublish: FPPlugin() {
@@ -52,7 +51,7 @@ class CursePublish: FPPlugin() {
                     }
                     addGameVersion(minecraft.mcVersion)
                     addGameVersion("Forge")
-                    mainArtifact(tasks.named<ReobfuscatedJar>("reobfJar").flatMap { it.archiveFile }.map { it.asFile }.get()) {
+                    mainArtifact(tasks.named<Jar>("jar").flatMap { it.archiveFile }.map { it.asFile }.get()) {
                         displayName = mc.mod.version.get()
                     }
 
