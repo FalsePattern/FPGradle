@@ -5,13 +5,17 @@ plugins {
 }
 
 group = "com.falsepattern"
-version = "0.1.2"
+version = "0.1.3"
 
 kotlin {
-    jvmToolchain(8)
+    jvmToolchain(21)
 }
 
 java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_21.majorVersion)
+        vendor = JvmVendorSpec.ADOPTIUM
+    }
     withSourcesJar()
     withJavadocJar()
 }
