@@ -37,10 +37,10 @@ class ModrinthPublish: FPPlugin() {
 
     override fun Project.onPluginPostInitBeforeDeps() {
         val projectId = mc.publish.modrinth.projectId
-        val token = System.getenv(mc.publish.modrinth.tokenEnv.get())
-        if (projectId.isPresent && token != null) {
+        val token = mc.publish.modrinth.tokenEnv.map { System.getenv(it) }
+        if (projectId.isPresent) {
             with(modrinth) {
-                this.token = token
+                this.token = token.orElse("")
                 this.projectId = projectId
                 versionNumber = mc.mod.version
                 versionType = mc.mod.version.map {
@@ -63,8 +63,10 @@ class ModrinthPublish: FPPlugin() {
             tasks.named("modrinth").configure {
                 dependsOn("build")
             }
-            tasks.named("publish").configure {
-                dependsOn("modrinth")
+            if (token.isPresent) {
+                tasks.named("publish").configure {
+                    dependsOn("modrinth")
+                }
             }
         }
     }

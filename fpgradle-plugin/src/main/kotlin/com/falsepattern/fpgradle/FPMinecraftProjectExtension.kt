@@ -68,7 +68,6 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
         tokens.version.convention("MOD_VERSION")
         tokens.rootPkg.convention("ROOT_PKG")
 
-        publish.releaseVersionEnv.convention("RELEASE_VERSION")
         publish.changelog.convention(project.provider {
             val changelogFile = project.file(System.getenv("CHANGELOG_FILE") ?: "CHANGELOG.md")
             if (changelogFile.exists())
@@ -207,7 +206,6 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     //region publish
     abstract class Publish: ExtensionAware {
         abstract val changelog: Property<String>
-        abstract val releaseVersionEnv: Property<String>
         abstract class Maven: ExtensionAware {
             abstract val repoUrl: Property<URI>
             abstract val repoName: Property<String>

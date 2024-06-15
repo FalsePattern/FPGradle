@@ -56,8 +56,8 @@ class MavenPublish: FPPlugin() {
                 maven {
                     url = mvn.repoUrl.get()
                     name = mvn.repoName.get()
-                    val user = System.getenv(mvn.userEnv.get())
-                    val pass = System.getenv(mvn.passEnv.get())
+                    val user = mvn.userEnv.map { System.getenv(it) }.orNull
+                    val pass = mvn.passEnv.map { System.getenv(it) }.orNull
                     if (user != null && pass != null) {
                         credentials {
                             username = user

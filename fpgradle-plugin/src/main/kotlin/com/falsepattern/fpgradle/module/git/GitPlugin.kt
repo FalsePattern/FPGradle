@@ -37,7 +37,7 @@ class GitPlugin: FPPlugin() {
     )
 
     override fun Project.onPluginInit() {
-        version = System.getenv(mc.publish.releaseVersionEnv.get()) ?: when(hasProperty("versionOverride")) {
+        version = System.getenv("RELEASE_VERSION") ?: when(hasProperty("versionOverride")) {
             true -> property("versionOverride")!!
             false -> autoVersion
         }

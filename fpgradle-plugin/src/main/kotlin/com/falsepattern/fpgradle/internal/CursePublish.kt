@@ -34,10 +34,10 @@ class CursePublish: FPPlugin() {
 
     override fun Project.onPluginPostInitBeforeDeps() {
         val projectId = mc.publish.curseforge.projectId
-        val token = System.getenv(mc.publish.curseforge.tokenEnv.get())
-        if (projectId.isPresent && token != null) {
+        val token = mc.publish.curseforge.tokenEnv.map { System.getenv(it) }
+        if (projectId.isPresent) {
             with(curseforge) {
-                apiKey = token
+                apiKey = token.getOrElse("")
                 project {
                     id = projectId.get()
                     changelogType = "markdown"
@@ -69,8 +69,10 @@ class CursePublish: FPPlugin() {
             tasks.named("curseforge").configure {
                 dependsOn("build")
             }
-            tasks.named("publish").configure {
-                dependsOn("curseforge")
+            if (token.isPresent) {
+                tasks.named("publish").configure {
+                    dependsOn("curseforge")
+                }
             }
         }
     }
