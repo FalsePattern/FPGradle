@@ -23,9 +23,13 @@
 
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.mc
+import com.falsepattern.fpgradle.FPPlugin
+import com.falsepattern.fpgradle.*
+import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
+import org.gradle.api.Plugin
+import org.gradle.api.Project
 import org.gradle.api.component.AdhocComponentWithVariants
 import org.gradle.api.component.ConfigurationVariantDetails
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
@@ -33,24 +37,25 @@ import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
+import kotlin.reflect.KClass
 
-class Shadow(ctx: ConfigurationContext): InitTask {
-    private val project = ctx.project
-    private val manifestAttributes = ctx.manifestAttributes
+class Shadow: FPPlugin() {
 
-    override fun init() {
+    override fun addPlugins() = listOf(ShadowPlugin::class)
+
+    override fun Project.onPluginInit() {
         setupShadowJarTask()
     }
 
-    override fun postInit() {
-        if (project.configurations.getByName("shadowImplementation").dependencies.isEmpty())
+    override fun Project.onPluginPostInitBeforeDeps() {
+        if (configurations.getByName("shadowImplementation").dependencies.isEmpty())
             return
 
         setupConfigCoupling()
         setupArtifactRouting()
     }
 
-    private fun setupShadowJarTask() = with(project) {
+    private fun Project.setupShadowJarTask() {
         configurations {
             create("shadowImplementation")
         }
@@ -97,7 +102,7 @@ class Shadow(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun setupConfigCoupling() = with(project) {
+    private fun Project.setupConfigCoupling() {
         configurations {
             for (classpath in classpaths) {
                 named(classpath).configure {
@@ -107,7 +112,7 @@ class Shadow(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun setupArtifactRouting() = with(project) {
+    private fun Project.setupArtifactRouting() {
         configurations {
             getByName("runtimeElements").outgoing.artifacts.clear()
             getByName("apiElements").outgoing.artifacts.clear()

@@ -23,22 +23,20 @@
 
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.ext
-import com.falsepattern.fpgradle.mc
-import org.gradle.api.plugins.JavaPluginExtension
+import com.falsepattern.fpgradle.FPPlugin
+import com.falsepattern.fpgradle.*
+import org.gradle.api.Project
 
-class SourcesPublish(ctx: ConfigurationContext): InitTask {
-    private val project = ctx.project
-
-    override fun postInit() = with(project) {
+class SourcesPublish: FPPlugin() {
+    override fun Project.onPluginPostInitBeforeDeps() {
         if (!mc.publish.maven.sources.get())
             return
 
-         val java = ext<JavaPluginExtension>()
         java.withSourcesJar()
 
         artifacts {
             add("archives", tasks.named("sourcesJar"))
         }
     }
+
 }

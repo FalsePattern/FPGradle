@@ -23,19 +23,15 @@
 
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.ext
-import com.falsepattern.fpgradle.mc
+import com.falsepattern.fpgradle.*
 import com.falsepattern.fpgradle.verifyPackage
-import org.gradle.api.tasks.SourceSetContainer
+import org.gradle.api.Project
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.*
 
-class ApiPackage(ctx: ConfigurationContext): InitTask {
-    private val project = ctx.project
-
-    override fun init(): Unit = with(project) {
+class ApiPackage: FPPlugin() {
+    override fun Project.onPluginInit() {
         tasks.register<Jar>("apiJar").configure {
-            val sourceSets = ext<SourceSetContainer>()
             val group = mc.mod.rootPkg.map { it.replace('.', '/') }.get()
             val pkgs = mc.api.packages.map { it.map { str -> str.replace('.', '/') } }.get()
             val pkgsNoRecurse = mc.api.packagesNoRecurse.map { it.map { str -> str.replace('.', '/') } }.get()
@@ -53,7 +49,7 @@ class ApiPackage(ctx: ConfigurationContext): InitTask {
                 for (pkg in pkgsNoRecurse)
                     include("$group/$pkg/*")
 
-    }
+            }
             from(sourceSets.getByName("main").resources.srcDirs) {
                 include("LICENSE")
             }
@@ -62,7 +58,7 @@ class ApiPackage(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    override fun postInit() = with(project) {
+    override fun Project.onPluginPostInitAfterDeps() {
         if (mc.api.packages.get().isEmpty() &&
             mc.api.packagesNoRecurse.get().isEmpty())
             return

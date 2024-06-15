@@ -23,18 +23,19 @@
 
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.ext
-import com.falsepattern.fpgradle.mc
-import com.falsepattern.fpgradle.modrinth
-import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
+import com.falsepattern.fpgradle.FPPlugin
+import com.falsepattern.fpgradle.*
+import com.modrinth.minotaur.Minotaur
 import com.modrinth.minotaur.dependencies.DependencyType.REQUIRED
 import com.modrinth.minotaur.dependencies.ModDependency
+import org.gradle.api.Project
 import org.gradle.kotlin.dsl.*
 
-class ModrinthPublish(ctx: ConfigurationContext): InitTask {
-    private val project = ctx.project
+class ModrinthPublish: FPPlugin() {
 
-    override fun postInit() = with(project) {
+    override fun addPlugins() = listOf(Minotaur::class)
+
+    override fun Project.onPluginPostInitBeforeDeps() {
         val projectId = mc.publish.modrinth.projectId
         val token = System.getenv(mc.publish.modrinth.tokenEnv.get())
         if (projectId.isPresent && token != null) {
@@ -51,7 +52,7 @@ class ModrinthPublish(ctx: ConfigurationContext): InitTask {
                 }
                 changelog = mc.publish.changelog
                 uploadFile.set(tasks.named("jar"))
-                gameVersions.add(ext<MinecraftExtension>().mcVersion)
+                gameVersions.add(minecraft.mcVersion)
                 loaders.add("forge")
                 for (dep in mc.publish.modrinth.dependencies.get()) {
                     dependencies.add(dep())

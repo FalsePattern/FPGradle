@@ -31,39 +31,35 @@ import kotlin.reflect.KClass
 
 abstract class FPPlugin: Plugin<Project> {
     final override fun apply(project: Project) {
-        internalOnPluginApply(project)
+        project.afterEvaluate { project.onPluginPostInitBeforeDeps() }
+        project.onPluginApplyBeforeDeps()
+
+        addPlugins().map{it.java}.forEach(project.pluginManager::apply)
+        addTasks().mapValues{it.value.java}.forEach { (s, clazz) -> project.tasks.create(s, clazz) }
+
+        project.onPluginApplyAfterDeps()
+        project.afterEvaluate { project.onPluginPostInitAfterDeps() }
+
         project.plugins.withType(javaClass, InternalOnPluginInitAction(project))
-        project.afterEvaluate(::internalOnPluginPostInit)
     }
 
-    open fun onPluginApply(project: Project) {}
+    open fun Project.onPluginApplyBeforeDeps() {}
 
-    open fun onPluginInit(project: Project) {}
+    open fun Project.onPluginApplyAfterDeps() {}
 
-    open fun onPluginPostInit(project: Project) {}
+    open fun Project.onPluginInit() {}
+
+    open fun Project.onPluginPostInitBeforeDeps() {}
+
+    open fun Project.onPluginPostInitAfterDeps() {}
 
     open fun addPlugins(): List<KClass<out Plugin<Project>>> = listOf()
 
     open fun addTasks(): Map<String, KClass<out Task>> = mapOf()
 
-    private fun internalOnPluginApply(project: Project) = with(project) {
-        addPlugins().map{it.java}.forEach(pluginManager::apply)
-        addTasks().mapValues{it.value.java}.forEach { (s, clazz) -> tasks.create(s, clazz) }
-
-        onPluginApply(project)
-    }
-
-    private fun internalOnPluginInit(project: Project) {
-        onPluginInit(project)
-    }
-
-    private fun internalOnPluginPostInit(project: Project) {
-        onPluginPostInit(project)
-    }
-
     class InternalOnPluginInitAction(private val project: Project): Action<FPPlugin> {
-        override fun execute(plugin: FPPlugin) {
-            plugin.internalOnPluginInit(project)
+        override fun execute(plugin: FPPlugin) = with(plugin) {
+            project.onPluginInit()
         }
 
     }

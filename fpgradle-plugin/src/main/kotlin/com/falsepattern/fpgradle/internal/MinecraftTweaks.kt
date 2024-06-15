@@ -26,30 +26,28 @@ package com.falsepattern.fpgradle.internal
 import com.falsepattern.fpgradle.*
 import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
+import org.gradle.api.Project
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.*
 import org.gradle.language.jvm.tasks.ProcessResources
 
-class MinecraftTweaks(ctx: ConfigurationContext): InitTask {
-    private val project = ctx.project
-    private val manifestAttributes = ctx.manifestAttributes
-    private val minecraft = project.ext<MinecraftExtension>()
+class MinecraftTweaks: FPPlugin() {
 
-    override fun init() {
+    override fun Project.onPluginInit() {
         jar()
     }
 
-    override fun postInit() {
+    override fun Project.onPluginPostInitAfterDeps() {
         validate()
     }
 
-    private fun validate() = with(project) {
+    private fun Project.validate() {
         if (mc.mod.rootPkg.isPresent)
             verifyPackage("", "mod -> group")
     }
 
-    private fun jar() = with(project) {
+    private fun Project.jar() {
         tasks {
             named<ProcessResources>("processResources").configure {
                 inputs.property("version", version)
@@ -104,7 +102,7 @@ class MinecraftTweaks(ctx: ConfigurationContext): InitTask {
                 }
             }
 
-            ext<BasePluginExtension>().archivesName = mc.publish.maven.artifact
+            base.archivesName = mc.publish.maven.artifact
         }
     }
 }

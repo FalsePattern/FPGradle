@@ -23,31 +23,25 @@
 
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.ext
-import com.falsepattern.fpgradle.mc
-import com.falsepattern.fpgradle.verifyClass
-import com.falsepattern.fpgradle.verifyFile
-import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
+import com.falsepattern.fpgradle.*
 import com.gtnewhorizons.retrofuturagradle.mcp.DeobfuscateTask
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
+import org.gradle.api.Project
 import org.gradle.kotlin.dsl.*
 
-class FMLTweaks(ctx: ConfigurationContext): InitTask {
-    private val project = ctx.project
-    private val manifestAttributes = ctx.manifestAttributes
-
-    override fun init() {
+class FMLTweaks: FPPlugin() {
+    override fun Project.onPluginInit() {
         coremodInit()
         accessTransformerInit()
     }
 
-    override fun postInit() {
+    override fun Project.onPluginPostInitBeforeDeps() {
         coreModPostInit()
         accessTransformerPostInit()
         runArgs()
     }
 
-    private fun runArgs() = with(project) {
+    private fun Project.runArgs() {
         tasks.named<RunMinecraftTask>("runClient") {
             username = mc.run.username.get()
             if (mc.run.userUUID.isPresent)
@@ -55,7 +49,7 @@ class FMLTweaks(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun coremodInit() = with(project) {
+    private fun Project.coremodInit() {
         manifestAttributes.putAll(provider {
             val res = HashMap<String, String>()
             with(mc) {
@@ -71,13 +65,13 @@ class FMLTweaks(ctx: ConfigurationContext): InitTask {
         })
     }
 
-    private fun coreModPostInit() = with(project) {
+    private fun Project.coreModPostInit() {
         if (!mc.core.coreModClass.isPresent)
             return
         verifyClass(mc.core.coreModClass.get(), "core -> coreModClass")
     }
 
-    private fun accessTransformerInit() = with(project) {
+    private fun Project.accessTransformerInit() {
         manifestAttributes.putAll(provider {
             val res = HashMap<String, String>()
             if (mc.core.accessTransformerFile.isPresent) {
@@ -87,21 +81,19 @@ class FMLTweaks(ctx: ConfigurationContext): InitTask {
         })
     }
 
-    private fun accessTransformerPostInit() = with(project) {
-        with(mc) {
-            if (!core.accessTransformerFile.isPresent)
-                return
-            for (atFile in core.accessTransformerFile.get().split(" ")) {
-                val targetFile = "src/main/resources/META-INF/${atFile.trim()}"
-                verifyFile(targetFile, "core -> accessTransformerFile")
+    private fun Project.accessTransformerPostInit() {
+        if (!mc.core.accessTransformerFile.isPresent)
+            return
+        for (atFile in mc.core.accessTransformerFile.get().split(" ")) {
+            val targetFile = "src/main/resources/META-INF/${atFile.trim()}"
+            verifyFile(targetFile, "core -> accessTransformerFile")
 
-                tasks {
-                    named<DeobfuscateTask>("deobfuscateMergedJarToSrg") {
-                        accessTransformerFiles.from(targetFile)
-                    }
-                    named<DeobfuscateTask>("srgifyBinpatchedJar") {
-                        accessTransformerFiles.from(targetFile)
-                    }
+            tasks {
+                named<DeobfuscateTask>("deobfuscateMergedJarToSrg") {
+                    accessTransformerFiles.from(targetFile)
+                }
+                named<DeobfuscateTask>("srgifyBinpatchedJar") {
+                    accessTransformerFiles.from(targetFile)
                 }
             }
         }

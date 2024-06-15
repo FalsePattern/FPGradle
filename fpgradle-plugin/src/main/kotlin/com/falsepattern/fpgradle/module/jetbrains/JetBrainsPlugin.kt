@@ -24,7 +24,7 @@
 package com.falsepattern.fpgradle.module.jetbrains
 
 import com.falsepattern.fpgradle.FPPlugin
-import com.falsepattern.fpgradle.ext
+import com.falsepattern.fpgradle.*
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.ExtensionAware
@@ -37,8 +37,7 @@ import org.jetbrains.gradle.ext.IdeaExtPlugin
 class JetBrainsPlugin: FPPlugin() {
     override fun addPlugins() = listOf(IdeaPlugin::class, IdeaExtPlugin::class)
 
-    override fun onPluginInit(project: Project): Unit = with(project) {
-        val idea = ext<IdeaModel>()
+    override fun Project.onPluginInit() {
         idea.module {
             isDownloadSources = true
             isDownloadJavadoc = true
@@ -54,21 +53,21 @@ class JetBrainsPlugin: FPPlugin() {
         }
     }
 
-    override fun onPluginPostInit(project: Project) {
-        noCachingOnRunButton(project)
+    override fun Project.onPluginPostInitBeforeDeps() {
+        noCachingOnRunButton()
     }
 
-    private fun noCachingOnRunButton(project: Project) = with(project) {
+    private fun Project.noCachingOnRunButton() {
         tasks {
             withType<JavaExec>().configureEach {
                 if (name.endsWith("main()"))
-                    markTaskNotCompatible(this)
+                    markNotCompatible()
             }
         }
     }
 
     companion object {
-        private fun markTaskNotCompatible(task: Task) = with(task) {
+        private fun Task.markNotCompatible() {
             notCompatibleWithConfigurationCache("""
                 |Work around for: https://github.com/gradle/gradle/issues/21364
                 |Caching issue when main() is called directly from IntelliJ

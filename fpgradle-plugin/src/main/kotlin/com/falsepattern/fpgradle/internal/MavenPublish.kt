@@ -23,18 +23,18 @@
 
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.ext
-import com.falsepattern.fpgradle.mc
+import com.falsepattern.fpgradle.FPPlugin
+import com.falsepattern.fpgradle.*
+import org.gradle.api.Project
 import org.gradle.api.credentials.PasswordCredentials
-import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.kotlin.dsl.*
 
-class MavenPublish(ctx: ConfigurationContext): InitTask {
-    private val project = ctx.project
-    private val publishing = project.ext<PublishingExtension>()
+class MavenPublish: FPPlugin() {
+    override fun addPlugins() = listOf(MavenPublishPlugin::class)
 
-    override fun postInit() = with(project) {
+    override fun Project.onPluginPostInitBeforeDeps() {
         val mvn = mc.publish.maven
         with(publishing) {
             publications {

@@ -24,7 +24,7 @@
 package com.falsepattern.fpgradle.module.lombok
 
 import com.falsepattern.fpgradle.FPPlugin
-import com.falsepattern.fpgradle.ext
+import com.falsepattern.fpgradle.*
 import io.freefair.gradle.plugins.lombok.LombokExtension
 import io.freefair.gradle.plugins.lombok.LombokPlugin
 import org.gradle.api.Project
@@ -36,7 +36,7 @@ class FPLombokPlugin: FPPlugin() {
 
     override fun addTasks() = mapOf(Pair("extractLombokConfig", ExtractLombokConfigTask::class))
 
-    override fun onPluginInit(project: Project): Unit = with(project) {
-        ext<LombokExtension>().version.convention("1.18.32")
+    override fun Project.onPluginInit() {
+        lombok.version.convention("1.18.32")
     }
 }

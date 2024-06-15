@@ -28,28 +28,27 @@ import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
 import com.gtnewhorizons.retrofuturagradle.modutils.ModUtils
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.*
 import org.gradle.api.plugins.JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME as ANNOTATION_PROCESSOR
 import org.gradle.api.plugins.JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME as IMPLEMENTATION
 
-class Mixins(ctx: ConfigurationContext): InitTask {
-    private val project = ctx.project
-    private val minecraft = project.ext<MinecraftExtension>()
-    private val mixinConfigRefMap = project.mc.mod.modid.map { "mixins.$it.refmap.json" }
-    private val manifestAttributes = ctx.manifestAttributes
+class Mixins: FPPlugin() {
+    private lateinit var mixinConfigRefMap: Provider<String>
 
-    override fun init() {
+    override fun Project.onPluginInit() {
+        mixinConfigRefMap = mc.mod.modid.map { "mixins.$it.refmap.json" }
         setupDependencies()
         setupGenerateMixinsTask()
         addMixinCommandLineArgs()
         setupManifestAttributes()
     }
 
-    override fun postInit() {
+    override fun Project.onPluginPostInitAfterDeps() {
         validate()
     }
 
-    private fun validate() = with(project) {
+    private fun Project.validate() {
         if (!mc.mixin.use)
             return
 
@@ -60,14 +59,14 @@ class Mixins(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun setupDependencies() = with(project) {
+    private fun Project.setupDependencies() {
         dependencies {
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "org.ow2.asm:asm-debug-all:5.0.3" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.guava:guava:24.1.1-jre" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.code.gson:gson:2.8.6" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { mixinProviderSpec })
             addProvider(IMPLEMENTATION, provideIfMixins(mc) {
-                project.ext<ModUtils>().enableMixins(mixinProviderSpec, mixinConfigRefMap.get())
+                modUtils.enableMixins(mixinProviderSpec, mixinConfigRefMap.get())
             })
 
             addProvider("runtimeOnlyNonPublishable", provider {
@@ -93,7 +92,7 @@ class Mixins(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun setupGenerateMixinsTask() = with(project) {
+    private fun Project.setupGenerateMixinsTask() {
         tasks {
             register("generateMixins").configure {
                 group = "falsepattern"
@@ -101,7 +100,7 @@ class Mixins(ctx: ConfigurationContext): InitTask {
                 onlyIf {
                     mc.mixin.use
                 }
-                doLast(::generateMixinConfigFile)
+                doLast { generateMixinConfigFile() }
             }
             named("processResources").configure {
                 dependsOn("generateMixins", "compileJava")
@@ -109,7 +108,7 @@ class Mixins(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun addMixinCommandLineArgs() = with(project) {
+    private fun Project.addMixinCommandLineArgs() {
         minecraft.extraRunJvmArguments.addAll(provider {
             if ((mc.mixin.use || mc.mixin.hasMixinDeps.get()) && mc.mixin.debug.get())
                 listOf(
@@ -122,7 +121,7 @@ class Mixins(ctx: ConfigurationContext): InitTask {
         })
     }
 
-    private fun setupManifestAttributes() = with(project) {
+    private fun Project.setupManifestAttributes() {
         manifestAttributes.putAll(provider {
             if (mc.mixin.use)
                 mapOf(Pair("TweakClass", "org.spongepowered.asm.launch.MixinTweaker"),
@@ -133,7 +132,7 @@ class Mixins(ctx: ConfigurationContext): InitTask {
         })
     }
 
-    private fun generateMixinConfigFile(task: Task) = with(task.project) {
+    private fun Task.generateMixinConfigFile() = with(project) {
         val mixinConfigFile = file("src/main/resources/mixins.${mc.mod.modid.get()}.json")
         if (!mixinConfigFile.exists()) {
             val mixinPluginLine = if (mc.mixin.pluginClass.isPresent)

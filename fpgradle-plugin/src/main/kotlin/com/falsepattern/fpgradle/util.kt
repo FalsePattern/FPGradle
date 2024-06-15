@@ -23,8 +23,6 @@
 
 package com.falsepattern.fpgradle
 
-import com.matthewprenger.cursegradle.CurseExtension
-import com.modrinth.minotaur.ModrinthExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.provider.ValueSource
@@ -57,14 +55,6 @@ fun <T, P: ValueSourceParameters> Project.getValueSource(sourceType: KClass<out 
     providers.of(sourceType.java) {
         configuration(parameters)
     }
-
-inline fun <reified T : Any> Project.ext(): T = extensions.getByType<T>()
-
-val Project.mc: FPMinecraftProjectExtension get() = ext<FPMinecraftProjectExtension>()
-
-val Project.curseforge: CurseExtension get() = ext<CurseExtension>()
-
-val Project.modrinth: ModrinthExtension get() = ext<ModrinthExtension>()
 
 private val javaSourceDir = "src/main/java"
 

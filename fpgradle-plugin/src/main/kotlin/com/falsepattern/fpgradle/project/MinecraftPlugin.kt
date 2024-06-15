@@ -26,52 +26,50 @@ package com.falsepattern.fpgradle.project
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.internal.*
-import com.falsepattern.fpgradle.mc
+import com.falsepattern.fpgradle.*
 import com.falsepattern.fpgradle.module.git.GitPlugin
 import com.falsepattern.fpgradle.module.jetbrains.JetBrainsPlugin
 import com.falsepattern.fpgradle.module.lombok.FPLombokPlugin
 import com.falsepattern.jtweaker.JTweakerPlugin
-import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.gtnewhorizons.retrofuturagradle.UserDevPlugin
-import com.matthewprenger.cursegradle.CurseGradlePlugin
-import com.modrinth.minotaur.Minotaur
 import io.github.legacymoddingmc.mappinggenerator.MappingGeneratorPlugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 import org.gradle.kotlin.dsl.*
 
 class MinecraftPlugin: FPPlugin() {
-    private lateinit var tasks: List<InitTask>
-
     override fun addPlugins() = listOf(
         JavaPlugin::class,
         UserDevPlugin::class,
-        ShadowPlugin::class,
-        MavenPublishPlugin::class,
         MappingGeneratorPlugin::class,
         JTweakerPlugin::class,
-        GitPlugin::class,
+
         FPLombokPlugin::class,
         JetBrainsPlugin::class,
-        CurseGradlePlugin::class,
-        Minotaur::class,
+        GitPlugin::class,
+
+        NonPublishable::class,
+
+        ModernJavaTweaks::class,
+        MinecraftTweaks::class,
+        FMLTweaks::class,
+        Mixins::class,
+
+        SourcesPublish::class,
+        ApiPackage::class,
+        Shadow::class,
+
+        MavenPublish::class,
+        CursePublish::class,
+        ModrinthPublish::class,
     )
 
-    override fun onPluginInit(project: Project): Unit {
-        val ctx = ConfigurationContext(project)
-
-        project.extensions.create("minecraft_fp", FPMinecraftProjectExtension::class, project)
-
-        tasks = listOf(NonPublishable(ctx), ModernJavaTweaks(ctx), MinecraftTweaks(ctx), FMLTweaks(ctx), Mixins(ctx),
-            ApiPackage(ctx), Shadow(ctx), SourcesPublish(ctx), MavenPublish(ctx), CursePublish(ctx), ModrinthPublish(ctx),
-            CommonDeps(ctx))
-
-        tasks.forEach(InitTask::init)
+    override fun Project.onPluginApplyBeforeDeps() {
+        extensions.add("fp_ctx_internal", project.objects.mapProperty<String, String>())
+        extensions.create("minecraft_fp", FPMinecraftProjectExtension::class, project)
     }
 
-    override fun onPluginPostInit(project: Project) = with(project) {
-        this@MinecraftPlugin.tasks.forEach(InitTask::postInit)
+    override fun Project.onPluginPostInitAfterDeps() {
         if (!mc.mod.name.isPresent)
             System.err.println("Missing configuration: MC -> mod -> name")
         if (!mc.mod.modid.isPresent)

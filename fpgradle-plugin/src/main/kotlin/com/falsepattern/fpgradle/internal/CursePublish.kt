@@ -23,15 +23,16 @@
 
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.curseforge
-import com.falsepattern.fpgradle.ext
-import com.falsepattern.fpgradle.mc
+import com.falsepattern.fpgradle.FPPlugin
+import com.falsepattern.fpgradle.*
 import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
+import com.matthewprenger.cursegradle.CurseGradlePlugin
+import org.gradle.api.Project
 
-class CursePublish(ctx: ConfigurationContext): InitTask {
-    private val project = ctx.project
+class CursePublish: FPPlugin() {
+    override fun addPlugins() = listOf(CurseGradlePlugin::class)
 
-    override fun postInit() = with(project) {
+    override fun Project.onPluginPostInitBeforeDeps() {
         val projectId = mc.publish.curseforge.projectId
         val token = System.getenv(mc.publish.curseforge.tokenEnv.get())
         if (projectId.isPresent && token != null) {
@@ -47,7 +48,7 @@ class CursePublish(ctx: ConfigurationContext): InitTask {
                         version.contains("-b") -> "beta"
                         else -> "release"
                     }
-                    addGameVersion(ext<MinecraftExtension>().mcVersion)
+                    addGameVersion(minecraft.mcVersion)
                     addGameVersion("Forge")
                     mainArtifact(tasks.named("jar")) {
                         displayName = mc.mod.version.get()

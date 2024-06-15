@@ -25,8 +25,8 @@ package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.Compatibility.*
-import com.falsepattern.fpgradle.ext
-import com.falsepattern.fpgradle.mc
+import com.falsepattern.fpgradle.FPPlugin
+import com.falsepattern.fpgradle.*
 import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
 import com.gtnewhorizons.retrofuturagradle.mcp.MCPTasks
 import com.gtnewhorizons.retrofuturagradle.minecraft.MinecraftTasks
@@ -48,14 +48,8 @@ import java.nio.charset.StandardCharsets
 import org.gradle.api.plugins.JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME as ANNOTATION_PROCESSOR
 import org.gradle.api.plugins.JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME as COMPILE_ONLY
 
-class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
-    private val project = ctx.project
-    private val minecraft = project.ext<MinecraftExtension>()
-    private val mcTasks = project.ext<MinecraftTasks>()
-    private val java = project.ext<JavaPluginExtension>()
-    private val mGen = project.ext<MappingGeneratorExtension>()
-
-    override fun init() = with(project) {
+class ModernJavaTweaks: FPPlugin() {
+    override fun Project.onPluginInit() {
         tweakMappingGenerator()
         minecraft.injectMissingGenerics = true
         tasks.withType<JavaCompile>().configureEach {
@@ -63,9 +57,9 @@ class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    override fun postInit() = with(project) {
+    override fun Project.onPluginPostInitBeforeDeps() {
         when(mc.java.compatibility.get()) {
-            LegacyJava, null -> {
+            LegacyJava -> {
                 setToolchainVersionLegacy()
             }
             Jabel -> {
@@ -82,12 +76,12 @@ class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun setToolchainVersionLegacy() = with(project) {
+    private fun Project.setToolchainVersionLegacy() {
         java.toolchain.languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_1_8.majorVersion)
         java.toolchain.vendor = JvmVendorSpec.ADOPTIUM
     }
 
-    private fun setToolchainVersionJabel() = with(project) {
+    private fun Project.setToolchainVersionJabel() {
         repositories {
             exclusiveContent {
                 forRepositories(repositories.mavenCentral {
@@ -127,7 +121,7 @@ class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun setToolchainVersionModern() = with(project) {
+    private fun Project.setToolchainVersionModern() {
         java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
         java.toolchain.vendor = JvmVendorSpec.ADOPTIUM
         val modernCompiler = toolchains.compilerFor(java.toolchain)
@@ -138,8 +132,8 @@ class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun setupJavaConfigsModern() {
-        with(project.configurations) {
+    private fun Project.setupJavaConfigsModern() {
+        with(configurations) {
             val modernJavaDependencies = create(MODERN_DEPS)
             create(MODERN_PATCH_DEPS)
             val modernJavaPatchDependencies = create(MODERN_PATCH_DEPS_COMPILE_ONLY)
@@ -152,10 +146,10 @@ class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun swapLWJGLVersionModern() = with(project) {
+    private fun Project.swapLWJGLVersionModern() {
         with(configurations) {
             getByName("compileOnly") {
-                extendsFrom(mcTasks.lwjgl3Configuration)
+                extendsFrom(minecraftTasks.lwjgl3Configuration)
             }
             getByName("compileClasspath") {
                 exclude(mapOf(Pair("group", "org.lwjgl.lwjgl")))
@@ -163,7 +157,7 @@ class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun injectLWJGL3ifyModern() = with(project) {
+    private fun Project.injectLWJGL3ifyModern() {
         repositories {
             maven {
                 name = "fpgradle"
@@ -208,8 +202,8 @@ class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun tweakMappingGenerator() {
-        mGen.sources = listOf(
+    private fun Project.tweakMappingGenerator() {
+        mappingGenerator.sources = listOf(
             listOf("yarn", "1.7.10+build.533"),
             listOf("mcp", "1.8.9", "stable_22", "parameters"),
             listOf("mcp", "1.12", "stable_39", "parameters"),
@@ -219,10 +213,9 @@ class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
         )
     }
 
-    private fun modifyMinecraftRunTaskModern(taskName: String, side: Distribution) = with(project) {
+    private fun Project.modifyMinecraftRunTaskModern(taskName: String, side: Distribution) {
         tasks.named<RunMinecraftTask>(taskName).configure {
             lwjglVersion = 3
-            val java = project.ext<JavaPluginExtension>()
             javaLauncher = toolchains.launcherFor(java.toolchain)
             extraJvmArgs.addAll(javaArgs)
             systemProperty("gradlestart.bouncerClient", "com.gtnewhorizons.retrofuturabootstrap.Main")
@@ -237,7 +230,6 @@ class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
             setClasspath(files())
             classpath(modernJavaPatchDependencies)
             if (side == Distribution.CLIENT) {
-                val minecraftTasks = project.ext<MinecraftTasks>()
                 classpath(minecraftTasks.lwjgl3Configuration)
             }
             classpath(modernJavaDependenciesCombined)
@@ -295,7 +287,5 @@ class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
                     action(this)
             }
         }
-
-        private val Project.toolchains: JavaToolchainService get() = ext<JavaToolchainService>()
     }
 }

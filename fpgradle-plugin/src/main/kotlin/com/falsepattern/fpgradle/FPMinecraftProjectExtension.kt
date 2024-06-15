@@ -38,17 +38,17 @@ import org.intellij.lang.annotations.Language
 import java.net.URI
 import java.util.UUID
 
-@Suppress("unused")
+@Suppress("unused", "LeakingThis")
 abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware {
-    init { with(project) {
+    init {
         java.compatibility.convention(Java.Compatibility.LegacyJava)
         java.version.convention(java.compatibility.map { when(it) {
-            Java.Compatibility.LegacyJava, null -> JavaVersion.VERSION_1_8
+            Java.Compatibility.LegacyJava -> JavaVersion.VERSION_1_8
             Java.Compatibility.Jabel -> JavaVersion.VERSION_17
             Java.Compatibility.ModernJava -> JavaVersion.VERSION_21
         } })
 
-        mod.version.convention(provider { version.toString() })
+        mod.version.convention(project.provider { project.version.toString() })
 
         run.username.convention("Developer")
 
@@ -68,8 +68,9 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
         tokens.version.convention("MOD_VERSION")
         tokens.rootPkg.convention("ROOT_PKG")
 
-        publish.changelog.convention(provider {
-            val changelogFile = file(System.getenv("CHANGELOG_FILE") ?: "CHANGELOG.md")
+        publish.releaseVersionEnv.convention("RELEASE_VERSION")
+        publish.changelog.convention(project.provider {
+            val changelogFile = project.file(System.getenv("CHANGELOG_FILE") ?: "CHANGELOG.md")
             if (changelogFile.exists())
                 changelogFile.readText()
             else
@@ -77,7 +78,7 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
         })
 
         publish.maven.sources.convention(true)
-        publish.maven.group.convention(provider { group.toString() })
+        publish.maven.group.convention(project.provider { project.group.toString() })
         publish.maven.artifact.convention(mod.modid.map { "$it-mc1.7.10" })
         publish.maven.version.convention(mod.version)
         publish.maven.userEnv.convention("MAVEN_DEPLOY_USER")
@@ -85,7 +86,7 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
 
         publish.curseforge.tokenEnv.convention("CURSEFORGE_TOKEN")
         publish.modrinth.tokenEnv.convention("MODRINTH_TOKEN")
-    } }
+    }
 
     //region java
     abstract class Java: ExtensionAware {
@@ -206,6 +207,7 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     //region publish
     abstract class Publish: ExtensionAware {
         abstract val changelog: Property<String>
+        abstract val releaseVersionEnv: Property<String>
         abstract class Maven: ExtensionAware {
             abstract val repoUrl: Property<URI>
             abstract val repoName: Property<String>

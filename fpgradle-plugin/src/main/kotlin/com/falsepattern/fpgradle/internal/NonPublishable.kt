@@ -23,10 +23,11 @@
 
 package com.falsepattern.fpgradle.internal
 
-class NonPublishable(ctx: ConfigurationContext): InitTask {
-    val project = ctx.project
+import com.falsepattern.fpgradle.FPPlugin
+import org.gradle.api.Project
 
-    override fun init(): Unit = with(project) {
+class NonPublishable: FPPlugin() {
+    override fun Project.onPluginInit() {
         with(configurations) {
             val devOnlyNonPublishable = create("devOnlyNonPublishable") {
                 description = "Runtime and compiletime dependencies that are not published alongside the jar (compileOnly + runtimeOnlyNonPublishable)"
