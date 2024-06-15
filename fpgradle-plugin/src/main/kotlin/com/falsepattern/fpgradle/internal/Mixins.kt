@@ -73,7 +73,7 @@ class Mixins(ctx: ConfigurationContext): InitTask {
     private fun setupGenerateMixinsTask() = with(project) {
         tasks {
             register("generateMixins").configure {
-                group = "FPGradle"
+                group = "falsepattern"
                 description = "Generates a mixin config file at /src/main/resources/mixins.modid.json if needed"
                 onlyIf {
                     mc.mixin.use

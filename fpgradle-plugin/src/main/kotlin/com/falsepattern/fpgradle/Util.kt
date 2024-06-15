@@ -7,6 +7,7 @@ import org.gradle.api.Project
 import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.kotlin.dsl.*
+import java.io.InputStream
 import java.lang.StringBuilder
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -60,4 +61,8 @@ fun Project.verifyClass(theClass: String, propName: String) {
 fun Project.verifyFile(theFile: String, propName: String) {
     if (!file(theFile).exists())
         throw GradleException("Could not resolve \"$propName\"! Could not find $theFile")
+}
+
+fun getJarResource(resourceName: String): InputStream? {
+    return FPPlugin::class.java.classLoader.getResourceAsStream("fpgradle/$resourceName")
 }

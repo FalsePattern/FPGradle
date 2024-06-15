@@ -4,9 +4,16 @@ import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.currentTimestamp
 import com.falsepattern.fpgradle.getValueSource
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.kotlin.dsl.assign
+import kotlin.reflect.KClass
 
 class GitPlugin: FPPlugin() {
+    override fun addTasks() = mapOf(
+        Pair("extractGitIgnore", ExtractGitIgnoreTask::class),
+        Pair("extractGitAttributes", ExtractGitAttributesTask::class),
+    )
+
     private fun getGitTagVersion(project: Project): GitTagVersion? {
         var gitRepoDir = project.rootDir
         if (!gitRepoDir.resolve(".git").exists()) {

@@ -1,4 +1,4 @@
-package com.falsepattern.fpgradle.plugin
+package com.falsepattern.fpgradle.project
 
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.FPPlugin
@@ -6,6 +6,7 @@ import com.falsepattern.fpgradle.internal.*
 import com.falsepattern.fpgradle.mc
 import com.falsepattern.fpgradle.module.git.GitPlugin
 import com.falsepattern.fpgradle.module.jetbrains.JetBrainsPlugin
+import com.falsepattern.fpgradle.module.lombok.FPLombokPlugin
 import com.falsepattern.jtweaker.JTweakerPlugin
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.gtnewhorizons.retrofuturagradle.UserDevPlugin
@@ -28,6 +29,7 @@ class MinecraftPlugin: FPPlugin() {
         MappingGeneratorPlugin::class,
         JTweakerPlugin::class,
         GitPlugin::class,
+        FPLombokPlugin::class,
         JetBrainsPlugin::class,
         CurseGradlePlugin::class,
         Minotaur::class,
