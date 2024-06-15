@@ -7,7 +7,9 @@ plugins {
 group = "com.falsepattern"
 version = "1.0-SNAPSHOT"
 
-
+kotlin {
+    jvmToolchain(21)
+}
 
 repositories {
     maven {
@@ -63,7 +65,7 @@ Unit = { pluginID: String, pluginClass: String ->
         id = pluginID
         group = project.group
         version = project.version
-        implementationClass = "com.falsepattern.fpgradle.plugin.$pluginClass"
+        implementationClass = "com.falsepattern.fpgradle.project.$pluginClass"
     }
 }
 
@@ -71,7 +73,21 @@ gradlePlugin {
     plugins.add("fpgradle-minecraft", "MinecraftPlugin")
 }
 
-
-kotlin {
-    jvmToolchain(21)
+publishing {
+    repositories {
+        maven {
+            name = "fpgradle"
+            url = uri("https://mvn.falsepattern.com/fpgradle/")
+            val user = System.getenv("MAVEN_DEPLOY_USER")
+            val pass = System.getenv("MAVEN_DEPLOY_PASSWORD")
+            if (user != null && pass != null) {
+                credentials {
+                    username = user
+                    password = pass
+                }
+            } else {
+                credentials(PasswordCredentials::class)
+            }
+        }
+    }
 }
