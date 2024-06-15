@@ -43,7 +43,7 @@ minecraft_fp {
 //        containsMixinsAndOrCoreModOnly = false       //Convention
 //    }
 
-    // OPTIONAL
+    // optional
     // Extra settings for shadowed dependencies
 //    shadow {
 //        minimize = false //Convention
@@ -66,6 +66,7 @@ minecraft_fp {
 //        // optional
 //        // If not set, tries to read CHANGELOG.md (or the file specified in the CHANGELOG_FILE env var, if set)
 //        changelog = "https://github.com/myname/mymod/releases/tag/{version}"
+//
 //        // optional
 //        maven {
 //            repoUrl  = "https://example.com/"
