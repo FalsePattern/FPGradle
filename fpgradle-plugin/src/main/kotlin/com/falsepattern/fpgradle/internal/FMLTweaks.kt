@@ -1,15 +1,15 @@
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.FPMinecraftProjectExtension
+import com.falsepattern.fpgradle.mc
 import com.falsepattern.fpgradle.resolvePath
+import com.falsepattern.fpgradle.verifyClass
+import com.falsepattern.fpgradle.verifyFile
 import com.gtnewhorizons.retrofuturagradle.mcp.DeobfuscateTask
-import org.gradle.api.GradleException
 import org.gradle.kotlin.dsl.*
 
 class FMLTweaks(ctx: ConfigurationContext): InitTask {
     private val project = ctx.project
     private val manifestAttributes = ctx.manifestAttributes
-    private val mc = project.extensions.getByType<FPMinecraftProjectExtension>()
 
     override fun init() {
         coremodInit()
@@ -23,12 +23,12 @@ class FMLTweaks(ctx: ConfigurationContext): InitTask {
         manifestAttributes.putAll(provider {
             val res = HashMap<String, String>()
             with(mc) {
-                if (!containsMixinsAndOrCoreModOnly.get() && (usesMixins.get() || coreModClass.isPresent)) {
+                if (!mc.core.containsMixinsAndOrCoreModOnly.get() && (mc.mixin.use || mc.core.coreModClass.isPresent)) {
                     res["FMLCorePluginContainsFMLMod"] = "true"
                 }
 
-                if (coreModClass.isPresent) {
-                    res["FMLCorePlugin"] = "${modGroup.get()}.${coreModClass.get()}"
+                if (mc.core.coreModClass.isPresent) {
+                    res["FMLCorePlugin"] = "${mod.group.get()}.${mc.core.coreModClass.get()}"
                 }
             }
             res
@@ -36,18 +36,16 @@ class FMLTweaks(ctx: ConfigurationContext): InitTask {
     }
 
     private fun coreModPostInit() = with(project) {
-        if (!mc.coreModClass.isPresent)
+        if (!mc.core.coreModClass.isPresent)
             return
-        val targetFile = "${resolvePath("${mc.modGroup.get()}.${mc.coreModClass.get()}")}.java"
-        if (!project.file(targetFile).exists())
-            throw GradleException("Could not resolve \"coreModClass\"! Could not find $targetFile")
+        verifyClass(mc.core.coreModClass.get(), "core -> coreModClass")
     }
 
     private fun accessTransformerInit() = with(project) {
         manifestAttributes.putAll(provider {
             val res = HashMap<String, String>()
-            if (mc.accessTransformersFile.isPresent) {
-                res["FMLAT"] = mc.accessTransformersFile.get()
+            if (mc.core.accessTransformerFile.isPresent) {
+                res["FMLAT"] = mc.core.accessTransformerFile.get()
             }
             res
         })
@@ -55,12 +53,11 @@ class FMLTweaks(ctx: ConfigurationContext): InitTask {
 
     private fun accessTransformerPostInit() = with(project) {
         with(mc) {
-            if (!accessTransformersFile.isPresent)
+            if (!core.accessTransformerFile.isPresent)
                 return
-            for (atFile in accessTransformersFile.get().split(" ")) {
+            for (atFile in core.accessTransformerFile.get().split(" ")) {
                 val targetFile = "src/main/resources/META-INF/${atFile.trim()}"
-                if (!file(targetFile).exists())
-                    throw GradleException("Could not resolve \"accessTransformersFile\"! Could not find $targetFile")
+                verifyFile(targetFile, "core -> accessTransformerFile")
 
                 tasks {
                     named<DeobfuscateTask>("deobfuscateMergedJarToSrg") {

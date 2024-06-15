@@ -1,10 +1,8 @@
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.FPMinecraftProjectExtension
-import com.falsepattern.fpgradle.resolvePath
+import com.falsepattern.fpgradle.*
 import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
-import org.gradle.api.GradleException
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.*
@@ -13,8 +11,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 class MinecraftTweaks(ctx: ConfigurationContext): InitTask {
     private val project = ctx.project
     private val manifestAttributes = ctx.manifestAttributes
-    private val mc = project.extensions.getByType<FPMinecraftProjectExtension>()
-    private val minecraft = project.extensions.getByType<MinecraftExtension>()
+    private val minecraft = project.ext<MinecraftExtension>()
 
     override fun init() {
         jar()
@@ -25,9 +22,8 @@ class MinecraftTweaks(ctx: ConfigurationContext): InitTask {
     }
 
     private fun validate() = with(project) {
-        val modGroupPath = resolvePath(mc.modGroup.get())
-        if (!file(modGroupPath).exists())
-            throw GradleException("Could not resolve \"modGroup\"! Could not find $modGroupPath")
+        if (mc.mod.group.isPresent)
+            verifyPackage("", "mod -> group")
     }
 
     private fun jar() = with(project) {
@@ -39,23 +35,44 @@ class MinecraftTweaks(ctx: ConfigurationContext): InitTask {
                     expand(mapOf(
                         Pair("minecraftVersion", minecraft.mcVersion.get()),
                         Pair("modVersion", project.version),
-                        Pair("modId", mc.modId.get()),
-                        Pair("modName", mc.modName.get())
+                        Pair("modId", mc.mod.id.get()),
+                        Pair("modName", mc.mod.name.get())
                     ))
                 }
             }
+
             minecraft.injectedTags.putAll(provider {
-                if (mc.generateGradleTokenClass.isPresent && mc.gradleTokenVersion.isPresent)
-                    mapOf(Pair(mc.gradleTokenVersion.get(), version))
-                else
-                    mapOf()
+                if (mc.token.tokenClass.isPresent) {
+                    val result = HashMap<String, String>()
+
+                    if (mc.token.modId.isPresent)
+                        result[mc.token.modId.get()] = mc.mod.id.get()
+
+                    if (mc.token.modName.isPresent)
+                        result[mc.token.modName.get()] = mc.mod.name.get()
+
+                    if (mc.token.version.isPresent)
+                        result[mc.token.version.get()] = mc.mod.version.get()
+
+                    if (mc.token.groupName.isPresent)
+                        result[mc.token.groupName.get()] = mc.mod.group.get()
+
+                    result
+                } else mapOf()
             })
 
             named<InjectTagsTask>("injectTags").configure {
-                inputs.property("tokenClass", mc.generateGradleTokenClass.get())
-                inputs.property("tokenVersion", mc.gradleTokenVersion.get())
-                if (mc.generateGradleTokenClass.isPresent)
-                    outputClassName = mc.generateGradleTokenClass.map { "${mc.modGroup.get()}.$it" }
+                inputs.property("tokenId", mc.token.modId.get())
+                inputs.property("tokenName", mc.token.modName.get())
+                inputs.property("tokenVersion", mc.token.version.get())
+                inputs.property("tokenGroup", mc.token.groupName.get())
+                if (mc.token.tokenClass.isPresent) {
+                    inputs.property("tokenClass", mc.token.tokenClass.get())
+                    outputClassName = mc.token.tokenClass.map { "${mc.mod.group.get()}.$it" }
+                }
+                onlyIf {
+                    mc.token.tokenClass.isPresent
+                }
             }
 
             named<Jar>("jar").configure {
@@ -64,7 +81,7 @@ class MinecraftTweaks(ctx: ConfigurationContext): InitTask {
                 }
             }
 
-            extensions.getByType<BasePluginExtension>().archivesName = mc.modId
+            ext<BasePluginExtension>().archivesName = mc.mod.id
         }
     }
 }

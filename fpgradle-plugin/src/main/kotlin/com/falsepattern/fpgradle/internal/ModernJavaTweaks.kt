@@ -1,46 +1,121 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension
+import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.Compatibility.*
+import com.falsepattern.fpgradle.ext
+import com.falsepattern.fpgradle.mc
 import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
+import com.gtnewhorizons.retrofuturagradle.mcp.MCPTasks
 import com.gtnewhorizons.retrofuturagradle.minecraft.MinecraftTasks
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import com.gtnewhorizons.retrofuturagradle.util.Distribution
 import io.github.legacymoddingmc.mappinggenerator.MappingGeneratorExtension
+import org.gradle.api.JavaVersion
+import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.artifacts.ExternalModuleDependency
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JavaToolchainService
+import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
+import java.nio.charset.StandardCharsets
+import org.gradle.api.plugins.JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME as ANNOTATION_PROCESSOR
+import org.gradle.api.plugins.JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME as COMPILE_ONLY
 
-class RFGTweaks(ctx: ConfigurationContext): InitTask {
+class ModernJavaTweaks(ctx: ConfigurationContext): InitTask {
     private val project = ctx.project
-    private val minecraft = project.extensions.getByType<MinecraftExtension>()
-    private val mcTasks = project.extensions.getByType<MinecraftTasks>()
-    private val mc = project.extensions.getByType<FPMinecraftProjectExtension>()
-    private val java = project.extensions.getByType<JavaPluginExtension>()
-    private val mGen = project.extensions.getByType<MappingGeneratorExtension>()
+    private val minecraft = project.ext<MinecraftExtension>()
+    private val mcTasks = project.ext<MinecraftTasks>()
+    private val java = project.ext<JavaPluginExtension>()
+    private val mGen = project.ext<MappingGeneratorExtension>()
 
-    override fun init() {
-        setToolchainVersion()
-        setupModernJavaConfigs()
-        swapLWJGLVersion()
-        injectLWJGL3ify()
+    override fun init() = with(project) {
         tweakMappingGenerator()
-        modifyMinecraftRunTask("runClient", Distribution.CLIENT)
-        modifyMinecraftRunTask("runServer", Distribution.DEDICATED_SERVER)
         minecraft.injectMissingGenerics = true
-    }
-
-    private fun setToolchainVersion() {
-        java.toolchain.languageVersion = mc.javaVersion.map { JavaLanguageVersion.of(it.majorVersion) }
-        val javaToolchains = project.extensions.getByType<JavaToolchainService>()
-        project.tasks.named<JavaCompile>("compileMcLauncherJava").configure {
-            javaCompiler = javaToolchains.compilerFor(java.toolchain)
+        tasks.withType<JavaCompile>().configureEach {
+            options.encoding = StandardCharsets.UTF_8.name()
         }
     }
 
-    private fun setupModernJavaConfigs() {
+    override fun postInit() = with(project) {
+        when(mc.java.compatibility.get()) {
+            LegacyJava, null -> {
+                setToolchainVersionLegacy()
+            }
+            Jabel -> {
+                setToolchainVersionJabel()
+            }
+            ModernJava -> {
+                setToolchainVersionModern()
+                setupJavaConfigsModern()
+                swapLWJGLVersionModern()
+                injectLWJGL3ifyModern()
+                modifyMinecraftRunTaskModern("runClient", Distribution.CLIENT)
+                modifyMinecraftRunTaskModern("runServer", Distribution.DEDICATED_SERVER)
+            }
+        }
+    }
+
+    private fun setToolchainVersionLegacy() = with(project) {
+        java.toolchain.languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_1_8.majorVersion)
+        java.toolchain.vendor = JvmVendorSpec.ADOPTIUM
+    }
+
+    private fun setToolchainVersionJabel() = with(project) {
+        repositories {
+            exclusiveContent {
+                forRepositories(repositories.mavenCentral {
+                    name = "mavenCentral_java8Unsupported"
+                })
+                filter {
+                    includeGroup("me.eigenraven.java8unsupported")
+                }
+            }
+            maven {
+                name = "horizon"
+                url = uri("https://mvn.falsepattern.com/horizon/")
+                content {
+                    includeModule("com.github.bsideup.jabel", "jabel-javac-plugin")
+                }
+            }
+        }
+        dependencies {
+            add(ANNOTATION_PROCESSOR, JABEL)
+            add(COMPILE_ONLY, JABEL) {
+                isTransitive = false
+            }
+            // Workaround for https://github.com/bsideup/jabel/issues/174
+            add(ANNOTATION_PROCESSOR, "net.java.dev.jna:jna-platform:5.13.0")
+            // Allow using jdk.unsupported classes like sun.misc.Unsafe in the compiled code, working around
+            // JDK-8206937.
+            add(MCPTasks.PATCHED_MINECRAFT_CONFIGURATION_NAME, "me.eigenraven.java8unsupported:java-8-unsupported-shim:1.0.0")
+        }
+        java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
+        java.toolchain.vendor = JvmVendorSpec.ADOPTIUM
+
+        val jabelCompiler = toolchains.compilerFor(java.toolchain)
+        tasks.withType<JavaCompile>().configureEachFiltered {
+            sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
+            options.release = 8
+            javaCompiler = jabelCompiler
+        }
+    }
+
+    private fun setToolchainVersionModern() = with(project) {
+        java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
+        java.toolchain.vendor = JvmVendorSpec.ADOPTIUM
+        val modernCompiler = toolchains.compilerFor(java.toolchain)
+        project.tasks.withType<JavaCompile>().configureEachFiltered {
+            sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
+            options.release = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }.get().asInt()
+            javaCompiler = modernCompiler
+        }
+    }
+
+    private fun setupJavaConfigsModern() {
         with(project.configurations) {
             val modernJavaDependencies = create(MODERN_DEPS)
             create(MODERN_PATCH_DEPS)
@@ -54,7 +129,7 @@ class RFGTweaks(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun swapLWJGLVersion() = with(project) {
+    private fun swapLWJGLVersionModern() = with(project) {
         with(configurations) {
             getByName("compileOnly") {
                 extendsFrom(mcTasks.lwjgl3Configuration)
@@ -65,7 +140,7 @@ class RFGTweaks(ctx: ConfigurationContext): InitTask {
         }
     }
 
-    private fun injectLWJGL3ify() = with(project) {
+    private fun injectLWJGL3ifyModern() = with(project) {
         repositories {
             maven {
                 name = "fpgradle"
@@ -77,6 +152,7 @@ class RFGTweaks(ctx: ConfigurationContext): InitTask {
                 content {
                     includeGroupAndSubgroups("com.gtnewhorizons")
                     includeGroupAndSubgroups("com.github.GTNewHorizons")
+                    includeModule("com.github.bsideup.jabel", "jabel-javac-plugin")
                     includeModule("org.jetbrains", "intellij-fernflower")
                 }
             }
@@ -120,15 +196,16 @@ class RFGTweaks(ctx: ConfigurationContext): InitTask {
         )
     }
 
-    private fun modifyMinecraftRunTask(taskName: String, side: Distribution) = with(project) {
+    private fun modifyMinecraftRunTaskModern(taskName: String, side: Distribution) = with(project) {
         tasks.named<RunMinecraftTask>(taskName).configure {
             lwjglVersion = 3
-            val javaToolchains = project.extensions.getByType<JavaToolchainService>()
-            val java = project.extensions.getByType<JavaPluginExtension>()
-            javaLauncher = javaToolchains.launcherFor(java.toolchain)
+            val java = project.ext<JavaPluginExtension>()
+            javaLauncher = toolchains.launcherFor(java.toolchain)
             extraJvmArgs.addAll(javaArgs)
             systemProperty("gradlestart.bouncerClient", "com.gtnewhorizons.retrofuturabootstrap.Main")
             systemProperty("java.system.class.loader", "com.gtnewhorizons.retrofuturabootstrap.RfbSystemClassLoader")
+            systemProperty("file.encoding", "UTF-8")
+            systemProperty("java.security.manager", "allow")
 
             val modernJavaDependenciesCombined = configurations.getByName(MODERN_DEPS_COMBINED)
             val modernJavaPatchDependencies = configurations.getByName(MODERN_PATCH_DEPS)
@@ -137,7 +214,7 @@ class RFGTweaks(ctx: ConfigurationContext): InitTask {
             setClasspath(files())
             classpath(modernJavaPatchDependencies)
             if (side == Distribution.CLIENT) {
-                val minecraftTasks = project.extensions.getByType<MinecraftTasks>()
+                val minecraftTasks = project.ext<MinecraftTasks>()
                 classpath(minecraftTasks.lwjgl3Configuration)
             }
             classpath(modernJavaDependenciesCombined)
@@ -152,15 +229,19 @@ class RFGTweaks(ctx: ConfigurationContext): InitTask {
             "java.base/java.nio=ALL-UNNAMED",
             "java.base/java.io=ALL-UNNAMED",
             "java.base/java.lang=ALL-UNNAMED",
+            "java.base/java.lang.ref=ALL-UNNAMED",
+            "java.base/java.util.concurrent.locks=ALL-UNNAMED",
             "java.base/java.lang.reflect=ALL-UNNAMED",
             "java.base/java.text=ALL-UNNAMED",
             "java.base/java.util=ALL-UNNAMED",
             "java.base/jdk.internal.reflect=ALL-UNNAMED",
             "java.base/sun.nio.ch=ALL-UNNAMED",
             "jdk.naming.dns/com.sun.jndi.dns=ALL-UNNAMED,java.naming",
+            "java.desktop/sun.awt=ALL-UNNAMED",
             "java.desktop/sun.awt.image=ALL-UNNAMED",
+            "java.desktop/com.sun.imageio.plugins.png=ALL-UNNAMED",
             "jdk.dynalink/jdk.dynalink.beans=ALL-UNNAMED",
-            "java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED"
+            "java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED",
         )
 
         private val ADDED_MODULES = listOf<String>(
@@ -168,8 +249,6 @@ class RFGTweaks(ctx: ConfigurationContext): InitTask {
         )
 
         private val MODERN_JAVA_ARGS_EXTRA = listOf(
-            "-Dfile.encoding=UTF-8",
-            "-Djava.security.manager=allow",
             "-XX:+UseZGC",
             "-XX:+ZGenerational"
         )
@@ -182,5 +261,18 @@ class RFGTweaks(ctx: ConfigurationContext): InitTask {
         private val MODERN_DEPS_COMBINED = "modernJavaDepsCombined"
         private val MODERN_PATCH_DEPS = "modernJavaPatchDeps"
         private val MODERN_PATCH_DEPS_COMPILE_ONLY = "modernJavaPatchDepsCompileOnly"
+
+        private val JABEL = "com.github.bsideup.jabel:jabel-javac-plugin:1.0.1"
+
+        private val BLACKLISTED_TASKS = listOf("compileMcLauncherJava", "compilePatchedMcJava")
+
+        private fun <T: Task> TaskCollection<T>.configureEachFiltered(action: T.() -> Unit) {
+            this.configureEach {
+                if (!BLACKLISTED_TASKS.contains(name))
+                    action(this)
+            }
+        }
+
+        private val Project.toolchains: JavaToolchainService get() = ext<JavaToolchainService>()
     }
 }

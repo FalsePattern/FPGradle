@@ -1,0 +1,1 @@
+A modern java, minecraft 1.7.10 buildscript.

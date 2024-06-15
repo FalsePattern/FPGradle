@@ -46,6 +46,9 @@ dependencies {
 
     //MappingGenerator
     implementation("io.github.LegacyModdingMC:MappingGenerator:0.1.2")
+
+    //IntelliJ
+    implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.8")
 }
 
 val add: NamedDomainObjectContainer<PluginDeclaration>.(pluginID: String, pluginClass: String) ->
