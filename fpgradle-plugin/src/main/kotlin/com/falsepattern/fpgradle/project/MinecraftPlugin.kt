@@ -41,7 +41,8 @@ class MinecraftPlugin: FPPlugin() {
         project.extensions.create("minecraft_fp", FPMinecraftProjectExtension::class, project)
 
         tasks = listOf(NonPublishable(ctx), ModernJavaTweaks(ctx), MinecraftTweaks(ctx), FMLTweaks(ctx), Mixins(ctx),
-            ApiPackage(ctx), Shadow(ctx), SourcesPublish(ctx), MavenPublish(ctx), CursePublish(ctx), ModrinthPublish(ctx))
+            ApiPackage(ctx), Shadow(ctx), SourcesPublish(ctx), MavenPublish(ctx), CursePublish(ctx), ModrinthPublish(ctx),
+            CommonDeps(ctx))
 
         tasks.forEach(InitTask::init)
     }
