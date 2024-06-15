@@ -10,6 +10,38 @@ import java.net.URI
 
 @Suppress("unused")
 abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
+    init { with(project) {
+        java.compatibility.convention(Java.Compatibility.LegacyJava)
+        java.version.convention(java.compatibility.map { when(it) {
+            Java.Compatibility.LegacyJava, null -> JavaVersion.VERSION_1_8
+            Java.Compatibility.Jabel -> JavaVersion.VERSION_17
+            Java.Compatibility.ModernJava -> JavaVersion.VERSION_21
+        } })
+
+        mod.version.convention(provider { version.toString() })
+
+        api.packages.convention(listOf())
+        api.packagesNoRecurse.convention(listOf())
+
+        mixin.debug.convention(false)
+        mixin.hasMixinDeps.convention(false)
+
+        core.containsMixinsAndOrCoreModOnly.convention(false)
+
+        shadow.minimize.convention(false)
+        shadow.relocate.convention(false)
+
+        tokens.modid.convention("MOD_ID")
+        tokens.name.convention("MOD_NAME")
+        tokens.version.convention("MOD_VERSION")
+        tokens.rootPkg.convention("ROOT_PKG")
+
+        publish.noSources.convention(false)
+        publish.group.convention(provider { group.toString() })
+        publish.artifact.convention(provider { "$name-mc1.7.10" })
+        publish.version.convention(mod.version)
+    } }
+
     //region java
     abstract class Java: ExtensionAware {
         abstract val version: Property<JavaVersion>
@@ -34,10 +66,10 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
 
     //region mod
     abstract class Mod: ExtensionAware {
+        abstract val modid: Property<String>
         abstract val name: Property<String>
-        abstract val id: Property<String>
-        abstract val group: Property<String>
         abstract val version: Property<String>
+        abstract val rootPkg: Property<String>
     }
     @get:Nested
     abstract val mod: Mod
@@ -60,10 +92,10 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
 
     //region mixins
     abstract class Mixins: ExtensionAware {
-        abstract val debug: Property<Boolean>
-        abstract val forceEnable: Property<Boolean>
-        abstract val plugin: Property<String>
         abstract val pkg: Property<String>
+        abstract val pluginClass: Property<String>
+        abstract val debug: Property<Boolean>
+        abstract val hasMixinDeps: Property<Boolean>
 
         val use get() = pkg.isPresent
     }
@@ -99,18 +131,18 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
     }
     //endregion
 
-    //region token
-    abstract class Token: ExtensionAware {
+    //region tokens
+    abstract class Tokens: ExtensionAware {
         abstract val tokenClass: Property<String>
-        abstract val modId: Property<String>
-        abstract val modName: Property<String>
+        abstract val modid: Property<String>
+        abstract val name: Property<String>
         abstract val version: Property<String>
-        abstract val groupName: Property<String>
+        abstract val rootPkg: Property<String>
     }
     @get:Nested
-    abstract val token: Token
-    fun token(action: Token.() -> Unit) {
-        action(token)
+    abstract val tokens: Tokens
+    fun tokens(action: Tokens.() -> Unit) {
+        action(tokens)
     }
     //endregion
 
@@ -128,39 +160,5 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
     fun publish(action: Publish.() -> Unit) {
         action(publish)
     }
-    //endregion
-
-    //region convention
-    init { with(project) {
-        java.compatibility.convention(Java.Compatibility.LegacyJava)
-        java.version.convention(java.compatibility.map { when(it) {
-            Java.Compatibility.LegacyJava, null -> JavaVersion.VERSION_1_8
-            Java.Compatibility.Jabel -> JavaVersion.VERSION_17
-            Java.Compatibility.ModernJava -> JavaVersion.VERSION_21
-        } })
-
-        mod.version.convention(provider { version.toString() })
-
-        api.packages.convention(listOf())
-        api.packagesNoRecurse.convention(listOf())
-
-        mixin.debug.convention(false)
-        mixin.forceEnable.convention(false)
-
-        core.containsMixinsAndOrCoreModOnly.convention(false)
-
-        shadow.minimize.convention(false)
-        shadow.relocate.convention(false)
-
-        token.modId.convention("MODID")
-        token.modName.convention("MODNAME")
-        token.version.convention("VERSION")
-        token.groupName.convention("GROUPNAME")
-
-        publish.noSources.convention(false)
-        publish.group.convention(provider { group.toString() })
-        publish.artifact.convention(provider { "$name-mc1.7.10" })
-        publish.version.convention(mod.version)
-    } }
     //endregion
 }

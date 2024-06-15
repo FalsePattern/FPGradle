@@ -12,7 +12,7 @@ import org.gradle.api.plugins.JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME as IM
 class Mixins(ctx: ConfigurationContext): InitTask {
     private val project = ctx.project
     private val minecraft = project.ext<MinecraftExtension>()
-    private val mixinConfigRefMap = project.mc.mod.id.map { "mixins.$it.refmap.json" }
+    private val mixinConfigRefMap = project.mc.mod.modid.map { "mixins.$it.refmap.json" }
     private val manifestAttributes = ctx.manifestAttributes
 
     override fun init() {
@@ -32,8 +32,8 @@ class Mixins(ctx: ConfigurationContext): InitTask {
 
         verifyPackage(mc.mixin.pkg.get(), "mixin -> pkg")
 
-        if (mc.mixin.plugin.isPresent) {
-            verifyClass(mc.mixin.plugin.get(), "mixin -> plugin")
+        if (mc.mixin.pluginClass.isPresent) {
+            verifyClass(mc.mixin.pluginClass.get(), "mixin -> plugin")
         }
     }
 
@@ -48,7 +48,7 @@ class Mixins(ctx: ConfigurationContext): InitTask {
             })
 
             addProvider("runtimeOnlyNonPublishable", provider {
-                if (!mc.mixin.use && mc.mixin.forceEnable.get())
+                if (!mc.mixin.use && mc.mixin.hasMixinDeps.get())
                     mixinProviderSpec
                 else
                     null
@@ -88,7 +88,7 @@ class Mixins(ctx: ConfigurationContext): InitTask {
 
     private fun addMixinCommandLineArgs() = with(project) {
         minecraft.extraRunJvmArguments.addAll(provider {
-            if ((mc.mixin.use || mc.mixin.forceEnable.get()) && mc.mixin.debug.get())
+            if ((mc.mixin.use || mc.mixin.hasMixinDeps.get()) && mc.mixin.debug.get())
                 listOf(
                     "-Dmixin.debug.countInjections=true",
                     "-Dmixin.debug.verbose=true",
@@ -103,7 +103,7 @@ class Mixins(ctx: ConfigurationContext): InitTask {
         manifestAttributes.putAll(provider {
             if (mc.mixin.use)
                 mapOf(Pair("TweakClass", "org.spongepowered.asm.launch.MixinTweaker"),
-                      Pair("MixinConfigs", "mixins.${mc.mod.id.get()}.json"),
+                      Pair("MixinConfigs", "mixins.${mc.mod.modid.get()}.json"),
                       Pair("ForceLoadAsMod", (!mc.core.containsMixinsAndOrCoreModOnly.get()).toString()))
             else
                 mapOf()
@@ -111,17 +111,17 @@ class Mixins(ctx: ConfigurationContext): InitTask {
     }
 
     private fun generateMixinConfigFile(task: Task) = with(task.project) {
-        val mixinConfigFile = file("src/main/resources/mixins.${mc.mod.id.get()}.json")
+        val mixinConfigFile = file("src/main/resources/mixins.${mc.mod.modid.get()}.json")
         if (!mixinConfigFile.exists()) {
-            val mixinPluginLine = if (mc.mixin.plugin.isPresent)
-                "\"plugin\": \"${mc.mod.group.get()}.${mc.mixin.plugin.get()}\","
+            val mixinPluginLine = if (mc.mixin.pluginClass.isPresent)
+                "\"plugin\": \"${mc.mod.rootPkg.get()}.${mc.mixin.pluginClass.get()}\","
             else
                 ""
             mixinConfigFile.writeText("""
                 {
                   "required": true,
                   "minVersion": "0.8.5",
-                  "package": "${mc.mod.group.get()}.${mc.mixin.pkg.get()}",
+                  "package": "${mc.mod.rootPkg.get()}.${mc.mixin.pkg.get()}",
                   $mixinPluginLine
                   "refmap": "${mixinConfigRefMap.get()}",
                   "target": "@env(DEFAULT)",

@@ -1,7 +1,6 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.mc
-import com.falsepattern.fpgradle.resolvePath
 import com.falsepattern.fpgradle.verifyClass
 import com.falsepattern.fpgradle.verifyFile
 import com.gtnewhorizons.retrofuturagradle.mcp.DeobfuscateTask
@@ -28,7 +27,7 @@ class FMLTweaks(ctx: ConfigurationContext): InitTask {
                 }
 
                 if (mc.core.coreModClass.isPresent) {
-                    res["FMLCorePlugin"] = "${mod.group.get()}.${mc.core.coreModClass.get()}"
+                    res["FMLCorePlugin"] = "${mod.rootPkg.get()}.${mc.core.coreModClass.get()}"
                 }
             }
             res

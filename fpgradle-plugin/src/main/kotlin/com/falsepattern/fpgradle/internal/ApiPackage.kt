@@ -2,7 +2,6 @@ package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.ext
 import com.falsepattern.fpgradle.mc
-import com.falsepattern.fpgradle.resolvePath
 import com.falsepattern.fpgradle.verifyPackage
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.jvm.tasks.Jar
@@ -14,7 +13,7 @@ class ApiPackage(ctx: ConfigurationContext): InitTask {
     override fun init(): Unit = with(project) {
         tasks.register<Jar>("apiJar").configure {
             val sourceSets = ext<SourceSetContainer>()
-            val group = mc.mod.group.map { it.replace('.', '/') }.get()
+            val group = mc.mod.rootPkg.map { it.replace('.', '/') }.get()
             val pkgs = mc.api.packages.map { it.map { str -> str.replace('.', '/') } }.get()
             val pkgsNoRecurse = mc.api.packagesNoRecurse.map { it.map { str -> str.replace('.', '/') } }.get()
 

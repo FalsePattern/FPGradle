@@ -11,42 +11,51 @@ minecraft_fp {
     }
 
     mod {
+        modid = "examplemod"
         name = "Example Mod"
-        id = "examplemod"
-        group = "com.example.mymod"
 //        version = "foobar"
+        rootPkg = "$group.mymod"
     }
-//
+
 //    api {
 //        packages = listOf("a", "b", "c")
 //        packagesNoRecurse = listOf("d", "e")
 //    }
-//
+
 //    mixin {
-//        debug = false
-//        forceEnable = false
-//        plugin = "MixinPlugin"
 //        pkg = "mixins"
+//        pluginClass = "MixinPlugin"
+//        debug = false
+//        hasMixinDeps = false
 //    }
-//
+
 //    core {
 //        coreModClass = "Core"
 //        accessTransformerFile = "le_at.cfg"
 //        containsMixinsAndOrCoreModOnly = false
 //    }
-//
+
 //    shadow {
 //        minimize = false
 //        relocate = false
 //    }
 
-//    token {
-//        tokenClass = "Tags"
-//        modId = "MODID"
-//        modName = "MODNAME"
-//        version = "VERSION"
-//        groupName = "GROUPNAME"
-//    }
+    tokens {
+        tokenClass = "Tags"
+//        modid = "MOD_ID"
+//        name = "MOD_NAME"
+//        version = "MOD_VERSION"
+//        rootPkg = "ROOT_PKG"
+    }
+
+    //TODO: don't use inverted options!
+    //TODO: how are the repo creds sourced?
+
+    //TODO: publish jar?
+    //TODO: publish dev?
+    //TODO: publish src?
+
+    //TODO: repoUrl, as string -or- uri setter?
 
 //    publish {
 //        noSources = false

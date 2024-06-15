@@ -3,9 +3,9 @@ package com.example.mymod;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = Tags.MODID,
-     name = Tags.MODNAME,
-     version = Tags.VERSION)
+@Mod(modid = Tags.MOD_ID,
+     name = Tags.MOD_NAME,
+     version = Tags.MOD_VERSION)
 public class MyMod {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e) {

@@ -39,13 +39,13 @@ val Project.mc: FPMinecraftProjectExtension get() = ext<FPMinecraftProjectExtens
 private val javaSourceDir = "src/main/java"
 
 fun Project.verifyPackage(thePackage: String, propName: String) {
-    val targetPackageJava = resolvePath(javaSourceDir, mc.mod.group.get(), thePackage)
+    val targetPackageJava = resolvePath(javaSourceDir, mc.mod.rootPkg.get(), thePackage)
     if (!file(targetPackageJava).exists())
         throw GradleException("Could not resolve \"$propName\"! Could not find $targetPackageJava")
 }
 
 fun Project.verifyClass(theClass: String, propName: String) {
-    val targetClassJava = resolvePath(javaSourceDir, mc.mod.group.get(), theClass) + ".java"
+    val targetClassJava = resolvePath(javaSourceDir, mc.mod.rootPkg.get(), theClass) + ".java"
     if (!file(targetClassJava).exists())
         throw GradleException("Could not resolve \"$propName\"! Could not find $targetClassJava")
 

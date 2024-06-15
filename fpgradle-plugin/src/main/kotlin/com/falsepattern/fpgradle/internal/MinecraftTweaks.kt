@@ -22,7 +22,7 @@ class MinecraftTweaks(ctx: ConfigurationContext): InitTask {
     }
 
     private fun validate() = with(project) {
-        if (mc.mod.group.isPresent)
+        if (mc.mod.rootPkg.isPresent)
             verifyPackage("", "mod -> group")
     }
 
@@ -35,43 +35,43 @@ class MinecraftTweaks(ctx: ConfigurationContext): InitTask {
                     expand(mapOf(
                         Pair("minecraftVersion", minecraft.mcVersion.get()),
                         Pair("modVersion", project.version),
-                        Pair("modId", mc.mod.id.get()),
+                        Pair("modId", mc.mod.modid.get()),
                         Pair("modName", mc.mod.name.get())
                     ))
                 }
             }
 
             minecraft.injectedTags.putAll(provider {
-                if (mc.token.tokenClass.isPresent) {
+                if (mc.tokens.tokenClass.isPresent) {
                     val result = HashMap<String, String>()
 
-                    if (mc.token.modId.isPresent)
-                        result[mc.token.modId.get()] = mc.mod.id.get()
+                    if (mc.tokens.modid.isPresent)
+                        result[mc.tokens.modid.get()] = mc.mod.modid.get()
 
-                    if (mc.token.modName.isPresent)
-                        result[mc.token.modName.get()] = mc.mod.name.get()
+                    if (mc.tokens.name.isPresent)
+                        result[mc.tokens.name.get()] = mc.mod.name.get()
 
-                    if (mc.token.version.isPresent)
-                        result[mc.token.version.get()] = mc.mod.version.get()
+                    if (mc.tokens.version.isPresent)
+                        result[mc.tokens.version.get()] = mc.mod.version.get()
 
-                    if (mc.token.groupName.isPresent)
-                        result[mc.token.groupName.get()] = mc.mod.group.get()
+                    if (mc.tokens.rootPkg.isPresent)
+                        result[mc.tokens.rootPkg.get()] = mc.mod.rootPkg.get()
 
                     result
                 } else mapOf()
             })
 
             named<InjectTagsTask>("injectTags").configure {
-                inputs.property("tokenId", mc.token.modId.get())
-                inputs.property("tokenName", mc.token.modName.get())
-                inputs.property("tokenVersion", mc.token.version.get())
-                inputs.property("tokenGroup", mc.token.groupName.get())
-                if (mc.token.tokenClass.isPresent) {
-                    inputs.property("tokenClass", mc.token.tokenClass.get())
-                    outputClassName = mc.token.tokenClass.map { "${mc.mod.group.get()}.$it" }
+                inputs.property("tokenId", mc.tokens.modid.get())
+                inputs.property("tokenName", mc.tokens.name.get())
+                inputs.property("tokenVersion", mc.tokens.version.get())
+                inputs.property("tokenGroup", mc.tokens.rootPkg.get())
+                if (mc.tokens.tokenClass.isPresent) {
+                    inputs.property("tokenClass", mc.tokens.tokenClass.get())
+                    outputClassName = mc.tokens.tokenClass.map { "${mc.mod.rootPkg.get()}.$it" }
                 }
                 onlyIf {
-                    mc.token.tokenClass.isPresent
+                    mc.tokens.tokenClass.isPresent
                 }
             }
 
@@ -81,7 +81,7 @@ class MinecraftTweaks(ctx: ConfigurationContext): InitTask {
                 }
             }
 
-            ext<BasePluginExtension>().archivesName = mc.mod.id
+            ext<BasePluginExtension>().archivesName = mc.mod.modid
         }
     }
 }

@@ -44,9 +44,9 @@ class MinecraftPlugin: FPPlugin() {
         this@MinecraftPlugin.tasks.forEach(InitTask::postInit)
         if (!mc.mod.name.isPresent)
             System.err.println("Missing configuration: MC -> mod -> name")
-        if (!mc.mod.id.isPresent)
+        if (!mc.mod.modid.isPresent)
             System.err.println("Missing configuration: MC -> mod -> id")
-        if (!mc.mod.group.isPresent)
+        if (!mc.mod.rootPkg.isPresent)
             System.err.println("Missing configuration: MC -> mod -> group")
     }
 }

@@ -49,7 +49,7 @@ class Shadow(ctx: ConfigurationContext): InitTask {
                 archiveClassifier = "dev"
 
                 if (mc.shadow.relocate.get()) {
-                    relocationPrefix = "${mc.mod.group.get()}.shadow"
+                    relocationPrefix = "${mc.mod.rootPkg.get()}.shadow"
                     isEnableRelocation = true
                 }
                 dependsOn("removeStub")
