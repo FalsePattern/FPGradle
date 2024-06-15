@@ -13,6 +13,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
 import org.intellij.lang.annotations.Language
 import java.net.URI
+import java.util.UUID
 
 @Suppress("unused")
 abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware {
@@ -25,6 +26,8 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
         } })
 
         mod.version.convention(provider { version.toString() })
+
+        run.username.convention("Developer")
 
         api.packages.convention(listOf())
         api.packagesNoRecurse.convention(listOf())
@@ -94,6 +97,18 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     abstract val mod: Mod
     fun mod(action: Mod.() -> Unit) {
         action(mod)
+    }
+    //endregion
+
+    //region run
+    abstract class Run: ExtensionAware {
+        abstract val username: Property<String>
+        abstract val userUUID: Property<UUID>
+    }
+    @get:Nested
+    abstract val run: Run
+    fun run(action: Run.() -> Unit) {
+        action(run)
     }
     //endregion
 
@@ -239,8 +254,13 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     //endregion
 
     //region DSL
+    @JvmName("assignStringToURI")
     fun Property<URI>.assign(@Language("http-url-reference") value: String) {
         this.set(project.uri(value))
+    }
+    @JvmName("assignStringToUUID")
+    fun Property<UUID>.assign(value: String) {
+        this.set(UUID.fromString(value))
     }
     //endregion
 }

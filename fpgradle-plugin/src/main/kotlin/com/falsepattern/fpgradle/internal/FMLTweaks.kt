@@ -1,9 +1,12 @@
 package com.falsepattern.fpgradle.internal
 
+import com.falsepattern.fpgradle.ext
 import com.falsepattern.fpgradle.mc
 import com.falsepattern.fpgradle.verifyClass
 import com.falsepattern.fpgradle.verifyFile
+import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
 import com.gtnewhorizons.retrofuturagradle.mcp.DeobfuscateTask
+import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import org.gradle.kotlin.dsl.*
 
 class FMLTweaks(ctx: ConfigurationContext): InitTask {
@@ -22,13 +25,11 @@ class FMLTweaks(ctx: ConfigurationContext): InitTask {
     }
 
     private fun runArgs() = with(project) {
-        minecraft.extraRunJvmArguments.addAll(provider {
-            val result = ArrayList<String>()
-            if (mc.run.username.isPresent)
-                result.addAll(listOf("--username", mc.run.username.get()))
-
-            result
-        })
+        tasks.named<RunMinecraftTask>("runClient") {
+            username = mc.run.username.get()
+            if (mc.run.userUUID.isPresent)
+                userUUID = mc.run.userUUID.get().toString()
+        }
     }
 
     private fun coremodInit() = with(project) {

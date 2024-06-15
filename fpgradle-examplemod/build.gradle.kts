@@ -22,6 +22,13 @@ minecraft_fp {
     }
 
     // optional
+    // for runClient/runServer
+//    run {
+//        username = "Developer" //Convention, client only
+//        userUUID = "00000000-0000-4000-0000-000000000000" //optional, client only
+//    }
+
+    // optional
     // For generating an -api jar
 //    api {
 //        packages          = listOf() //Convention
