@@ -12,10 +12,23 @@ class FMLTweaks(ctx: ConfigurationContext): InitTask {
 
     override fun init() {
         coremodInit()
+        accessTransformerInit()
     }
 
     override fun postInit() {
         coreModPostInit()
+        accessTransformerPostInit()
+        runArgs()
+    }
+
+    private fun runArgs() = with(project) {
+        minecraft.extraRunJvmArguments.addAll(provider {
+            val result = ArrayList<String>()
+            if (mc.run.username.isPresent)
+                result.addAll(listOf("--username", mc.run.username.get()))
+
+            result
+        })
     }
 
     private fun coremodInit() = with(project) {
