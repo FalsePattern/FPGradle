@@ -8,7 +8,7 @@ class SourcesPublish(ctx: ConfigurationContext): InitTask {
     private val project = ctx.project
 
     override fun postInit() = with(project) {
-        if (mc.publish.noSources.get())
+        if (!mc.publish.sources.get())
             return
 
          val java = ext<JavaPluginExtension>()

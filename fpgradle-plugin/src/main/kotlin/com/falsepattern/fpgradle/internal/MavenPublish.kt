@@ -30,10 +30,10 @@ class MavenPublish(ctx: ConfigurationContext): InitTask {
                     return@repositories
 
                 maven {
-                    url = uri(mc.publish.repoUrl.get())
+                    url = mc.publish.repoUrl.get()
                     name = mc.publish.repoName.get()
-                    val user = System.getenv("MAVEN_DEPLOY_USER")
-                    val pass = System.getenv("MAVEN_DEPLOY_PASSWORD")
+                    val user = System.getenv(mc.publish.userEnv.get())
+                    val pass = System.getenv(mc.publish.passEnv.get())
                     if (user != null && pass != null) {
                         credentials {
                             username = user

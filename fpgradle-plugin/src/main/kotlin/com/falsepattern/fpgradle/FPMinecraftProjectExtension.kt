@@ -6,10 +6,11 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
+import org.intellij.lang.annotations.Language
 import java.net.URI
 
 @Suppress("unused")
-abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
+abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware {
     init { with(project) {
         java.compatibility.convention(Java.Compatibility.LegacyJava)
         java.version.convention(java.compatibility.map { when(it) {
@@ -36,10 +37,12 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         tokens.version.convention("MOD_VERSION")
         tokens.rootPkg.convention("ROOT_PKG")
 
-        publish.noSources.convention(false)
+        publish.sources.convention(true)
         publish.group.convention(provider { group.toString() })
         publish.artifact.convention(provider { "$name-mc1.7.10" })
         publish.version.convention(mod.version)
+        publish.userEnv.convention("MAVEN_DEPLOY_USER")
+        publish.passEnv.convention("MAVEN_DEPLOY_PASSWORD")
     } }
 
     //region java
@@ -148,17 +151,25 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
 
     //region publish
     abstract class Publish: ExtensionAware {
-        abstract val noSources: Property<Boolean>
         abstract val repoUrl: Property<URI>
         abstract val repoName: Property<String>
+        abstract val sources: Property<Boolean>
         abstract val group: Property<String>
         abstract val artifact: Property<String>
         abstract val version: Property<String>
+        abstract val userEnv: Property<String>
+        abstract val passEnv: Property<String>
     }
     @get:Nested
     abstract val publish: Publish
     fun publish(action: Publish.() -> Unit) {
         action(publish)
+    }
+    //endregion
+
+    //region DSL
+    fun Property<URI>.assign(@Language("http-url-reference") value: String) {
+        this.set(project.uri(value))
     }
     //endregion
 }
