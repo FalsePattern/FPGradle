@@ -8,7 +8,7 @@ group = "com.falsepattern"
 version = "1.0-SNAPSHOT"
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(8)
 }
 
 repositories {
@@ -38,7 +38,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.11.0")
 
     // RFG
-    implementation("com.gtnewhorizons:retrofuturagradle:1.3.36-fp")
+    implementation("com.gtnewhorizons:retrofuturagradle:1.4.0-fp")
 
     // Shadow
     implementation("com.github.johnrengelman:shadow:8.1.1")
