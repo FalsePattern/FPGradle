@@ -23,6 +23,7 @@
 
 package com.falsepattern.fpgradle.module.git
 
+import com.falsepattern.fpgradle.currentTimestamp
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.gradle.api.provider.Property
@@ -41,9 +42,19 @@ abstract class GitTagVersionSource: ValueSource<GitTagVersion, GitTagVersionSour
 
         try {
             return Git.open(gitRepoDir).use { git ->
-                val isClean = git.status().call().isClean
+                val repo = git.repository
+                val status = git.status().call()
+                val isClean = status.isClean
 
-                val describe = git.describe().setTags(true).call() ?: return null
+                val describe = try {
+                    git.describe().setTags(true).call()
+                } catch (_: GitAPIException) {
+                    try {
+                        repo.branch + "-" + git.describe().setAlways(true).call()
+                    } catch (_: GitAPIException) {
+                        null
+                    }
+                } ?: (repo.branch + "-unknown")
                 return@use GitTagVersion(describe, isClean)
             }
         } catch (_: IOException) {} catch (_: GitAPIException) {}
