@@ -46,15 +46,12 @@ abstract class GitTagVersionSource: ValueSource<GitTagVersion, GitTagVersionSour
                 val status = git.status().call()
                 val isClean = status.isClean
 
-                val describe = try {
+                val describe = runCatching {
                     git.describe().setTags(true).call()
-                } catch (_: GitAPIException) {
-                    try {
-                        repo.branch + "-" + git.describe().setAlways(true).call()
-                    } catch (_: GitAPIException) {
-                        null
-                    }
-                } ?: (repo.branch + "-unknown")
+                }.getOrNull() ?: runCatching {
+                    repo.branch + "-" + git.describe().setAlways(true).call()
+                }.getOrNull() ?: (repo.branch + "-unknown")
+
                 return@use GitTagVersion(describe, isClean)
             }
         } catch (_: IOException) {} catch (_: GitAPIException) {}
