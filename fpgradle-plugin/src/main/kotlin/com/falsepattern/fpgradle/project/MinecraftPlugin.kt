@@ -49,6 +49,7 @@ class MinecraftPlugin: FPPlugin() {
         GitPlugin::class,
 
         NonPublishable::class,
+        CommonDeps::class,
 
         ModernJavaTweaks::class,
         MinecraftTweaks::class,
