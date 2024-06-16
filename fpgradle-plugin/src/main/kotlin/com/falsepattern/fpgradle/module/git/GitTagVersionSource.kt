@@ -43,7 +43,7 @@ abstract class GitTagVersionSource: ValueSource<GitTagVersion, GitTagVersionSour
             return Git.open(gitRepoDir).use { git ->
                 val isClean = git.status().call().isClean
 
-                val describe = git.describe().setTags(true).call()
+                val describe = git.describe().setTags(true).call() ?: return null
                 return@use GitTagVersion(describe, isClean)
             }
         } catch (_: IOException) {} catch (_: GitAPIException) {}
