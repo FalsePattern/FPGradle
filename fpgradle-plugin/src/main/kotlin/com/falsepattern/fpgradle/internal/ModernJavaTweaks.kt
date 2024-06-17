@@ -160,22 +160,13 @@ class ModernJavaTweaks: FPPlugin() {
     private fun Project.injectLWJGL3ifyModern() {
         repositories {
             maven {
-                name = "fpgradle"
-                url = uri("https://mvn.falsepattern.com/fpgradle/")
-            }
-            maven {
-                name = "horizon"
+                name = "horizon_3ify"
                 url = uri("https://mvn.falsepattern.com/horizon/")
                 content {
-                    includeGroupAndSubgroups("com.gtnewhorizons")
-                    includeGroupAndSubgroups("com.github.GTNewHorizons")
-                    includeModule("com.github.bsideup.jabel", "jabel-javac-plugin")
-                    includeModule("org.jetbrains", "intellij-fernflower")
+                    includeGroup("com.gtnewhorizons")
+                    includeGroup("com.gtnewhorizons.retrofuturabootstrap")
+                    includeGroup("com.github.GTNewHorizons")
                 }
-            }
-            maven {
-                name = "jitpack"
-                url = uri("https://mvn.falsepattern.com/jitpack/")
             }
         }
 

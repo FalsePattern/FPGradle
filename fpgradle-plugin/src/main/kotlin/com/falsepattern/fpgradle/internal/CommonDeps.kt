@@ -33,5 +33,22 @@ class CommonDeps: FPPlugin() {
         dependencies {
             addProvider(COMPILE_ONLY, provider { "org.jetbrains:annotations:24.1.0" })
         }
+        repositories {
+            mavenCentral()
+            maven {
+                name = "jitpack_unimixins"
+                url = uri("https://mvn.falsepattern.com/jitpack/")
+                content {
+                    includeModule("com.github.LegacyModdingMC.UniMixins", "unimixins-all-1.7.10")
+                }
+            }
+            maven {
+                name = "horizon_fernflower"
+                url = uri("https://mvn.falsepattern.com/horizon/")
+                content {
+                    includeModule("org.jetbrains", "intellij-fernflower")
+                }
+            }
+        }
     }
 }

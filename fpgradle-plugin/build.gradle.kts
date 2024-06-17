@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.falsepattern"
-version = "0.1.17"
+version = "0.2.0"
 
 kotlin {
     jvmToolchain(21)
@@ -24,7 +24,26 @@ repositories {
     maven {
         url = uri("https://mvn.falsepattern.com/fpgradle/")
         name = "fpgradle"
+        content {
+            includeModule("com.gtnewhorizons", "retrofuturagradle")
+        }
     }
+    maven {
+        url = uri("https://mvn.falsepattern.com/releases/")
+        name = "mavenpattern"
+        content {
+            includeGroup("com.falsepattern")
+        }
+    }
+    maven {
+        url = uri("https://mvn.falsepattern.com/jitpack/")
+        name = "jitpack"
+        content {
+            includeModule("io.github.LegacyModdingMC.MappingGenerator", "MappingGenerator")
+        }
+    }
+    mavenCentral()
+    gradlePluginPortal()
 }
 
 dependencies {
@@ -56,7 +75,7 @@ dependencies {
     implementation("com.falsepattern:jtweaker:0.2.2")
 
     // MappingGenerator
-    implementation("io.github.LegacyModdingMC:MappingGenerator:0.1.2")
+    implementation("io.github.LegacyModdingMC.MappingGenerator:MappingGenerator:0.1.2")
 
     // IntelliJ
     implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.8")
