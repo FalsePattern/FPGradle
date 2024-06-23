@@ -41,7 +41,11 @@ fun RepositoryHandler.maven(name: String, url: URI, action: MavenArtifactReposit
 
 fun DependencyHandler.implementationSplit(dependencyNotation: String, action: Dependency?.() -> Unit = {}) {
     action.invoke(add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "$dependencyNotation:api"))
-    action.invoke(add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "$dependencyNotation:dev"))
+    action.invoke(add(JavaPlugin.RUNTIME_ONLY_CONFIGURATION_NAME, "$dependencyNotation:dev"))
+}
+fun DependencyHandler.apiSplit(dependencyNotation: String, action: Dependency?.() -> Unit = {}) {
+    action.invoke(add(JavaPlugin.COMPILE_ONLY_API_CONFIGURATION_NAME, "$dependencyNotation:api"))
+    action.invoke(add(JavaPlugin.RUNTIME_ONLY_CONFIGURATION_NAME, "$dependencyNotation:dev"))
 }
 
 fun DependencyHandler.deobfCurse(dependencyNotation: String): Any {
