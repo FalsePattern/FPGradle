@@ -26,11 +26,14 @@ package com.falsepattern.fpgradle
 import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
 import com.gtnewhorizons.retrofuturagradle.minecraft.MinecraftTasks
 import com.gtnewhorizons.retrofuturagradle.modutils.ModUtils
+import com.gtnewhorizons.retrofuturagradle.modutils.ModUtils.RfgDependencyExtension
 import com.modrinth.minotaur.ModrinthExtension
 import io.freefair.gradle.plugins.lombok.LombokExtension
 import io.github.legacymoddingmc.mappinggenerator.MappingGeneratorExtension
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.plugins.BasePluginExtension
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.*
 import org.gradle.api.provider.MapProperty
@@ -39,7 +42,7 @@ import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.plugins.ide.idea.model.IdeaModel
 
-private inline fun <reified T : Any> Project.ext(): T = extensions.getByType<T>()
+private inline fun <reified T : Any> ExtensionAware.ext(): T = extensions.getByType<T>()
 val Project.mc get() = ext<FPMinecraftProjectExtension>()
 val Project.modrinth get() = ext<ModrinthExtension>()
 val Project.minecraft get() = ext<MinecraftExtension>()
@@ -54,3 +57,4 @@ val Project.modUtils get() = ext<ModUtils>()
 val Project.sourceSets get() = ext<SourceSetContainer>()
 val Project.lombok get() = ext<LombokExtension>()
 val Project.idea get() = ext<IdeaModel>()
+val DependencyHandler.rfg get() = ext<RfgDependencyExtension>()
