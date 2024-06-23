@@ -5,13 +5,10 @@ plugins {
 }
 
 group = "com.falsepattern"
-version = "0.3.0"
+version = "0.3.1"
 
 kotlin {
     jvmToolchain(21)
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-receivers")
-    }
 }
 
 java {

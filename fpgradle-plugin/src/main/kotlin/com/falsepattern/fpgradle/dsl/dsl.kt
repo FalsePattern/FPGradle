@@ -24,19 +24,18 @@
 package com.falsepattern.fpgradle.dsl
 
 import com.falsepattern.fpgradle.rfg
-import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.kotlin.dsl.*
+import java.net.URI
 
-context(Project) fun RepositoryHandler.maven(name: String, url: String, action: MavenArtifactRepository.() -> Unit = {}) {
+fun RepositoryHandler.maven(name: String, url: URI, action: MavenArtifactRepository.() -> Unit = {}) {
     action.invoke(maven {
         this.name = name
-        this.url = uri(url)
+        this.url = url
     })
 }
 
