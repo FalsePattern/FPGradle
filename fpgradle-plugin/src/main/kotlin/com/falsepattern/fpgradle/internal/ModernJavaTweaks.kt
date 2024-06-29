@@ -210,6 +210,7 @@ class ModernJavaTweaks: FPPlugin() {
             javaLauncher = toolchains.launcherFor(java.toolchain)
             extraJvmArgs.addAll(javaArgs)
             systemProperty("gradlestart.bouncerClient", "com.gtnewhorizons.retrofuturabootstrap.Main")
+            systemProperty("gradlestart.bouncerServer", "com.gtnewhorizons.retrofuturabootstrap.Main")
             systemProperty("java.system.class.loader", "com.gtnewhorizons.retrofuturabootstrap.RfbSystemClassLoader")
             systemProperty("file.encoding", "UTF-8")
             systemProperty("java.security.manager", "allow")
