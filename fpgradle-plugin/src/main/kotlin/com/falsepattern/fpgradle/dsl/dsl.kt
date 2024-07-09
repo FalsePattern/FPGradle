@@ -28,6 +28,7 @@ import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.artifacts.repositories.InclusiveRepositoryContentDescriptor
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.plugins.JavaPlugin
 import java.net.URI
@@ -54,4 +55,18 @@ fun DependencyHandler.deobfCurse(dependencyNotation: String): Any {
 
 fun ModuleDependency.excludeDeps() {
     isTransitive = false
+}
+
+fun RepositoryHandler.exclusiveMaven(name: String, url: URI, theFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) {
+    exclusiveContent {
+        forRepository {
+            maven {
+                this.name = name
+                this.url = url
+            }
+        }
+        filter {
+            theFilter()
+        }
+    }
 }
