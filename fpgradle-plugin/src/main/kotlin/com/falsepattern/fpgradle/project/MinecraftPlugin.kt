@@ -27,7 +27,6 @@ import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.internal.*
 import com.falsepattern.fpgradle.*
-import com.falsepattern.fpgradle.dsl.registerFalsePatternDSL
 import com.falsepattern.fpgradle.module.git.GitPlugin
 import com.falsepattern.fpgradle.module.jetbrains.JetBrainsPlugin
 import com.falsepattern.fpgradle.module.lombok.FPLombokPlugin
@@ -69,7 +68,6 @@ class MinecraftPlugin: FPPlugin() {
     override fun Project.onPluginApplyBeforeDeps() {
         extensions.add("fp_ctx_internal", project.objects.mapProperty<String, String>())
         extensions.create("minecraft_fp", FPMinecraftProjectExtension::class, project)
-        registerFalsePatternDSL()
     }
 
     override fun Project.onPluginPostInitAfterDeps() {
