@@ -24,49 +24,87 @@
 package com.falsepattern.fpgradle.dsl
 
 import com.falsepattern.fpgradle.rfg
+import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.artifacts.dsl.RepositoryHandler
+import org.gradle.api.artifacts.repositories.ArtifactRepository
 import org.gradle.api.artifacts.repositories.InclusiveRepositoryContentDescriptor
+import org.gradle.api.artifacts.repositories.IvyArtifactRepository
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.kotlin.dsl.create
 import java.net.URI
 
-fun RepositoryHandler.maven(name: String, url: URI, action: MavenArtifactRepository.() -> Unit = {}) {
-    action.invoke(maven {
+fun RepositoryHandler.maven(name: String, url: URI, action: MavenArtifactRepository.() -> Unit = {}) =
+    maven {
         this.name = name
         this.url = url
-    })
-}
+        action.invoke(this)
+    }
+
+fun RepositoryHandler.ivy(url: URI, pattern: String, action: IvyArtifactRepository.() -> Unit = {}) =
+    ivy {
+        this.url = url
+        patternLayout {
+            artifact(pattern)
+        }
+        metadataSources {
+            artifact()
+        }
+        action()
+    }
 
 fun DependencyHandler.implementationSplit(dependencyNotation: String, action: Dependency?.() -> Unit = {}) {
     action.invoke(add(JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME, "$dependencyNotation:api"))
     action.invoke(add(JavaPlugin.RUNTIME_ONLY_CONFIGURATION_NAME, "$dependencyNotation:dev"))
 }
+
 fun DependencyHandler.apiSplit(dependencyNotation: String, action: Dependency?.() -> Unit = {}) {
     action.invoke(add(JavaPlugin.COMPILE_ONLY_API_CONFIGURATION_NAME, "$dependencyNotation:api"))
     action.invoke(add(JavaPlugin.RUNTIME_ONLY_CONFIGURATION_NAME, "$dependencyNotation:dev"))
 }
 
-fun DependencyHandler.deobfCurse(dependencyNotation: String): Any {
-    return rfg.deobf("curse.maven:$dependencyNotation")
-}
+fun DependencyHandler.deobfCurse(dependencyNotation: String) = rfg.deobf("curse.maven:$dependencyNotation")
+
+fun DependencyHandler.deobfModrinth(dependencyNotation: String) = rfg.deobf("maven.modrinth:$dependencyNotation")
 
 fun ModuleDependency.excludeDeps() {
     isTransitive = false
 }
 
-fun RepositoryHandler.exclusiveMaven(name: String, url: URI, theFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) {
+fun RepositoryHandler.exclusive(repo: ArtifactRepository, theFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) {
     exclusiveContent {
-        forRepository {
-            maven {
-                this.name = name
-                this.url = url
-            }
-        }
+        forRepositories(repo)
         filter {
             theFilter()
         }
     }
+}
+
+fun RepositoryHandler.exclusiveGroups(repo: ArtifactRepository, vararg groups: String, theFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) = exclusive(repo) {
+    includeGroups(*groups)
+    theFilter()
+}
+
+fun InclusiveRepositoryContentDescriptor.includeGroups(vararg groups: String) {
+    for (group in groups) {
+        includeGroup(group)
+    }
+}
+
+open class FPExt(val project: Project) {
+    fun RepositoryHandler.maven(name: String, url: String, action: MavenArtifactRepository.() -> Unit = {}) = maven(name, project.uri(url), action)
+
+    fun RepositoryHandler.ivy(url: String, pattern: String, action: IvyArtifactRepository.() -> Unit = {}) = ivy(project.uri(url), pattern, action)
+
+    fun RepositoryHandler.cursemaven(extraFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) = exclusiveGroups(maven("cursemaven", "https://mvn.falsepattern.com/cursemaven/"), "curse.maven", theFilter = extraFilter)
+
+    fun RepositoryHandler.modrinth(extraFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) = exclusiveGroups(maven("modrinth", "https://mvn.falsepattern.com/modrinth/"), "maven.modrinth", theFilter = extraFilter)
+}
+
+internal fun Project.registerFalsePatternDSL() {
+    extensions.create("fp", FPExt::class, this)
 }
