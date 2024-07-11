@@ -52,9 +52,6 @@ class ModernJavaTweaks: FPPlugin() {
     override fun Project.onPluginInit() {
         tweakMappingGenerator()
         minecraft.injectMissingGenerics = true
-        tasks.withType<JavaCompile>().configureEach {
-            options.encoding = StandardCharsets.UTF_8.name()
-        }
     }
 
     override fun Project.onPluginPostInitBeforeDeps() {
@@ -73,6 +70,12 @@ class ModernJavaTweaks: FPPlugin() {
                 modifyMinecraftRunTaskModern("runClient", Distribution.CLIENT)
                 modifyMinecraftRunTaskModern("runServer", Distribution.DEDICATED_SERVER)
             }
+        }
+    }
+
+    override fun Project.onPluginPostInitAfterDeps() {
+        tasks.withType<JavaCompile>().configureEach {
+            options.encoding = StandardCharsets.UTF_8.name()
         }
     }
 
