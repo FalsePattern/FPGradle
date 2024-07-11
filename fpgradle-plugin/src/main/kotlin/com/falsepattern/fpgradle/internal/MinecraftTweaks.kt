@@ -44,21 +44,28 @@ class MinecraftTweaks: FPPlugin() {
 
     private fun Project.validate() {
         if (mc.mod.rootPkg.isPresent)
-            verifyPackage("", "mod -> group")
+            verifyPackage("", "mod -> rootPkg")
     }
 
     private fun Project.jar() {
+
         tasks {
             named<ProcessResources>("processResources").configure {
-                inputs.property("version", version)
+                inputs.property("version", mc.mod.version)
                 inputs.property("mcversion", minecraft.mcVersion)
                 filesMatching("mcmod.info") {
-                    expand(mapOf(
-                        Pair("minecraftVersion", minecraft.mcVersion.get()),
-                        Pair("modVersion", project.version),
-                        Pair("modId", mc.mod.modid.get()),
-                        Pair("modName", mc.mod.name.get())
-                    ))
+                    expand(
+                        "minecraftVersion" to minecraft.mcVersion.get(),
+                        "modVersion" to mc.mod.version.get(),
+                        "modId" to mc.mod.modid.get(),
+                        "modName" to mc.mod.name.get()
+                    )
+                }
+                filesMatching("META-INF/rfb-plugin/*") {
+                    expand(
+                        "modVersion" to mc.mod.version.get(),
+                        "modName" to mc.mod.name.get()
+                    )
                 }
             }
 

@@ -74,8 +74,8 @@ class MinecraftPlugin: FPPlugin() {
         if (!mc.mod.name.isPresent)
             System.err.println("Missing configuration: MC -> mod -> name")
         if (!mc.mod.modid.isPresent)
-            System.err.println("Missing configuration: MC -> mod -> id")
+            System.err.println("Missing configuration: MC -> mod -> modid")
         if (!mc.mod.rootPkg.isPresent)
-            System.err.println("Missing configuration: MC -> mod -> group")
+            System.err.println("Missing configuration: MC -> mod -> rootPkg")
     }
 }
