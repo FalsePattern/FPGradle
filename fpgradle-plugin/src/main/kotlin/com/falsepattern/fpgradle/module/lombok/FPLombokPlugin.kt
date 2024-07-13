@@ -24,12 +24,9 @@
 package com.falsepattern.fpgradle.module.lombok
 
 import com.falsepattern.fpgradle.FPPlugin
-import com.falsepattern.fpgradle.*
-import io.freefair.gradle.plugins.lombok.LombokExtension
+import com.falsepattern.fpgradle.lombok
 import io.freefair.gradle.plugins.lombok.LombokPlugin
 import org.gradle.api.Project
-import org.gradle.api.Task
-import kotlin.reflect.KClass
 
 class FPLombokPlugin: FPPlugin() {
     override fun addPlugins() = listOf(LombokPlugin::class)

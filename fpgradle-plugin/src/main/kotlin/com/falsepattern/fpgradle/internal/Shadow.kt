@@ -24,11 +24,11 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
-import com.falsepattern.fpgradle.*
+import com.falsepattern.fpgradle.manifestAttributes
+import com.falsepattern.fpgradle.mc
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
-import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.component.AdhocComponentWithVariants
 import org.gradle.api.component.ConfigurationVariantDetails
@@ -37,7 +37,6 @@ import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
-import kotlin.reflect.KClass
 
 class Shadow: FPPlugin() {
 

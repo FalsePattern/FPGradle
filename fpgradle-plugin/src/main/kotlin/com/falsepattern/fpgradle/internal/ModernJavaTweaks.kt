@@ -23,25 +23,18 @@
 
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.FPMinecraftProjectExtension
-import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.Compatibility.*
-import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.*
-import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
+import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.Compatibility.*
 import com.gtnewhorizons.retrofuturagradle.mcp.MCPTasks
-import com.gtnewhorizons.retrofuturagradle.minecraft.MinecraftTasks
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import com.gtnewhorizons.retrofuturagradle.util.Distribution
-import io.github.legacymoddingmc.mappinggenerator.MappingGeneratorExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ExternalModuleDependency
-import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import java.nio.charset.StandardCharsets

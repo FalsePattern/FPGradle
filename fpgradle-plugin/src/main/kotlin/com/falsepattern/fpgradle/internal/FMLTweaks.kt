@@ -27,7 +27,11 @@ import com.falsepattern.fpgradle.*
 import com.gtnewhorizons.retrofuturagradle.mcp.DeobfuscateTask
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.invoke
+import org.gradle.kotlin.dsl.named
+import kotlin.collections.HashMap
+import kotlin.collections.set
 
 class FMLTweaks: FPPlugin() {
     override fun Project.onPluginInit() {

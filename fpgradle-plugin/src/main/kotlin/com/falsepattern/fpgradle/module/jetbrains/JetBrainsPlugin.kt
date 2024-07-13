@@ -24,14 +24,13 @@
 package com.falsepattern.fpgradle.module.jetbrains
 
 import com.falsepattern.fpgradle.FPPlugin
-import com.falsepattern.fpgradle.*
+import com.falsepattern.fpgradle.idea
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.JavaExec
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.invoke
+import org.gradle.kotlin.dsl.withType
 import org.gradle.plugins.ide.idea.IdeaPlugin
-import org.gradle.plugins.ide.idea.model.IdeaModel
 import org.jetbrains.gradle.ext.IdeaExtPlugin
 
 class JetBrainsPlugin: FPPlugin() {

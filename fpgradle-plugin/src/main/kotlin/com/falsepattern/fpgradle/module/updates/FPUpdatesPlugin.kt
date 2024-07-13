@@ -30,17 +30,9 @@ import org.apache.maven.artifact.repository.metadata.io.xpp3.MetadataXpp3Reader
 import org.gradle.api.Project
 import org.gradle.api.flow.FlowAction
 import org.gradle.api.flow.FlowParameters
-import org.gradle.api.flow.FlowProviders
 import org.gradle.api.flow.FlowScope
 import org.gradle.api.provider.Property
-import org.gradle.api.services.BuildService
-import org.gradle.api.services.BuildServiceParameters
 import org.gradle.api.tasks.Input
-import org.gradle.build.event.BuildEventsListenerRegistry
-import org.gradle.tooling.events.FinishEvent
-import org.gradle.tooling.events.OperationCompletionListener
-import org.gradle.tooling.events.lifecycle.BuildPhaseFinishEvent
-import java.io.File
 import java.net.URI
 import java.net.http.HttpClient
 import java.net.http.HttpRequest

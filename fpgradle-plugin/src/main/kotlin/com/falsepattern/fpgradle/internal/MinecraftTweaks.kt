@@ -24,13 +24,17 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.*
-import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
 import org.gradle.api.Project
-import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.jvm.tasks.Jar
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.expand
+import org.gradle.kotlin.dsl.invoke
+import org.gradle.kotlin.dsl.named
 import org.gradle.language.jvm.tasks.ProcessResources
+import kotlin.collections.HashMap
+import kotlin.collections.mapOf
+import kotlin.collections.set
 
 class MinecraftTweaks: FPPlugin() {
 

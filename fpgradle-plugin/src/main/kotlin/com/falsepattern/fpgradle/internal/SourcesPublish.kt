@@ -24,7 +24,8 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
-import com.falsepattern.fpgradle.*
+import com.falsepattern.fpgradle.java
+import com.falsepattern.fpgradle.mc
 import org.gradle.api.Project
 
 class SourcesPublish: FPPlugin() {

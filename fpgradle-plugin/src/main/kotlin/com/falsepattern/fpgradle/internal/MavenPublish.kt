@@ -24,12 +24,14 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
-import com.falsepattern.fpgradle.*
+import com.falsepattern.fpgradle.mc
+import com.falsepattern.fpgradle.publishing
 import org.gradle.api.Project
 import org.gradle.api.credentials.PasswordCredentials
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.credentials
 
 class MavenPublish: FPPlugin() {
     override fun addPlugins() = listOf(MavenPublishPlugin::class)

@@ -23,11 +23,14 @@
 
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.*
+import com.falsepattern.fpgradle.FPPlugin
+import com.falsepattern.fpgradle.mc
+import com.falsepattern.fpgradle.sourceSets
 import com.falsepattern.fpgradle.verifyPackage
 import org.gradle.api.Project
 import org.gradle.jvm.tasks.Jar
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.register
 
 class ApiPackage: FPPlugin() {
     override fun Project.onPluginInit() {

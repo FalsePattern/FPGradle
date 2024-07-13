@@ -26,7 +26,7 @@ package com.falsepattern.fpgradle.project
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.internal.*
-import com.falsepattern.fpgradle.*
+import com.falsepattern.fpgradle.mc
 import com.falsepattern.fpgradle.module.git.GitPlugin
 import com.falsepattern.fpgradle.module.jetbrains.JetBrainsPlugin
 import com.falsepattern.fpgradle.module.lombok.FPLombokPlugin
@@ -36,7 +36,8 @@ import com.gtnewhorizons.retrofuturagradle.UserDevPlugin
 import io.github.legacymoddingmc.mappinggenerator.MappingGeneratorPlugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.create
+import org.gradle.kotlin.dsl.mapProperty
 
 class MinecraftPlugin: FPPlugin() {
     override fun addPlugins() = listOf(

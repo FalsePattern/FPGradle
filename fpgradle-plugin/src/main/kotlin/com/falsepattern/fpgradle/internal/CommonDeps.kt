@@ -25,7 +25,8 @@ package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.repositories
 import org.gradle.api.plugins.JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME as COMPILE_ONLY
 
 class CommonDeps: FPPlugin() {

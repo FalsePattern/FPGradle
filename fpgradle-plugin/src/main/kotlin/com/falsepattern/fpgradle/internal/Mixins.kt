@@ -24,12 +24,11 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.*
-import com.gtnewhorizons.retrofuturagradle.MinecraftExtension
-import com.gtnewhorizons.retrofuturagradle.modutils.ModUtils
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.provider.Provider
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.dependencies
+import org.gradle.kotlin.dsl.invoke
 import org.gradle.api.plugins.JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME as ANNOTATION_PROCESSOR
 import org.gradle.api.plugins.JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME as IMPLEMENTATION
 

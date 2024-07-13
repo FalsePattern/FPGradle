@@ -27,9 +27,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.provider.ValueSource
 import org.gradle.api.provider.ValueSourceParameters
-import org.gradle.kotlin.dsl.*
 import java.io.InputStream
-import java.lang.StringBuilder
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter

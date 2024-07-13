@@ -26,7 +26,6 @@ package com.falsepattern.fpgradle.module.git
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.currentTimestamp
 import com.falsepattern.fpgradle.getValueSource
-import com.falsepattern.fpgradle.mc
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.assign
 

@@ -23,7 +23,6 @@
 
 package com.falsepattern.fpgradle.module.git
 
-import com.falsepattern.fpgradle.currentTimestamp
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.api.errors.GitAPIException
 import org.gradle.api.provider.Property

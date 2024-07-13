@@ -36,7 +36,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
 import org.intellij.lang.annotations.Language
 import java.net.URI
-import java.util.UUID
+import java.util.*
 
 @Suppress("unused", "LeakingThis")
 abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware {

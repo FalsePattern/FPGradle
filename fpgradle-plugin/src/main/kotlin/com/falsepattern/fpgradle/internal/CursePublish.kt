@@ -24,14 +24,16 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
-import com.falsepattern.fpgradle.*
+import com.falsepattern.fpgradle.mc
+import com.falsepattern.fpgradle.minecraft
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import net.darkhax.curseforgegradle.Constants
 import net.darkhax.curseforgegradle.CurseForgeGradlePlugin
 import net.darkhax.curseforgegradle.TaskPublishCurseForge
 import org.gradle.api.Project
 import org.gradle.api.publish.plugins.PublishingPlugin
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.register
 
 class CursePublish: FPPlugin() {
     override fun addPlugins() = listOf(CurseForgeGradlePlugin::class)
