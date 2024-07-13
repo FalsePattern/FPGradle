@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.falsepattern"
-version = "0.4.2"
+version = "0.5.0-dev"
 
 kotlin {
     jvmToolchain(21)
@@ -18,6 +18,13 @@ java {
     }
     withSourcesJar()
     withJavadocJar()
+}
+
+tasks.processResources.configure {
+    inputs.property("version", version)
+    filesMatching("fpgradle/version.properties") {
+        expand("version" to version)
+    }
 }
 
 repositories {
@@ -85,6 +92,9 @@ dependencies {
 
     // Minotaur
     implementation("com.modrinth.minotaur:Minotaur:2.8.7")
+
+    // Maven metadata
+    implementation("org.apache.maven:maven-repository-metadata:3.9.7")
 }
 
 val add: NamedDomainObjectContainer<PluginDeclaration>.(pluginID: String, pluginClass: String) ->

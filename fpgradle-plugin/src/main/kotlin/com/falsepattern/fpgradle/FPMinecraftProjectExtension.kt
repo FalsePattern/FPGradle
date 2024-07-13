@@ -85,6 +85,8 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
 
         publish.curseforge.tokenEnv.convention("CURSEFORGE_TOKEN")
         publish.modrinth.tokenEnv.convention("MODRINTH_TOKEN")
+
+        updates.check.convention(true)
     }
 
     //region java
@@ -273,6 +275,17 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     abstract val publish: Publish
     fun publish(action: Publish.() -> Unit) {
         action(publish)
+    }
+    //endregion
+
+    //region updates
+    abstract class Updates: ExtensionAware {
+        abstract val check: Property<Boolean>
+    }
+    @get:Nested
+    abstract val updates: Updates
+    fun updates(action: Updates.() -> Unit) {
+        action(updates)
     }
     //endregion
 

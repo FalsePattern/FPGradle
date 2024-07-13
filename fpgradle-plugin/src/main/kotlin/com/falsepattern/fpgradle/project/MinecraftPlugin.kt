@@ -30,6 +30,7 @@ import com.falsepattern.fpgradle.*
 import com.falsepattern.fpgradle.module.git.GitPlugin
 import com.falsepattern.fpgradle.module.jetbrains.JetBrainsPlugin
 import com.falsepattern.fpgradle.module.lombok.FPLombokPlugin
+import com.falsepattern.fpgradle.module.updates.FPUpdatesPlugin
 import com.falsepattern.jtweaker.JTweakerPlugin
 import com.gtnewhorizons.retrofuturagradle.UserDevPlugin
 import io.github.legacymoddingmc.mappinggenerator.MappingGeneratorPlugin
@@ -63,6 +64,8 @@ class MinecraftPlugin: FPPlugin() {
         MavenPublish::class,
         CursePublish::class,
         ModrinthPublish::class,
+
+        FPUpdatesPlugin::class,
     )
 
     override fun Project.onPluginApplyBeforeDeps() {
