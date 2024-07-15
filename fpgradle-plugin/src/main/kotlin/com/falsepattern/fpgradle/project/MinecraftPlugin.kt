@@ -62,6 +62,8 @@ class MinecraftPlugin: FPPlugin() {
         ApiPackage::class,
         Shadow::class,
 
+        LoggingTweaks::class,
+
         MavenPublish::class,
         CursePublish::class,
         ModrinthPublish::class,

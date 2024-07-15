@@ -68,6 +68,12 @@ minecraft_fp {
     }
 
     // optional
+    // Changes the log level of the console output
+//    logging {
+//        level = INFO //Convention
+//    }
+
+    // optional
     // Use this if you want to publish on maven/curse/modrinth
 //    publish {
 //        // optional

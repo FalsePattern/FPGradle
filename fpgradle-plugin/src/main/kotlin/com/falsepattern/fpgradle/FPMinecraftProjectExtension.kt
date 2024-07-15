@@ -38,7 +38,7 @@ import org.intellij.lang.annotations.Language
 import java.net.URI
 import java.util.*
 
-@Suppress("unused", "LeakingThis")
+@Suppress("unused", "LeakingThis", "PropertyName")
 abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware {
     init {
         java.compatibility.convention(Java.Compatibility.LegacyJava)
@@ -67,6 +67,8 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
         tokens.name.convention("MOD_NAME")
         tokens.version.convention("MOD_VERSION")
         tokens.rootPkg.convention("ROOT_PKG")
+
+        logging.level.convention(Logging.Level.INFO)
 
         publish.changelog.convention(project.provider {
             val changelogFile = project.file(System.getenv("CHANGELOG_FILE") ?: "CHANGELOG.md")
@@ -202,6 +204,37 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     abstract val tokens: Tokens
     fun tokens(action: Tokens.() -> Unit) {
         action(tokens)
+    }
+    //endregion
+
+    //region logging
+    abstract class Logging: ExtensionAware {
+        abstract val level: Property<Level>
+
+        val OFF = Level.OFF
+        val FATAL = Level.FATAL
+        val ERROR = Level.ERROR
+        val WARN = Level.WARN
+        val INFO = Level.INFO
+        val DEBUG = Level.DEBUG
+        val TRACE = Level.TRACE
+        val ALL = Level.ALL
+
+        enum class Level {
+            OFF,
+            FATAL,
+            ERROR,
+            WARN,
+            INFO,
+            DEBUG,
+            TRACE,
+            ALL
+        }
+    }
+    @get:Nested
+    abstract val logging: Logging
+    fun logging(action: Logging.() -> Unit) {
+        action(logging)
     }
     //endregion
 
