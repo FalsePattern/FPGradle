@@ -56,14 +56,20 @@ fun <T, P: ValueSourceParameters> Project.getValueSource(sourceType: KClass<out 
 
 private val javaSourceDir = "src/main/java"
 
-fun Project.verifyPackage(thePackage: String, propName: String) {
-    val targetPackageJava = resolvePath(javaSourceDir, mc.mod.rootPkg.get(), thePackage)
+fun Project.verifyPackage(thePackage: String, propName: String, ignoreRootPkg: Boolean) {
+    val targetPackageJava = if (ignoreRootPkg) {
+        resolvePath(javaSourceDir, thePackage)
+    } else
+        resolvePath(javaSourceDir, mc.mod.rootPkg.get(), thePackage)
     if (!file(targetPackageJava).exists())
         throw GradleException("Could not resolve \"$propName\"! Could not find $targetPackageJava")
 }
 
-fun Project.verifyClass(theClass: String, propName: String) {
-    val targetClassJava = resolvePath(javaSourceDir, mc.mod.rootPkg.get(), theClass) + ".java"
+fun Project.verifyClass(theClass: String, propName: String, ignoreRootPkg: Boolean) {
+    val targetClassJava = if (ignoreRootPkg)
+        resolvePath(javaSourceDir, theClass) + ".java"
+    else
+        resolvePath(javaSourceDir, mc.mod.rootPkg.get(), theClass) + ".java"
     if (!file(targetClassJava).exists())
         throw GradleException("Could not resolve \"$propName\"! Could not find $targetClassJava")
 

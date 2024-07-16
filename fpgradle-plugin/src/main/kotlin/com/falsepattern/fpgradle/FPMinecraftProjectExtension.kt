@@ -54,15 +54,19 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
 
         api.packages.convention(listOf())
         api.packagesNoRecurse.convention(listOf())
+        api.ignoreRootPkg.convention(false)
 
         mixin.debug.convention(false)
         mixin.hasMixinDeps.convention(false)
+        mixin.ignoreRootPkg.convention(false)
 
+        core.coreModIgnoreRootPkg.convention(false)
         core.containsMixinsAndOrCoreModOnly.convention(false)
 
         shadow.minimize.convention(false)
         shadow.relocate.convention(false)
 
+        tokens.tokenClassIgnoreRootPkg.convention(false)
         tokens.modid.convention("MOD_ID")
         tokens.name.convention("MOD_NAME")
         tokens.version.convention("MOD_VERSION")
@@ -143,6 +147,7 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     abstract class Api: ExtensionAware {
         abstract val packages: ListProperty<String>
         abstract val packagesNoRecurse: ListProperty<String>
+        abstract val ignoreRootPkg: Property<Boolean>
     }
     @get:Nested
     abstract val api: Api
@@ -157,6 +162,7 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
         abstract val pluginClass: Property<String>
         abstract val debug: Property<Boolean>
         abstract val hasMixinDeps: Property<Boolean>
+        abstract val ignoreRootPkg: Property<Boolean>
 
         val use get() = pkg.isPresent
     }
@@ -170,6 +176,7 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     //region core
     abstract class Core: ExtensionAware {
         abstract val coreModClass: Property<String>
+        abstract val coreModIgnoreRootPkg: Property<Boolean>
         abstract val accessTransformerFile: Property<String>
         abstract val containsMixinsAndOrCoreModOnly: Property<Boolean>
     }
@@ -195,6 +202,7 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     //region tokens
     abstract class Tokens: ExtensionAware {
         abstract val tokenClass: Property<String>
+        abstract val tokenClassIgnoreRootPkg: Property<Boolean>
         abstract val modid: Property<String>
         abstract val name: Property<String>
         abstract val version: Property<String>

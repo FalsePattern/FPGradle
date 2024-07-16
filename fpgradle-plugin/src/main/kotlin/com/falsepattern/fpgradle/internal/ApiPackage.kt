@@ -35,22 +35,22 @@ import org.gradle.kotlin.dsl.register
 class ApiPackage: FPPlugin() {
     override fun Project.onPluginInit() {
         tasks.register<Jar>("apiJar").configure {
-            val group = mc.mod.rootPkg.map { it.replace('.', '/') }.get()
+            val group = if (mc.api.ignoreRootPkg.get()) "" else (mc.mod.rootPkg.map { it.replace('.', '/') }.get() + "/")
             val pkgs = mc.api.packages.map { it.map { str -> str.replace('.', '/') } }.get()
             val pkgsNoRecurse = mc.api.packagesNoRecurse.map { it.map { str -> str.replace('.', '/') } }.get()
 
             from(sourceSets.getByName("main").allSource) {
                 for (pkg in pkgs)
-                    include("$group/$pkg/**")
+                    include("$group$pkg/**")
                 for (pkg in pkgsNoRecurse)
-                    include("$group/$pkg/*")
+                    include("$group$pkg/*")
             }
 
             from(sourceSets.getByName("main").output) {
                 for (pkg in pkgs)
-                    include("$group/$pkg/**")
+                    include("$group$pkg/**")
                 for (pkg in pkgsNoRecurse)
-                    include("$group/$pkg/*")
+                    include("$group$pkg/*")
 
             }
             from(sourceSets.getByName("main").resources.srcDirs) {
@@ -66,9 +66,9 @@ class ApiPackage: FPPlugin() {
             mc.api.packagesNoRecurse.get().isEmpty())
             return
         for (pkg in mc.api.packages.get())
-            verifyPackage(pkg, "apiPackages")
+            verifyPackage(pkg, "apiPackages", mc.api.ignoreRootPkg.get())
         for (pkg in mc.api.packagesNoRecurse.get())
-            verifyPackage(pkg, "apiPackagesNoRecurse")
+            verifyPackage(pkg, "apiPackagesNoRecurse", mc.api.ignoreRootPkg.get())
         artifacts {
             add("archives", tasks.named("apiJar"))
         }

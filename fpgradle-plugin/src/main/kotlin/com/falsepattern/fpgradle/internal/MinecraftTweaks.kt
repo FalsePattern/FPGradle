@@ -48,7 +48,7 @@ class MinecraftTweaks: FPPlugin() {
 
     private fun Project.validate() {
         if (mc.mod.rootPkg.isPresent)
-            verifyPackage("", "mod -> rootPkg")
+            verifyPackage("", "mod -> rootPkg", false)
     }
 
     private fun Project.jar() {
@@ -94,13 +94,17 @@ class MinecraftTweaks: FPPlugin() {
             })
 
             named<InjectTagsTask>("injectTags").configure {
-                inputs.property("tokenId", mc.tokens.modid.get())
-                inputs.property("tokenName", mc.tokens.name.get())
-                inputs.property("tokenVersion", mc.tokens.version.get())
-                inputs.property("tokenGroup", mc.tokens.rootPkg.get())
+                inputs.property("tokenId", mc.tokens.modid)
+                inputs.property("tokenName", mc.tokens.name)
+                inputs.property("tokenVersion", mc.tokens.version)
+                inputs.property("tokenGroup", mc.tokens.rootPkg)
                 if (mc.tokens.tokenClass.isPresent) {
                     inputs.property("tokenClass", mc.tokens.tokenClass.get())
-                    outputClassName = mc.tokens.tokenClass.map { "${mc.mod.rootPkg.get()}.$it" }
+                    if (mc.tokens.tokenClassIgnoreRootPkg.get()) {
+                        outputClassName = mc.tokens.tokenClass
+                    } else {
+                        outputClassName = mc.tokens.tokenClass.map { "${mc.mod.rootPkg.get()}.$it" }
+                    }
                 }
                 onlyIf {
                     mc.tokens.tokenClass.isPresent

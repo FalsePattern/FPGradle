@@ -62,7 +62,11 @@ class FMLTweaks: FPPlugin() {
                 }
 
                 if (mc.core.coreModClass.isPresent) {
-                    res["FMLCorePlugin"] = "${mod.rootPkg.get()}.${mc.core.coreModClass.get()}"
+                    if (mc.core.coreModIgnoreRootPkg.get()) {
+                        res["FMLCorePlugin"] = mc.core.coreModClass.get()
+                    } else {
+                        res["FMLCorePlugin"] = "${mod.rootPkg.get()}.${mc.core.coreModClass.get()}"
+                    }
                 }
             }
             res
@@ -72,7 +76,7 @@ class FMLTweaks: FPPlugin() {
     private fun Project.coreModPostInit() {
         if (!mc.core.coreModClass.isPresent)
             return
-        verifyClass(mc.core.coreModClass.get(), "core -> coreModClass")
+        verifyClass(mc.core.coreModClass.get(), "core -> coreModClass", mc.core.coreModIgnoreRootPkg.get())
     }
 
     private fun Project.accessTransformerInit() {

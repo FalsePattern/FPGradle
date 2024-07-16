@@ -51,10 +51,10 @@ class Mixins: FPPlugin() {
         if (!mc.mixin.use)
             return
 
-        verifyPackage(mc.mixin.pkg.get(), "mixin -> pkg")
+        verifyPackage(mc.mixin.pkg.get(), "mixin -> pkg", mc.mixin.ignoreRootPkg.get())
 
         if (mc.mixin.pluginClass.isPresent) {
-            verifyClass(mc.mixin.pluginClass.get(), "mixin -> plugin")
+            verifyClass(mc.mixin.pluginClass.get(), "mixin -> plugin", mc.mixin.ignoreRootPkg.get())
         }
     }
 
@@ -134,15 +134,23 @@ class Mixins: FPPlugin() {
     private fun Task.generateMixinConfigFile() = with(project) {
         val mixinConfigFile = file("src/main/resources/mixins.${mc.mod.modid.get()}.json")
         if (!mixinConfigFile.exists()) {
-            val mixinPluginLine = if (mc.mixin.pluginClass.isPresent)
-                "\"plugin\": \"${mc.mod.rootPkg.get()}.${mc.mixin.pluginClass.get()}\","
-            else
+            val mixinPluginLine = if (mc.mixin.pluginClass.isPresent) {
+                if (mc.mixin.ignoreRootPkg.get()) {
+                    "\"plugin\": \"${mc.mixin.pluginClass.get()}\","
+                } else {
+                    "\"plugin\": \"${mc.mod.rootPkg.get()}.${mc.mixin.pluginClass.get()}\","
+                }
+            } else
                 ""
+            val pkg = if (mc.mixin.ignoreRootPkg.get())
+                mc.mixin.pkg.get()
+            else
+                "${mc.mod.rootPkg.get()}.${mc.mixin.pkg.get()}"
             mixinConfigFile.writeText("""
                 {
                   "required": true,
                   "minVersion": "0.8.5",
-                  "package": "${mc.mod.rootPkg.get()}.${mc.mixin.pkg.get()}",
+                  "package": "$pkg",
                   $mixinPluginLine
                   "refmap": "${mixinConfigRefMap.get()}",
                   "target": "@env(DEFAULT)",
