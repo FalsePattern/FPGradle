@@ -52,7 +52,8 @@ class MinecraftTweaks: FPPlugin() {
     }
 
     private fun Project.jar() {
-
+        val mc = project.mc
+        val minecraft = project.minecraft
         tasks {
             named<ProcessResources>("processResources").configure {
                 inputs.property("version", mc.mod.version)

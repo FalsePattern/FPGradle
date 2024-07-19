@@ -35,6 +35,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 
 class LoggingTweaks: FPPlugin() {
     override fun Project.onPluginInit() {
+        val mc = mc
         tasks.named<ProcessResources>("processPatchedMcResources").configure {
             inputs.property("logLevel", mc.logging.level)
 

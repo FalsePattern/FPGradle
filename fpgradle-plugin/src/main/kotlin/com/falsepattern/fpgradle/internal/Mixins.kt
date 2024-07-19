@@ -29,6 +29,7 @@ import org.gradle.api.Task
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.invoke
+import java.io.File
 import org.gradle.api.plugins.JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME as ANNOTATION_PROCESSOR
 import org.gradle.api.plugins.JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME as IMPLEMENTATION
 
@@ -96,10 +97,12 @@ class Mixins: FPPlugin() {
             register("generateMixins").configure {
                 group = "falsepattern"
                 description = "Generates a mixin config file at /src/main/resources/mixins.modid.json if needed"
+                val mc = project.mc
+                val resDir = file("src/main/resources");
                 onlyIf {
                     mc.mixin.use
                 }
-                doLast { generateMixinConfigFile() }
+                doLast { generateMixinConfigFile(mc, resDir.resolve("mixins.${mc.mod.modid.get()}.json")) }
             }
             named("processResources").configure {
                 dependsOn("generateMixins", "compileJava")
@@ -131,8 +134,7 @@ class Mixins: FPPlugin() {
         })
     }
 
-    private fun Task.generateMixinConfigFile() = with(project) {
-        val mixinConfigFile = file("src/main/resources/mixins.${mc.mod.modid.get()}.json")
+    private fun Task.generateMixinConfigFile(mc: FPMinecraftProjectExtension, mixinConfigFile: File) {
         if (!mixinConfigFile.exists()) {
             val mixinPluginLine = if (mc.mixin.pluginClass.isPresent) {
                 if (mc.mixin.ignoreRootPkg.get()) {

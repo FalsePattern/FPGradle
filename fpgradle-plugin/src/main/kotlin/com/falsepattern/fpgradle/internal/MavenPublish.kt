@@ -56,7 +56,7 @@ class MavenPublish: FPPlugin() {
                     return@repositories
 
                 maven {
-                    url = mvn.repoUrl.get()
+                    setUrl(mvn.repoUrl.get())
                     name = mvn.repoName.get()
                     val user = mvn.userEnv.map { System.getenv(it) }.orNull
                     val pass = mvn.passEnv.map { System.getenv(it) }.orNull

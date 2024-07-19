@@ -39,7 +39,7 @@ import java.net.URI
 import java.util.*
 
 @Suppress("unused", "LeakingThis", "PropertyName")
-abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware {
+abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
     init {
         java.compatibility.convention(Java.Compatibility.LegacyJava)
         java.version.convention(java.compatibility.map { when(it) {
@@ -250,7 +250,7 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     abstract class Publish: ExtensionAware {
         abstract val changelog: Property<String>
         abstract class Maven: ExtensionAware {
-            abstract val repoUrl: Property<URI>
+            abstract val repoUrl: Property<String>
             abstract val repoName: Property<String>
             abstract val sources: Property<Boolean>
             abstract val group: Property<String>
@@ -331,10 +331,6 @@ abstract class FPMinecraftProjectExtension(val project: Project): ExtensionAware
     //endregion
 
     //region DSL
-    @JvmName("assignStringToURI")
-    fun Property<URI>.assign(@Language("http-url-reference") value: String) {
-        this.set(project.uri(value))
-    }
     @JvmName("assignStringToUUID")
     fun Property<UUID>.assign(value: String) {
         this.set(UUID.fromString(value))
