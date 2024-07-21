@@ -57,10 +57,12 @@ fun DependencyHandler.apiOnlySplit(dependencyNotation: String, action: Dependenc
     action.invoke(add("runtimeOnlyNonPublishable", "$dependencyNotation:dev"))
 }
 
+@Suppress("UNCHECKED_CAST") // Verified by looking at control flow
+fun <T> DependencyHandler.deobf(depSpec: T): T = rfg.deobf(depSpec) as T
 
-fun DependencyHandler.deobfCurse(dependencyNotation: String): Any = rfg.deobf("curse.maven:$dependencyNotation")
+fun DependencyHandler.deobfCurse(dependencyNotation: String): String = deobf("curse.maven:$dependencyNotation")
 
-fun DependencyHandler.deobfModrinth(dependencyNotation: String): Any = rfg.deobf("maven.modrinth:$dependencyNotation")
+fun DependencyHandler.deobfModrinth(dependencyNotation: String): String = deobf("maven.modrinth:$dependencyNotation")
 
 fun ModuleDependency.excludeDeps() {
     isTransitive = false
