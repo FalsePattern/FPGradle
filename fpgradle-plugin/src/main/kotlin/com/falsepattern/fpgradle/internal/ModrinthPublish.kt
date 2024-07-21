@@ -37,7 +37,7 @@ import org.gradle.kotlin.dsl.named
 
 class ModrinthPublish: FPPlugin() {
 
-    override fun addPlugins() = listOf(Minotaur::class)
+    override fun Project.addPlugins() = listOf(Minotaur::class)
 
     override fun Project.onPluginPostInitBeforeDeps() {
         val projectId = mc.publish.modrinth.projectId

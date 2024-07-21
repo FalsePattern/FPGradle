@@ -40,7 +40,7 @@ import org.gradle.kotlin.dsl.named
 
 class Shadow: FPPlugin() {
 
-    override fun addPlugins() = listOf(ShadowPlugin::class)
+    override fun Project.addPlugins() = listOf(ShadowPlugin::class)
 
     override fun Project.onPluginInit() {
         setupShadowJarTask()
@@ -97,6 +97,9 @@ class Shadow: FPPlugin() {
                     inputJar = named<ShadowJar>("shadowJar").flatMap(AbstractArchiveTask::getArchiveFile)
                     dependsOn("shadowJar")
                 }
+            }
+            named("removeStub") {
+                dependsOn("testClasses")
             }
         }
     }

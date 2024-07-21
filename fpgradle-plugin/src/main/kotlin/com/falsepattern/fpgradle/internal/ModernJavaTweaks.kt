@@ -26,7 +26,9 @@ package com.falsepattern.fpgradle.internal
 import com.falsepattern.fpgradle.*
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.Compatibility.*
 import com.gtnewhorizons.retrofuturagradle.mcp.MCPTasks
+import com.gtnewhorizons.retrofuturagradle.mcp.RemapSourceJarTask
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
+import com.gtnewhorizons.retrofuturagradle.shadow.de.undercouch.gradle.tasks.download.Download
 import com.gtnewhorizons.retrofuturagradle.util.Distribution
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -190,14 +192,30 @@ class ModernJavaTweaks: FPPlugin() {
     }
 
     private fun Project.tweakMappingGenerator() {
-        mappingGenerator.sources = listOf(
-            listOf("yarn", "1.7.10+build.533"),
-            listOf("mcp", "1.8.9", "stable_22", "parameters"),
-            listOf("mcp", "1.12", "stable_39", "parameters"),
-            listOf("mcp", "1.7.10", "stable_12", "methodComments"),
-            listOf("csv", "https://raw.githubusercontent.com/LegacyModdingMC/ExtraMappings/master/params.csv"),
-            listOf("csv", "https://raw.githubusercontent.com/FalsePattern/srgmap/10613b1ed10c3e1b8f6da47b5b25d0dd83037849/params.csv"),
-        )
+        if (project.name == "fpgradle-examplemod1") {
+            mappingGenerator.sources = listOf(
+                listOf("yarn", "1.7.10+build.541"),
+                listOf("mcp", "1.8.9", "stable_22", "parameters"),
+                listOf("mcp", "1.12", "stable_39", "parameters"),
+                listOf("mcp", "1.7.10", "stable_12", "methodComments"),
+                listOf("csv", "https://raw.githubusercontent.com/LegacyModdingMC/ExtraMappings/master/params.csv"),
+                listOf("csv", "https://raw.githubusercontent.com/FalsePattern/srgmap/master/params.csv"),
+            )
+        } else {
+            val paramsFile = project.layout.buildDirectory.file("extra-mappings/parameters.csv")
+            val dl = tasks.register<Download>("downloadExtraMappings")
+            dl.configure {
+                src("https://mvn.falsepattern.com/filedrop/parameters.csv")
+                dest(paramsFile)
+                onlyIfModified(true)
+                overwrite(true)
+                quiet(true)
+            }
+            project.minecraft.extraParamsCsvs.from(paramsFile)
+            tasks.named<RemapSourceJarTask>("remapDecompiledJar").configure {
+                dependsOn(dl)
+            }
+        }
     }
 
     private fun Project.modifyMinecraftRunTaskModern(taskName: String, side: Distribution) {

@@ -79,7 +79,7 @@ dependencies {
     implementation("com.github.johnrengelman:shadow:8.1.1")
 
     // JTweaker (stubpackage)
-    implementation("com.falsepattern:jtweaker:0.2.2")
+    implementation("com.falsepattern:jtweaker:0.3.4")
 
     // MappingGenerator
     implementation("io.github.LegacyModdingMC.MappingGenerator:MappingGenerator:0.1.2")

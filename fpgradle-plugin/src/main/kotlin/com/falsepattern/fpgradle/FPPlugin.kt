@@ -34,8 +34,8 @@ abstract class FPPlugin: Plugin<Project> {
         project.afterEvaluate { project.onPluginPostInitBeforeDeps() }
         project.onPluginApplyBeforeDeps()
 
-        addPlugins().map{it.java}.forEach(project.pluginManager::apply)
-        addTasks().mapValues{it.value.java}.forEach { (s, clazz) -> project.tasks.create(s, clazz) }
+        project.addPlugins().map{it.java}.forEach(project.pluginManager::apply)
+        project.addTasks().mapValues{it.value.java}.forEach { (s, clazz) -> project.tasks.create(s, clazz) }
 
         project.onPluginApplyAfterDeps()
         project.afterEvaluate { project.onPluginPostInitAfterDeps() }
@@ -53,9 +53,9 @@ abstract class FPPlugin: Plugin<Project> {
 
     open fun Project.onPluginPostInitAfterDeps() {}
 
-    open fun addPlugins(): List<KClass<out Plugin<Project>>> = listOf()
+    open fun Project.addPlugins(): List<KClass<out Plugin<Project>>> = listOf()
 
-    open fun addTasks(): Map<String, KClass<out Task>> = mapOf()
+    open fun Project.addTasks(): Map<String, KClass<out Task>> = mapOf()
 
     class InternalOnPluginInitAction(private val project: Project): Action<FPPlugin> {
         override fun execute(plugin: FPPlugin) = with(plugin) {

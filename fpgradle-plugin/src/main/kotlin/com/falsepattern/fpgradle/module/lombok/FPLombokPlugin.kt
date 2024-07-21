@@ -29,9 +29,9 @@ import io.freefair.gradle.plugins.lombok.LombokPlugin
 import org.gradle.api.Project
 
 class FPLombokPlugin: FPPlugin() {
-    override fun addPlugins() = listOf(LombokPlugin::class)
+    override fun Project.addPlugins() = listOf(LombokPlugin::class)
 
-    override fun addTasks() = mapOf(Pair("extractLombokConfig", ExtractLombokConfigTask::class))
+    override fun Project.addTasks() = mapOf(Pair("extractLombokConfig", ExtractLombokConfigTask::class))
 
     override fun Project.onPluginInit() {
         lombok.version.convention("1.18.32")

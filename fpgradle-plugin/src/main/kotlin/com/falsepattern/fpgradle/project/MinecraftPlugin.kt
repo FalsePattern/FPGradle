@@ -34,42 +34,52 @@ import com.falsepattern.fpgradle.module.updates.FPUpdatesPlugin
 import com.falsepattern.jtweaker.JTweakerPlugin
 import com.gtnewhorizons.retrofuturagradle.UserDevPlugin
 import io.github.legacymoddingmc.mappinggenerator.MappingGeneratorPlugin
+import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.mapProperty
+import kotlin.reflect.KClass
 
 class MinecraftPlugin: FPPlugin() {
-    override fun addPlugins() = listOf(
-        JavaPlugin::class,
-        UserDevPlugin::class,
-        MappingGeneratorPlugin::class,
-        JTweakerPlugin::class,
+    override fun Project.addPlugins(): List<KClass<out Plugin<Project>>> {
+        val result = ArrayList<KClass<out Plugin<Project>>>()
+        result.addAll(listOf(
+            JavaPlugin::class,
+            UserDevPlugin::class,
+        ))
+        if (project.name == "fpgradle-examplemod1") {
+            result.add(MappingGeneratorPlugin::class)
+        }
+        result.addAll(listOf(
+            JTweakerPlugin::class,
 
-        FPLombokPlugin::class,
-        JetBrainsPlugin::class,
-        GitPlugin::class,
+            FPLombokPlugin::class,
+            JetBrainsPlugin::class,
+            GitPlugin::class,
 
-        NonPublishable::class,
-        CommonDeps::class,
+            NonPublishable::class,
+            CommonDeps::class,
 
-        ModernJavaTweaks::class,
-        MinecraftTweaks::class,
-        FMLTweaks::class,
-        Mixins::class,
+            ModernJavaTweaks::class,
+            MinecraftTweaks::class,
+            FMLTweaks::class,
+            Mixins::class,
 
-        SourcesPublish::class,
-        ApiPackage::class,
-        Shadow::class,
+            SourcesPublish::class,
+            ApiPackage::class,
+            Shadow::class,
 
-        LoggingTweaks::class,
+            LoggingTweaks::class,
 
-        MavenPublish::class,
-        CursePublish::class,
-        ModrinthPublish::class,
+            MavenPublish::class,
+            CursePublish::class,
+            ModrinthPublish::class,
 
-        FPUpdatesPlugin::class,
-    )
+            FPUpdatesPlugin::class,
+        ))
+        return result
+    }
 
     override fun Project.onPluginApplyBeforeDeps() {
         extensions.add("fp_ctx_internal", project.objects.mapProperty<String, String>())

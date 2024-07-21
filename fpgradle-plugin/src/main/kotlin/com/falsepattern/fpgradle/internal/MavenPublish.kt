@@ -34,7 +34,7 @@ import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.credentials
 
 class MavenPublish: FPPlugin() {
-    override fun addPlugins() = listOf(MavenPublishPlugin::class)
+    override fun Project.addPlugins() = listOf(MavenPublishPlugin::class)
 
     override fun Project.onPluginPostInitBeforeDeps() {
         val mvn = mc.publish.maven

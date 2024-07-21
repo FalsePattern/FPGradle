@@ -34,7 +34,7 @@ import org.gradle.plugins.ide.idea.IdeaPlugin
 import org.jetbrains.gradle.ext.IdeaExtPlugin
 
 class JetBrainsPlugin: FPPlugin() {
-    override fun addPlugins() = listOf(IdeaPlugin::class, IdeaExtPlugin::class)
+    override fun Project.addPlugins() = listOf(IdeaPlugin::class, IdeaExtPlugin::class)
 
     override fun Project.onPluginInit() {
         idea.module {

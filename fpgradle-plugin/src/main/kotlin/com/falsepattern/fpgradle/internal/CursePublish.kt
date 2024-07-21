@@ -36,7 +36,7 @@ import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 
 class CursePublish: FPPlugin() {
-    override fun addPlugins() = listOf(CurseForgeGradlePlugin::class)
+    override fun Project.addPlugins() = listOf(CurseForgeGradlePlugin::class)
 
     override fun Project.onPluginPostInitBeforeDeps() {
         val projectId = mc.publish.curseforge.projectId

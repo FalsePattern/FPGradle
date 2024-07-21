@@ -30,7 +30,7 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.assign
 
 class GitPlugin: FPPlugin() {
-    override fun addTasks() = mapOf(
+    override fun Project.addTasks() = mapOf(
         Pair("extractGitIgnore", ExtractGitIgnoreTask::class),
         Pair("extractGitAttributes", ExtractGitAttributesTask::class),
     )
