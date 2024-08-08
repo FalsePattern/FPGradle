@@ -177,7 +177,7 @@ class ModernJavaTweaks: FPPlugin() {
         val lwjgl3ify = lwjgl3ifyVersion.map { "com.github.GTNewHorizons:lwjgl3ify:$it" }
 
         dependencies {
-            addProvider("runtimeOnlyNonPublishable", lwjgl3ify.map { "$it:dev" })
+            addProvider("devOnlyNonPublishable", lwjgl3ify.map { "$it:dev" })
             addProvider("obfuscatedRuntimeClasspath", lwjgl3ify)
 
             addProvider<_, ExternalModuleDependency>(MODERN_PATCH_DEPS_COMPILE_ONLY, rfbVersion.map { "com.gtnewhorizons.retrofuturabootstrap:RetroFuturaBootstrap:$it" }) { isTransitive = false }
