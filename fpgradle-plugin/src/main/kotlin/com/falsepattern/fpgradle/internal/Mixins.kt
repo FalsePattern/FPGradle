@@ -66,8 +66,24 @@ class Mixins: FPPlugin() {
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.code.gson:gson:2.8.6" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { modUtils.enableMixins(mixinProviderSpec, mixinConfigRefMap.get()) })
 
-            addProvider("runtimeOnlyNonPublishable", provideIfMixinsRuntime(mc) { mixinProviderSpec })
-            addProvider("obfuscatedRuntimeClasspath", provideIfMixinsRuntime(mc) { mixinProviderSpecNoClassifer })
+            addProvider("devOnlyNonPublishable", provider {
+                if (mc.mixin.use)
+                    mixinProviderSpec
+                else
+                    null
+            })
+            addProvider("runtimeOnlyNonPublishable", provider {
+                if (!mc.mixin.use && mc.mixin.hasMixinDeps.get())
+                    mixinProviderSpec
+                else
+                    null
+            })
+            addProvider("obfuscatedRuntimeClasspath", provider {
+                if (mc.mixin.use || mc.mixin.hasMixinDeps.get())
+                    mixinProviderSpecNoClassifer
+                else
+                    null
+            })
         }
         with(configurations) {
             all {
