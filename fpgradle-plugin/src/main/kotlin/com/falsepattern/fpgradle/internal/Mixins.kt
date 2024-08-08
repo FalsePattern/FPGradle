@@ -64,13 +64,10 @@ class Mixins: FPPlugin() {
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "org.ow2.asm:asm-debug-all:5.0.3" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.guava:guava:24.1.1-jre" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.code.gson:gson:2.8.6" })
-            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { modUtils.enableMixins(mixinProviderSpec, mixinConfigRefMap.get()) })
+            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { mixinProviderSpec })
 
-            addProvider("devOnlyNonPublishable", provider {
-                if (mc.mixin.use)
-                    mixinProviderSpec
-                else
-                    null
+            addProvider("implementation", provideIfMixins(mc) {
+                modUtils.enableMixins(mixinProviderSpec, mixinConfigRefMap.get())
             })
             addProvider("runtimeOnlyNonPublishable", provider {
                 if (!mc.mixin.use && mc.mixin.hasMixinDeps.get())
