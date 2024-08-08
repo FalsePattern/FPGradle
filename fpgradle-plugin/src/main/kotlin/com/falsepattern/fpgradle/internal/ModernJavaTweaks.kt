@@ -125,7 +125,7 @@ class ModernJavaTweaks: FPPlugin() {
         val modernCompiler = toolchains.compilerFor(java.toolchain)
         project.tasks.withType<JavaCompile>().configureEachFiltered {
             sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
-            options.release = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }.get().asInt()
+            targetCompatibility = mc.java.version.map { it.majorVersion }.get()
             javaCompiler = modernCompiler
         }
     }
