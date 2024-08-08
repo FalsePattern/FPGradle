@@ -169,8 +169,8 @@ class ModernJavaTweaks: FPPlugin() {
         }
 
         val asmVersion = provider { "9.7" }
-        val rfbVersion = provider { "1.0.5" }
-        val lwjgl3ifyVersion = provider { "2.0.10" }
+        val rfbVersion = provider { "1.0.7" }
+        val lwjgl3ifyVersion = provider { "2.1.2" }
 
         val lwjgl3ify = lwjgl3ifyVersion.map { "com.github.GTNewHorizons:lwjgl3ify:$it" }
 
