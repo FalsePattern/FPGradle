@@ -57,7 +57,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         api.ignoreRootPkg.convention(false)
 
         mixin.debug.convention(false)
-        mixin.hasMixinDeps.convention(false)
+        mixin.hasMixinDeps.convention(java.compatibility.map { it == Java.Compatibility.ModernJava })
         mixin.ignoreRootPkg.convention(false)
 
         core.coreModIgnoreRootPkg.convention(false)

@@ -25,6 +25,7 @@ package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.*
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.Compatibility.*
+import com.gtnewhorizons.retrofuturagradle.ObfuscationAttribute
 import com.gtnewhorizons.retrofuturagradle.mcp.MCPTasks
 import com.gtnewhorizons.retrofuturagradle.mcp.RemapSourceJarTask
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
@@ -62,8 +63,9 @@ class ModernJavaTweaks: FPPlugin() {
                 setupJavaConfigsModern()
                 swapLWJGLVersionModern()
                 injectLWJGL3ifyModern()
-                modifyMinecraftRunTaskModern("runClient", Distribution.CLIENT)
-                modifyMinecraftRunTaskModern("runServer", Distribution.DEDICATED_SERVER)
+                for (it in McRun.values()) {
+                    modifyMinecraftRunTaskModern(it)
+                }
             }
         }
     }
@@ -132,14 +134,14 @@ class ModernJavaTweaks: FPPlugin() {
 
     private fun Project.setupJavaConfigsModern() {
         with(configurations) {
-            val modernJavaDependencies = create(MODERN_DEPS)
-            create(MODERN_PATCH_DEPS)
-            val modernJavaPatchDependencies = create(MODERN_PATCH_DEPS_COMPILE_ONLY)
-            create(MODERN_DEPS_COMBINED) {
-                extendsFrom(getByName("runtimeClasspath"), modernJavaDependencies)
+            create(MODERN_PATCH_DEPS) {
+                attributes.attribute(ObfuscationAttribute.OBFUSCATION_ATTRIBUTE, ObfuscationAttribute.getMcp(objects))
+            }
+            val modernJavaPatchDependencies = create(MODERN_PATCH_DEPS_COMPILE_ONLY) {
+                attributes.attribute(ObfuscationAttribute.OBFUSCATION_ATTRIBUTE, ObfuscationAttribute.getMcp(objects))
             }
             getByName("compileOnly") {
-                extendsFrom(modernJavaDependencies, modernJavaPatchDependencies)
+                extendsFrom(modernJavaPatchDependencies)
             }
         }
     }
@@ -175,7 +177,8 @@ class ModernJavaTweaks: FPPlugin() {
         val lwjgl3ify = lwjgl3ifyVersion.map { "com.github.GTNewHorizons:lwjgl3ify:$it" }
 
         dependencies {
-            addProvider(MODERN_DEPS, lwjgl3ify)
+            addProvider("runtimeOnlyNonPublishable", lwjgl3ify.map { "$it:dev" })
+            addProvider("obfuscatedRuntimeClasspath", lwjgl3ify)
 
             addProvider<_, ExternalModuleDependency>(MODERN_PATCH_DEPS_COMPILE_ONLY, rfbVersion.map { "com.gtnewhorizons.retrofuturabootstrap:RetroFuturaBootstrap:$it" }) { isTransitive = false }
             addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, asmVersion.map { "org.ow2.asm:asm:$it" })
@@ -218,27 +221,34 @@ class ModernJavaTweaks: FPPlugin() {
         }
     }
 
-    private fun Project.modifyMinecraftRunTaskModern(taskName: String, side: Distribution) {
-        tasks.named<RunMinecraftTask>(taskName).configure {
+    private fun Project.modifyMinecraftRunTaskModern(mcRun: McRun) {
+        tasks.named<RunMinecraftTask>(mcRun.taskName).configure {
             lwjglVersion = 3
             javaLauncher = toolchains.launcherFor(java.toolchain)
             extraJvmArgs.addAll(javaArgs)
-            systemProperty("gradlestart.bouncerClient", "com.gtnewhorizons.retrofuturabootstrap.Main")
-            systemProperty("gradlestart.bouncerServer", "com.gtnewhorizons.retrofuturabootstrap.Main")
+            if (mcRun.obfuscated) {
+                mainClass = when(mcRun.side) {
+                    Distribution.CLIENT -> "com.gtnewhorizons.retrofuturabootstrap.Main"
+                    Distribution.DEDICATED_SERVER -> "me.eigenraven.lwjgl3ify.rfb.entry.ServerMain"
+                }
+            } else {
+                when(mcRun.side) {
+                    Distribution.CLIENT -> systemProperty("gradlestart.bouncerClient", "com.gtnewhorizons.retrofuturabootstrap.Main")
+                    Distribution.DEDICATED_SERVER -> systemProperty("gradlestart.bouncerServer", "com.gtnewhorizons.retrofuturabootstrap.Main")
+                }
+            }
             systemProperty("java.system.class.loader", "com.gtnewhorizons.retrofuturabootstrap.RfbSystemClassLoader")
             systemProperty("file.encoding", "UTF-8")
             systemProperty("java.security.manager", "allow")
 
-            val modernJavaDependenciesCombined = configurations.getByName(MODERN_DEPS_COMBINED)
             val modernJavaPatchDependencies = configurations.getByName(MODERN_PATCH_DEPS)
 
             val oldClasspath = classpath
             setClasspath(files())
             classpath(modernJavaPatchDependencies)
-            if (side == Distribution.CLIENT) {
+            if (mcRun.side == Distribution.CLIENT) {
                 classpath(minecraftTasks.lwjgl3Configuration)
             }
-            classpath(modernJavaDependenciesCombined)
             classpath(oldClasspath)
         }
     }
@@ -278,8 +288,6 @@ class ModernJavaTweaks: FPPlugin() {
                 ADDED_MODULES.flatMap { listOf("--add-modules", it) } +
                 OPENED_PACKAGES.flatMap { listOf("--add-opens", it) }
 
-        private val MODERN_DEPS = "modernJavaDeps"
-        private val MODERN_DEPS_COMBINED = "modernJavaDepsCombined"
         private val MODERN_PATCH_DEPS = "modernJavaPatchDeps"
         private val MODERN_PATCH_DEPS_COMPILE_ONLY = "modernJavaPatchDepsCompileOnly"
 

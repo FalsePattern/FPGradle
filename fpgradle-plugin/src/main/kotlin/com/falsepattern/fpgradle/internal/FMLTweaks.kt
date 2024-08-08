@@ -46,10 +46,12 @@ class FMLTweaks: FPPlugin() {
     }
 
     private fun Project.runArgs() {
-        tasks.named<RunMinecraftTask>("runClient") {
-            username = mc.run.username.get()
-            if (mc.run.userUUID.isPresent)
-                userUUID = mc.run.userUUID.get().toString()
+        for (it in McRun.client()) {
+            tasks.named<RunMinecraftTask>(it.taskName) {
+                username = mc.run.username.get()
+                if (mc.run.userUUID.isPresent)
+                    userUUID = mc.run.userUUID.get().toString()
+            }
         }
     }
 

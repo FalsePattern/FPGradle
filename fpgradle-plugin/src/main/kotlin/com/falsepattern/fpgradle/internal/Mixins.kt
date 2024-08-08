@@ -31,7 +31,6 @@ import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.invoke
 import java.io.File
 import org.gradle.api.plugins.JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME as ANNOTATION_PROCESSOR
-import org.gradle.api.plugins.JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME as IMPLEMENTATION
 
 class Mixins: FPPlugin() {
     private lateinit var mixinConfigRefMap: Provider<String>
@@ -61,20 +60,14 @@ class Mixins: FPPlugin() {
 
     private fun Project.setupDependencies() {
         dependencies {
+            val modUtils = modUtils
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "org.ow2.asm:asm-debug-all:5.0.3" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.guava:guava:24.1.1-jre" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.code.gson:gson:2.8.6" })
-            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { mixinProviderSpec })
-            addProvider(IMPLEMENTATION, provideIfMixins(mc) {
-                modUtils.enableMixins(mixinProviderSpec, mixinConfigRefMap.get())
-            })
+            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { modUtils.enableMixins(mixinProviderSpec, mixinConfigRefMap.get()) })
 
-            addProvider("runtimeOnlyNonPublishable", provider {
-                if (!mc.mixin.use && mc.mixin.hasMixinDeps.get())
-                    mixinProviderSpec
-                else
-                    null
-            })
+            addProvider("runtimeOnlyNonPublishable", provideIfMixinsRuntime(mc) { mixinProviderSpec })
+            addProvider("obfuscatedRuntimeClasspath", provideIfMixinsRuntime(mc) { mixinProviderSpecNoClassifer })
         }
         with(configurations) {
             all {
@@ -182,6 +175,12 @@ class Mixins: FPPlugin() {
 
         private fun <T> Project.provideIfMixins(mc: FPMinecraftProjectExtension, provider: FPMinecraftProjectExtension.() -> T) = provider {
             if (mc.mixin.use)
+                provider(mc)
+            else
+                null
+        }
+        private fun <T> Project.provideIfMixinsRuntime(mc: FPMinecraftProjectExtension, provider: FPMinecraftProjectExtension.() -> T) = provider {
+            if (mc.mixin.use || mc.mixin.hasMixinDeps.get())
                 provider(mc)
             else
                 null
