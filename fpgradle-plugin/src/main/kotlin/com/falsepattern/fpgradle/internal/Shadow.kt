@@ -46,22 +46,19 @@ class Shadow: FPPlugin() {
         setupShadowJarTask()
     }
 
-    override fun Project.onPluginPostInitBeforeDeps() {
-        if (configurations.getByName("shadowImplementation").dependencies.isEmpty())
-            return
-
-        setupConfigCoupling()
-        setupArtifactRouting()
-    }
-
     private fun Project.setupShadowJarTask() {
-        configurations {
-            create("shadowImplementation")
+        val shadowRuntimeElements = configurations.getByName("shadowRuntimeElements")
+        val shadowImplementation = configurations.maybeCreate("shadowImplementation")
+        shadowImplementation.isCanBeConsumed = false
+        shadowImplementation.isCanBeResolved = true
+        listOf("compileClasspath", "runtimeClasspath", "testCompileClasspath", "testRuntimeClasspath").forEach {
+            configurations.getByName(it)
+                .extendsFrom(shadowImplementation)
         }
-        val shadowImplementation = configurations.named("shadowImplementation")
-        val empty = shadowImplementation.map { it.dependencies.isEmpty() }
+        val empty = provider { shadowImplementation.dependencies.isEmpty() }
         tasks {
-            named<ShadowJar>("shadowJar").configure {
+            val shadowJar = named<ShadowJar>("shadowJar")
+            shadowJar.configure {
                 manifest {
                     attributes(manifestAttributes.get())
                 }
@@ -69,9 +66,7 @@ class Shadow: FPPlugin() {
                 if (mc.shadow.minimize.get())
                     minimize()
 
-                configurations {
-                    add(shadowImplementation.get())
-                }
+                configurations = listOf(shadowImplementation)
 
                 archiveClassifier = "dev"
 
@@ -94,7 +89,7 @@ class Shadow: FPPlugin() {
 
             named<ReobfuscatedJar>("reobfJar").configure {
                 if (!empty.get()) {
-                    inputJar = named<ShadowJar>("shadowJar").flatMap(AbstractArchiveTask::getArchiveFile)
+                    inputJar = shadowJar.flatMap(AbstractArchiveTask::getArchiveFile)
                     dependsOn("shadowJar")
                 }
             }
@@ -102,36 +97,7 @@ class Shadow: FPPlugin() {
                 dependsOn("testClasses")
             }
         }
-    }
-
-    private fun Project.setupConfigCoupling() {
-        configurations {
-            for (classpath in classpaths) {
-                named(classpath).configure {
-                    extendsFrom(getByName("shadowImplementation"))
-                }
-            }
-        }
-    }
-
-    private fun Project.setupArtifactRouting() {
-        configurations {
-            getByName("runtimeElements").outgoing.artifacts.clear()
-            getByName("apiElements").outgoing.artifacts.clear()
-            getByName("runtimeElements").outgoing.artifact(tasks.named<ShadowJar>("shadowJar"))
-            getByName("apiElements").outgoing.artifact(tasks.named<ShadowJar>("shadowJar"))
-
-            val javaComponent = components.findByName("java")!! as AdhocComponentWithVariants
-            javaComponent.withVariantsFromConfiguration(getByName("shadowRuntimeElements"), ConfigurationVariantDetails::skip)
-        }
-    }
-
-    companion object {
-        private val classpaths = listOf(
-            "compileClasspath",
-            "runtimeClasspath",
-            "testCompileClasspath",
-            "testRuntimeClasspath"
-        )
+        val javaComponent = components.findByName("java") as AdhocComponentWithVariants
+        javaComponent.withVariantsFromConfiguration(shadowRuntimeElements, ConfigurationVariantDetails::skip)
     }
 }
