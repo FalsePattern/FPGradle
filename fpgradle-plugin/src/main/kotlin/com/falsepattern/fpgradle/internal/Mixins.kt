@@ -24,8 +24,10 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.*
+import com.gtnewhorizons.retrofuturagradle.modutils.ModUtils
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.invoke
@@ -59,16 +61,24 @@ class Mixins: FPPlugin() {
     }
 
     private fun Project.setupDependencies() {
+        val f = ModUtils::class.java.getDeclaredField("mixinRefMap")
+        f.isAccessible = true
+        @Suppress("UNCHECKED_CAST")
+        val property = f.get(modUtils) as Property<String>
+        property.set(mixinConfigRefMap.flatMap {
+            if (mc.mixin.use) {
+                provider { it }
+            } else {
+                provider { null }
+            }
+        })
         dependencies {
-            val modUtils = modUtils
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "org.ow2.asm:asm-debug-all:5.0.3" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.guava:guava:24.1.1-jre" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.code.gson:gson:2.8.6" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { mixinProviderSpec })
 
-            addProvider("devOnlyNonPublishable", provideIfMixins(mc) {
-                modUtils.enableMixins(mixinProviderSpec, mixinConfigRefMap.get())
-            })
+            addProvider("devOnlyNonPublishable", provideIfMixins(mc) { mixinProviderSpec })
             addProvider("runtimeOnlyNonPublishable", provider {
                 if (!mc.mixin.use && mc.mixin.hasMixinDeps.get())
                     mixinProviderSpec
