@@ -66,7 +66,7 @@ class Mixins: FPPlugin() {
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.code.gson:gson:2.8.6" })
             addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { mixinProviderSpec })
 
-            addProvider("implementation", provideIfMixins(mc) {
+            addProvider("devOnlyNonPublishable", provideIfMixins(mc) {
                 modUtils.enableMixins(mixinProviderSpec, mixinConfigRefMap.get())
             })
             addProvider("runtimeOnlyNonPublishable", provider {
@@ -182,7 +182,7 @@ class Mixins: FPPlugin() {
 
         private const val mixinProviderGroup = "com.github.LegacyModdingMC.UniMixins"
         private const val mixinProviderModule = "unimixins-all-1.7.10"
-        private const val mixinProviderVersion = "0.1.17"
+        private const val mixinProviderVersion = "0.1.19"
         private const val mixinProviderSpecNoClassifer = "$mixinProviderGroup:$mixinProviderModule:$mixinProviderVersion"
         private const val mixinProviderSpec = "$mixinProviderSpecNoClassifer:dev"
 
