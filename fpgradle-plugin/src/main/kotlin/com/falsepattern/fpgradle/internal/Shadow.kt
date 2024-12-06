@@ -81,6 +81,12 @@ class Shadow: FPPlugin() {
                 }
             }
 
+            for (outgoingConfig in listOf("runtimeElements", "apiElements")) {
+                val outgoing = configurations.getByName(outgoingConfig)
+                outgoing.outgoing.artifacts.clear()
+                outgoing.outgoing.artifact(shadowJar)
+            }
+
             named<Jar>("jar").configure {
                 dependsOn("removeStub")
                 if (!empty.get())
