@@ -4,8 +4,10 @@ plugins {
     `kotlin-dsl`
 }
 
+val buildscriptVersion = "0.9.0"
+
 group = "com.falsepattern"
-version = "0.8.3"
+version = buildscriptVersion
 
 kotlin {
     jvmToolchain(21)
