@@ -55,22 +55,29 @@ repositories {
 
 dependencies {
     // JetBrains Java Annotations
-    implementation("org.jetbrains:annotations:24.1.0")
+    implementation("org.jetbrains:annotations:26.0.1")
 
     // Lombok Gradle Plugin
-    implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:8.6")
+    implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:8.11")
 
     // JGit
-    implementation("org.eclipse.jgit:org.eclipse.jgit:6.10.0.202406032230-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r")
 
     // Apache Commons Lang
-    implementation("org.apache.commons:commons-lang3:3.14.0")
+    implementation("org.apache.commons:commons-lang3:3.17.0")
 
     // Apache Commons IO
-    implementation("commons-io:commons-io:2.16.1")
+    implementation("commons-io:commons-io:2.18.0")
+
+    // Apache Commons Compress
+    implementation("org.apache.commons:commons-compress:1.27.1")
+
+    // XZ
+    implementation("org.tukaani:xz:1.10")
 
     // Gson
     implementation("com.google.code.gson:gson:2.11.0")
+
 
     // RFG
     implementation("com.gtnewhorizons:retrofuturagradle:1.4.0-fp")
@@ -85,16 +92,16 @@ dependencies {
     implementation("io.github.LegacyModdingMC.MappingGenerator:MappingGenerator:0.1.2")
 
     // IntelliJ
-    implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.8")
+    implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.9")
 
     // CurseForgeGradle
-    implementation("net.darkhax.curseforgegradle:CurseForgeGradle:1.1.24")
+    implementation("net.darkhax.curseforgegradle:CurseForgeGradle:1.1.25")
 
     // Minotaur
     implementation("com.modrinth.minotaur:Minotaur:2.8.7")
 
     // Maven metadata
-    implementation("org.apache.maven:maven-repository-metadata:3.9.7")
+    implementation("org.apache.maven:maven-repository-metadata:3.9.9")
 }
 
 val add: NamedDomainObjectContainer<PluginDeclaration>.(pluginID: String, pluginClass: String) ->
