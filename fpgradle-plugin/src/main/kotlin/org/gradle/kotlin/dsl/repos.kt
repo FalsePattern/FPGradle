@@ -33,7 +33,7 @@ fun RepositoryHandler.maven(name: String, url: Any, action: MavenArtifactReposit
     maven {
         this.name = name
         setUrl(url)
-        action.invoke(this)
+        action()
     }
 fun RepositoryHandler.ivy(url: Any, pattern: String, action: IvyArtifactRepository.() -> Unit = {}) =
     ivy {
@@ -54,7 +54,16 @@ fun RepositoryHandler.modrinthEX(vararg extraGroups: String, extraFilter: Inclus
 fun RepositoryHandler.mavenpattern(action: MavenArtifactRepository.() -> Unit = {}) = maven("mavenpattern", "https://mvn.falsepattern.com/releases/", action)
 fun RepositoryHandler.jitpack(action: MavenArtifactRepository.() -> Unit = {}) = maven("jitpack", "https://mvn.falsepattern.com/jitpack/", action)
 fun RepositoryHandler.mega(action: MavenArtifactRepository.() -> Unit = {}) = maven("mega", "https://mvn.falsepattern.com/gtmega_releases/", action)
-
+fun RepositoryHandler.mega_uploads(action: MavenArtifactRepository.() -> Unit = {}) = maven("mega_uploads", "https://mvn.falsepattern.com/gtmega_uploads/", action)
+fun RepositoryHandler.horizon(action: MavenArtifactRepository.() -> Unit = {}) = maven("horizon", "https://mvn.falsepattern.com/horizon/", action)
+fun RepositoryHandler.fp_mirror(action: IvyArtifactRepository.() -> Unit = {}) = ivy("https://mvn.falsepattern.com/releases/mirror/", "[orgPath]/[artifact]-[revision].[ext]", action)
+fun RepositoryHandler.ic2(action: MavenArtifactRepository.() -> Unit = {}) = maven("ic2", "https://mvn.falsepattern.com/ic2/") {
+    metadataSources {
+        artifact()
+    }
+    action()
+}
+fun RepositoryHandler.ic2EX(vararg extraGroups: String, extraFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) = exclusive(ic2(), "net.industrial-craft", *extraGroups, theFilter = extraFilter)
 fun RepositoryHandler.exclusive(repo: ArtifactRepository, vararg groups: String, theFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) {
     exclusiveContent {
         forRepositories(repo)
