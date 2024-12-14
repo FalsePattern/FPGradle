@@ -24,6 +24,7 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
+import com.falsepattern.fpgradle.PackageRegistry
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.repositories
@@ -32,7 +33,7 @@ import org.gradle.api.plugins.JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME as COMP
 class CommonDeps: FPPlugin() {
     override fun Project.onPluginInit() {
         dependencies {
-            addProvider(COMPILE_ONLY, provider { "org.jetbrains:annotations:24.1.0" })
+            addProvider(COMPILE_ONLY, provider { PackageRegistry.JETBRAINS_ANNOTATIONS })
         }
         repositories {
             mavenCentral()
@@ -40,14 +41,14 @@ class CommonDeps: FPPlugin() {
                 name = "jitpack_unimixins"
                 url = uri("https://mvn.falsepattern.com/jitpack/")
                 content {
-                    includeModule("com.github.LegacyModdingMC.UniMixins", "unimixins-all-1.7.10")
+                    includeModule(PackageRegistry.MIXINS_GROUP, PackageRegistry.MIXINS_MODULE)
                 }
             }
             maven {
                 name = "horizon_fernflower"
                 url = uri("https://mvn.falsepattern.com/horizon/")
                 content {
-                    includeModule("org.jetbrains", "intellij-fernflower")
+                    includeModule(PackageRegistry.FERNFLOWER_GROUP, PackageRegistry.FERNFLOWER_MODULE)
                 }
             }
         }

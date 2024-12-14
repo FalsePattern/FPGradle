@@ -73,21 +73,21 @@ class Mixins: FPPlugin() {
             }
         })
         dependencies {
-            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "org.ow2.asm:asm-debug-all:5.0.3" })
-            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.guava:guava:24.1.1-jre" })
-            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { "com.google.code.gson:gson:2.8.6" })
-            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { mixinProviderSpec })
+            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { PackageRegistry.MIXINS_AP_ASM })
+            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { PackageRegistry.MIXINS_AP_GUAVA })
+            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { PackageRegistry.MIXINS_AP_GSON })
+            addProvider(ANNOTATION_PROCESSOR, provideIfMixins(mc) { MIXIN_PROVIDER_SPEC })
 
-            addProvider("devOnlyNonPublishable", provideIfMixins(mc) { mixinProviderSpec })
+            addProvider("devOnlyNonPublishable", provideIfMixins(mc) { MIXIN_PROVIDER_SPEC })
             addProvider("runtimeOnlyNonPublishable", provider {
                 if (!mc.mixin.use && mc.mixin.hasMixinDeps.get())
-                    mixinProviderSpec
+                    MIXIN_PROVIDER_SPEC
                 else
                     null
             })
             addProvider("obfuscatedRuntimeClasspath", provider {
                 if (mc.mixin.use || mc.mixin.hasMixinDeps.get())
-                    mixinProviderSpecNoClassifer
+                    MIXIN_PROVIDER_SPEC_NO_CLASSIFIER
                 else
                     null
             })
@@ -98,7 +98,7 @@ class Mixins: FPPlugin() {
                     dependencySubstitution {
                         for (sub in substituteMixins) {
                             substitute(module(sub))
-                                .using(module(mixinProviderSpecNoClassifer))
+                                .using(module(MIXIN_PROVIDER_SPEC_NO_CLASSIFIER))
                                 .withClassifier("dev")
                                 .because("heh")
                         }
@@ -190,11 +190,8 @@ class Mixins: FPPlugin() {
             "io.github.legacymoddingmc:unimixins"
         )
 
-        private const val mixinProviderGroup = "com.github.LegacyModdingMC.UniMixins"
-        private const val mixinProviderModule = "unimixins-all-1.7.10"
-        private const val mixinProviderVersion = "0.1.19"
-        private const val mixinProviderSpecNoClassifer = "$mixinProviderGroup:$mixinProviderModule:$mixinProviderVersion"
-        private const val mixinProviderSpec = "$mixinProviderSpecNoClassifer:dev"
+        private const val MIXIN_PROVIDER_SPEC_NO_CLASSIFIER = "${PackageRegistry.MIXINS_GROUP}:${PackageRegistry.MIXINS_MODULE}:${PackageRegistry.MIXINS_VERSION}"
+        private const val MIXIN_PROVIDER_SPEC = "$MIXIN_PROVIDER_SPEC_NO_CLASSIFIER:dev"
 
         private fun <T> Project.provideIfMixins(mc: FPMinecraftProjectExtension, provider: FPMinecraftProjectExtension.() -> T) = provider {
             if (mc.mixin.use)

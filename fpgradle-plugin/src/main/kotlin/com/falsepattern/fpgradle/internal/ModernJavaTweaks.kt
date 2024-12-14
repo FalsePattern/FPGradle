@@ -170,9 +170,9 @@ class ModernJavaTweaks: FPPlugin() {
             }
         }
 
-        val asmVersion = provider { "9.7" }
-        val rfbVersion = provider { "1.0.7" }
-        val lwjgl3ifyVersion = provider { "2.1.2" }
+        val asmVersion = provider { PackageRegistry.MODERN_JAVA_ASM_VERSION }
+        val rfbVersion = provider { PackageRegistry.RFB_VERSION }
+        val lwjgl3ifyVersion = provider { PackageRegistry.LWJGL3IFY_VERSION }
 
         val lwjgl3ify = lwjgl3ifyVersion.map { "com.github.GTNewHorizons:lwjgl3ify:$it" }
 
@@ -187,9 +187,9 @@ class ModernJavaTweaks: FPPlugin() {
             addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, asmVersion.map { "org.ow2.asm:asm-analysis:$it" })
             addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, asmVersion.map { "org.ow2.asm:asm-util:$it" })
             addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { "org.ow2.asm:asm-deprecated:7.1" })
-            addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { "org.apache.commons:commons-lang3:3.14.0" })
-            addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { "org.apache.commons:commons-compress:1.26.0" })
-            addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { "commons-io:commons-io:2.15.1" })
+            addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { PackageRegistry.MODERN_JAVA_COMMONS_LANG })
+            addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { PackageRegistry.MODERN_JAVA_COMMONS_COMPRESS })
+            addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { PackageRegistry.MODERN_JAVA_COMMONS_IO })
             addProvider<_, ExternalModuleDependency>(MODERN_PATCH_DEPS, lwjgl3ify.map { "$it:forgePatches" }) { isTransitive = false }
         }
     }
@@ -197,7 +197,7 @@ class ModernJavaTweaks: FPPlugin() {
     private fun Project.tweakMappingGenerator() {
         if (project.name == "fpgradle-examplemod1") {
             mappingGenerator.sources = listOf(
-                listOf("yarn", "1.7.10+build.541"),
+                listOf("yarn", PackageRegistry.LEGACY_YARN_VERSION),
                 listOf("mcp", "1.8.9", "stable_22", "parameters"),
                 listOf("mcp", "1.12", "stable_39", "parameters"),
                 listOf("mcp", "1.7.10", "stable_12", "methodComments"),
