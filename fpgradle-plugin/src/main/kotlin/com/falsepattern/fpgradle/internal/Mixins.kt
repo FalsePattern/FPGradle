@@ -116,7 +116,7 @@ class Mixins: FPPlugin() {
                 val mc = project.mc
                 val resDir = file("src/main/resources");
                 onlyIf {
-                    mc.mixin.use
+                    mc.mixin.use && mc.mixin.pluginClass.isPresent
                 }
                 doLast { generateMixinConfigFile(mc, resDir.resolve("mixins.${mc.mod.modid.get()}.json")) }
             }
@@ -141,12 +141,22 @@ class Mixins: FPPlugin() {
 
     private fun Project.setupManifestAttributes() {
         manifestAttributes.putAll(provider {
-            if (mc.mixin.use)
-                mapOf(Pair("TweakClass", "org.spongepowered.asm.launch.MixinTweaker"),
-                      Pair("MixinConfigs", "mixins.${mc.mod.modid.get()}.json"),
-                      Pair("ForceLoadAsMod", (!mc.core.containsMixinsAndOrCoreModOnly.get()).toString()))
-            else
+            if (mc.mixin.use) {
+                val configs = ArrayList<String>()
+                if (mc.mixin.pluginClass.isPresent) {
+                    configs.add("mixins.${mc.mod.modid.get()}.json")
+                }
+                if (mc.mixin.extraConfigs.isPresent) {
+                    configs.addAll(mc.mixin.extraConfigs.get())
+                }
+                mapOf(
+                    Pair("TweakClass", "org.spongepowered.asm.launch.MixinTweaker"),
+                    Pair("MixinConfigs", configs.joinToString(separator = ",")),
+                    Pair("ForceLoadAsMod", (!mc.core.containsMixinsAndOrCoreModOnly.get()).toString())
+                )
+            } else {
                 mapOf()
+            }
         })
     }
 
@@ -172,7 +182,7 @@ class Mixins: FPPlugin() {
                   $mixinPluginLine
                   "refmap": "${mixinConfigRefMap.get()}",
                   "target": "@env(DEFAULT)",
-                  "compatibilityLevel": "JAVA_18",
+                  "compatibilityLevel": "${if (mc.java.compatibility.get() == FPMinecraftProjectExtension.Java.Compatibility.ModernJava) "JAVA_8" else "JAVA_18"}",
                   "mixins": [],
                   "client": [],
                   "server": []

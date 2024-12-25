@@ -58,6 +58,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
 
         mixin.debug.convention(false)
         mixin.hasMixinDeps.convention(java.compatibility.map { it == Java.Compatibility.ModernJava })
+        mixin.extraConfigs.convention(listOf())
         mixin.ignoreRootPkg.convention(false)
 
         core.coreModIgnoreRootPkg.convention(false)
@@ -160,6 +161,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
     abstract class Mixins: ExtensionAware {
         abstract val pkg: Property<String>
         abstract val pluginClass: Property<String>
+        abstract val extraConfigs: ListProperty<String>
         abstract val debug: Property<Boolean>
         abstract val hasMixinDeps: Property<Boolean>
         abstract val ignoreRootPkg: Property<Boolean>

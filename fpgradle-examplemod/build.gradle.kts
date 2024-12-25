@@ -40,6 +40,7 @@ minecraft_fp {
 //    mixin {
 //        pkg           = "mixins"      //optional
 //        pluginClass   = "MixinPlugin" //optional, requires pkg set
+//        extraConfigs  = listOf()      //Convention
 //        debug         = false         //Convention
 //        hasMixinDeps  = false         //Convention
 //        ignoreRootPkg = false         //Convention
