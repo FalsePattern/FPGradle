@@ -79,3 +79,5 @@ fun InclusiveRepositoryContentDescriptor.includeGroups(vararg groups: String) {
         includeGroup(group)
     }
 }
+
+val DependencyHandlerScope.ic2 get() = "net.industrial-craft:industrialcraft-2:2.2.828-experimental:dev"
