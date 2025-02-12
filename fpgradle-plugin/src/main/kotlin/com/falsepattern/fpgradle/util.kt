@@ -54,25 +54,28 @@ fun <T, P: ValueSourceParameters> Project.getValueSource(sourceType: KClass<out 
         configuration(parameters)
     }
 
-private val javaSourceDir = "src/main/java"
+private enum class Language(val sourceDir: String, val extension: String) {
+    Java("src/main/java", ".java"),
+    Kotlin("src/main/kotlin", ".kt")
+}
 
 fun Project.verifyPackage(thePackage: String, propName: String, ignoreRootPkg: Boolean) {
-    val targetPackageJava = if (ignoreRootPkg) {
-        resolvePath(javaSourceDir, thePackage)
-    } else
-        resolvePath(javaSourceDir, mc.mod.rootPkg.get(), thePackage)
-    if (!file(targetPackageJava).exists())
-        throw GradleException("Could not resolve \"$propName\"! Could not find $targetPackageJava")
+    val targetPackages = Language.values().map { targetFile(it.sourceDir, thePackage, ignoreRootPkg) }
+    if (!targetPackages.any { file(it).isDirectory })
+        throw GradleException("Could not resolve \"$propName\"! Could not find ${targetPackages.joinToString(prefix = "\n    ", separator = "\n    ")}")
 }
 
 fun Project.verifyClass(theClass: String, propName: String, ignoreRootPkg: Boolean) {
-    val targetClassJava = if (ignoreRootPkg)
-        resolvePath(javaSourceDir, theClass) + ".java"
-    else
-        resolvePath(javaSourceDir, mc.mod.rootPkg.get(), theClass) + ".java"
-    if (!file(targetClassJava).exists())
-        throw GradleException("Could not resolve \"$propName\"! Could not find $targetClassJava")
+    val targetClasses = Language.values().map { targetFile(it.sourceDir, theClass, ignoreRootPkg) + it.extension }
+    if (!targetClasses.any { file(it).isFile })
+        throw GradleException("Could not resolve \"$propName\"! Could not find $${targetClasses.joinToString(prefix = "\n    ", separator = "\n    ")}")
+}
 
+private fun Project.targetFile(sourceDir: String, theFile: String, ignoreRootPkg: Boolean): String {
+    return if (ignoreRootPkg) {
+        resolvePath(sourceDir, theFile)
+    } else
+        resolvePath(sourceDir, mc.mod.rootPkg.get(), theFile)
 }
 
 fun Project.verifyFile(theFile: String, propName: String) {
