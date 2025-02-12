@@ -4,7 +4,7 @@ plugins {
     `kotlin-dsl`
 }
 
-val buildscriptVersion = "0.10.4-dev1"
+val buildscriptVersion = "0.10.4-dev2"
 
 group = "com.falsepattern"
 version = buildscriptVersion
@@ -88,7 +88,7 @@ dependencies {
     implementation("com.github.johnrengelman:shadow:8.1.1")
 
     // JTweaker (stubpackage)
-    implementation("com.falsepattern:jtweaker:0.3.4")
+    implementation("com.falsepattern:jtweaker:0.4.0")
 
     // MappingGenerator
     implementation("io.github.LegacyModdingMC.MappingGenerator:MappingGenerator:0.1.2")

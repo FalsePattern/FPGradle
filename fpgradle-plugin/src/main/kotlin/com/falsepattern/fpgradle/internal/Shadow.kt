@@ -74,7 +74,6 @@ class Shadow: FPPlugin() {
                     relocationPrefix = "${mc.mod.rootPkg.get()}.shadow"
                     isEnableRelocation = true
                 }
-                dependsOn("removeStub")
 
                 onlyIf {
                     !empty.get()
@@ -88,7 +87,6 @@ class Shadow: FPPlugin() {
             }
 
             named<Jar>("jar").configure {
-                dependsOn("removeStub")
                 if (!empty.get())
                     archiveClassifier = "dev-preshadow"
             }
