@@ -34,8 +34,6 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
-import org.intellij.lang.annotations.Language
-import java.net.URI
 import java.util.*
 
 @Suppress("unused", "LeakingThis", "PropertyName")
@@ -60,6 +58,8 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         mixin.hasMixinDeps.convention(java.compatibility.map { it == Java.Compatibility.ModernJava })
         mixin.extraConfigs.convention(listOf())
         mixin.ignoreRootPkg.convention(false)
+
+        kotlin.forgelinVersion.convention(null)
 
         core.coreModIgnoreRootPkg.convention(false)
         core.containsMixinsAndOrCoreModOnly.convention(false)
@@ -174,6 +174,14 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         action(mixin)
     }
     //endregion
+    abstract class Kotlin: ExtensionAware {
+        abstract val forgelinVersion: Property<String>
+    }
+    @get:Nested
+    abstract val kotlin: Kotlin
+    fun kotlin(action: Kotlin.() -> Unit) {
+        action(kotlin)
+    }
 
     //region core
     abstract class Core: ExtensionAware {

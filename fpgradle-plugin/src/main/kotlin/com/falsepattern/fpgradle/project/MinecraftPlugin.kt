@@ -57,6 +57,7 @@ class MinecraftPlugin: FPPlugin() {
             FPLombokPlugin::class,
             JetBrainsPlugin::class,
             GitPlugin::class,
+            Kotlin::class,
 
             NonPublishable::class,
             CommonDeps::class,

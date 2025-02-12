@@ -1,5 +1,6 @@
 plugins {
     id("fpgradle-minecraft")
+    kotlin("jvm") version "2.1.10"
 }
 
 group = "com.example"
@@ -45,6 +46,10 @@ minecraft_fp {
 //        hasMixinDeps  = false         //Convention
 //        ignoreRootPkg = false         //Convention
 //    }
+
+    kotlin {
+        forgelinVersion = "2.0.0-2.1.10"
+    }
 
     // optional
 //    core {
