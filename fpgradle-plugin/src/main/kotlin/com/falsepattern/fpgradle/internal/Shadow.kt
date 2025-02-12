@@ -99,9 +99,6 @@ class Shadow: FPPlugin() {
                     dependsOn("shadowJar")
                 }
             }
-            named("removeStub") {
-                dependsOn("testClasses")
-            }
         }
         val javaComponent = components.findByName("java") as AdhocComponentWithVariants
         javaComponent.withVariantsFromConfiguration(shadowRuntimeElements, ConfigurationVariantDetails::skip)
