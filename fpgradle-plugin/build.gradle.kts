@@ -57,22 +57,22 @@ repositories {
 
 dependencies {
     // Kotlin Plugin
-    compileOnly("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:2.1.10")
+    compileOnly("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:2.1.20")
 
     // JetBrains Java Annotations
-    implementation("org.jetbrains:annotations:26.0.1")
+    implementation("org.jetbrains:annotations:26.0.2")
 
     // Lombok Gradle Plugin
-    implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:8.11")
+    implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:8.13.1")
 
     // JGit
-    implementation("org.eclipse.jgit:org.eclipse.jgit:7.1.0.202411261347-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:7.2.0.202503040940-r")
 
     // Apache Commons Lang
     implementation("org.apache.commons:commons-lang3:3.17.0")
 
     // Apache Commons IO
-    implementation("commons-io:commons-io:2.18.0")
+    implementation("commons-io:commons-io:2.19.0")
 
     // Apache Commons Compress
     implementation("org.apache.commons:commons-compress:1.27.1")
@@ -81,11 +81,11 @@ dependencies {
     implementation("org.tukaani:xz:1.10")
 
     // Gson
-    implementation("com.google.code.gson:gson:2.11.0")
+    implementation("com.google.code.gson:gson:2.13.0")
 
 
     // RFG
-    implementation("com.gtnewhorizons:retrofuturagradle:1.4.0-fp")
+    implementation("com.gtnewhorizons:retrofuturagradle:1.4.5-fp")
 
     // Shadow
     implementation("com.github.johnrengelman:shadow:8.1.1")
@@ -97,10 +97,10 @@ dependencies {
     implementation("io.github.LegacyModdingMC.MappingGenerator:MappingGenerator:0.1.2")
 
     // IntelliJ
-    implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.9")
+    implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.10")
 
     // CurseForgeGradle
-    implementation("net.darkhax.curseforgegradle:CurseForgeGradle:1.1.25")
+    implementation("net.darkhax.curseforgegradle:CurseForgeGradle:1.1.26")
 
     // Minotaur
     implementation("com.modrinth.minotaur:Minotaur:2.8.7")
