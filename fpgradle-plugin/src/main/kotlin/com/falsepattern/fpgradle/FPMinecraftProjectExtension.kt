@@ -45,6 +45,11 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             Java.Compatibility.Jabel -> JavaVersion.VERSION_17
             Java.Compatibility.ModernJava -> JavaVersion.VERSION_21
         } })
+        java.modernRuntimeVersion.convention(java.compatibility.map { when(it) {
+            Java.Compatibility.LegacyJava -> JavaVersion.VERSION_21
+            Java.Compatibility.Jabel -> JavaVersion.VERSION_21
+            Java.Compatibility.ModernJava -> java.version.get()
+        } })
 
         mod.version.convention(project.provider { project.version.toString() })
 
@@ -99,6 +104,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
     //region java
     abstract class Java: ExtensionAware {
         abstract val version: Property<JavaVersion>
+        abstract val modernRuntimeVersion: Property<JavaVersion>
         abstract val compatibility: Property<Compatibility>
 
         enum class Compatibility {

@@ -56,6 +56,9 @@ repositories {
 }
 
 dependencies {
+    // Kotlin Plugin
+    compileOnly("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:2.1.10")
+
     // JetBrains Java Annotations
     implementation("org.jetbrains:annotations:26.0.1")
 

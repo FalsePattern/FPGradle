@@ -42,6 +42,7 @@ import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.plugins.ide.idea.model.IdeaModel
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 
 internal inline fun <reified T : Any> ExtensionAware.ext(): T = extensions.getByType<T>()
@@ -59,4 +60,5 @@ internal inline val Project.modUtils get() = ext<ModUtils>()
 internal inline val Project.sourceSets get() = ext<SourceSetContainer>()
 internal inline val Project.lombok get() = ext<LombokExtension>()
 internal inline val Project.idea get() = ext<IdeaModel>()
+internal inline val Project.kotlin get() = ext<KotlinJvmProjectExtension>()
 internal inline val DependencyHandler.rfg get() = ext<RfgDependencyExtension>()

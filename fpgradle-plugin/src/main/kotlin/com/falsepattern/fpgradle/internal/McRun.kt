@@ -27,13 +27,19 @@ import com.gtnewhorizons.retrofuturagradle.util.Distribution
 import com.gtnewhorizons.retrofuturagradle.util.Distribution.CLIENT
 import com.gtnewhorizons.retrofuturagradle.util.Distribution.DEDICATED_SERVER
 
-enum class McRun(val taskName: String, val side: Distribution, val obfuscated: Boolean) {
-    CLIENT_DEV("runClient", CLIENT, false),
-    CLIENT_OBF("runObfClient", CLIENT, true),
-    SERVER_DEV("runServer", DEDICATED_SERVER, false),
-    SERVER_OBF("runObfServer", DEDICATED_SERVER, true);
+enum class McRun(val taskName: String, val side: Distribution, val obfuscated: Boolean, val modern: Boolean) {
+    CLIENT_DEV("runClient", CLIENT, false, false),
+    CLIENT_OBF("runObfClient", CLIENT, true, false),
+    SERVER_DEV("runServer", DEDICATED_SERVER, false, false),
+    SERVER_OBF("runObfServer", DEDICATED_SERVER, true, false),
+    CLIENT_DEV_MODERN("runClientModernJava", CLIENT, false, true),
+    SERVER_DEV_MODERN("runServerModernJava", DEDICATED_SERVER, false, true);
 
     companion object {
-        fun client() = arrayOf(CLIENT_DEV, CLIENT_OBF)
+        fun clientStandard() = arrayOf(CLIENT_DEV, CLIENT_OBF, CLIENT_DEV_MODERN)
+        fun clientModern() = arrayOf(CLIENT_DEV, CLIENT_OBF)
+        fun standard() = arrayOf(CLIENT_DEV, CLIENT_OBF, SERVER_DEV, SERVER_OBF)
+        fun standardNonObf() = arrayOf(CLIENT_DEV, SERVER_DEV)
+        fun modern() = arrayOf(CLIENT_DEV_MODERN, SERVER_DEV_MODERN)
     }
 }

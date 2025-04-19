@@ -23,11 +23,16 @@
 
 package com.falsepattern.fpgradle.internal
 
+import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.FPPlugin
+import com.falsepattern.fpgradle.internal.KotlinHelper.patchKotlinToolchainJabel
+import com.falsepattern.fpgradle.kotlin
 import com.falsepattern.fpgradle.mc
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.*
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 class Kotlin: FPPlugin() {
     override fun Project.onPluginPostInitAfterDeps() {
@@ -40,6 +45,21 @@ class Kotlin: FPPlugin() {
             dependencies {
                 add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "mega:forgelin-mc1.7.10:${mc.kotlin.forgelinVersion.get()}")
             }
+            if (mc.java.compatibility.get() == FPMinecraftProjectExtension.Java.Compatibility.Jabel) {
+                patchKotlinToolchainJabel()
+            }
+            tasks.withType<KotlinCompile> {
+                this.kotlinJavaToolchainProvider
+            }
+        }
+    }
+}
+
+// Classloading stuff
+private object KotlinHelper {
+    fun Project.patchKotlinToolchainJabel() {
+        kotlin.compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
 }

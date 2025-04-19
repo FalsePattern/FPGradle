@@ -35,7 +35,7 @@ abstract class FPPlugin: Plugin<Project> {
         project.onPluginApplyBeforeDeps()
 
         project.addPlugins().map{it.java}.forEach(project.pluginManager::apply)
-        project.addTasks().mapValues{it.value.java}.forEach { (s, clazz) -> project.tasks.create(s, clazz) }
+        project.addTasks().mapValues{it.value.java}.forEach { (s, clazz) -> project.tasks.register(s, clazz) }
 
         project.onPluginApplyAfterDeps()
         project.afterEvaluate { project.onPluginPostInitAfterDeps() }

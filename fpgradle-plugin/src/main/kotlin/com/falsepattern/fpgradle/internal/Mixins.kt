@@ -24,6 +24,7 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.*
+import com.falsepattern.fpgradle.internal.ModernJavaTweaks.Companion.MODERN_PATCH_DEPS
 import com.gtnewhorizons.retrofuturagradle.modutils.ModUtils
 import org.gradle.api.Project
 import org.gradle.api.Task
@@ -90,6 +91,13 @@ class Mixins: FPPlugin() {
                     MIXIN_PROVIDER_SPEC_NO_CLASSIFIER
                 else
                     null
+            })
+            addProvider(MODERN_PATCH_DEPS, provider {
+                if (mc.java.compatibility.get() == FPMinecraftProjectExtension.Java.Compatibility.ModernJava) {
+                    null
+                } else {
+                    MIXIN_PROVIDER_SPEC
+                }
             })
         }
         with(configurations) {
