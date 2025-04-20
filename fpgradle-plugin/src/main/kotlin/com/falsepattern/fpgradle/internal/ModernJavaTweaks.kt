@@ -253,7 +253,7 @@ class ModernJavaTweaks: FPPlugin() {
             lwjglVersion = 3
             javaLauncher = toolchains.launcherFor {
                 languageVersion = mc.java.modernRuntimeVersion.map { JavaLanguageVersion.of(it.majorVersion) }
-                java.toolchain.vendor = JvmVendorSpec.ADOPTIUM
+                vendor = JvmVendorSpec.ADOPTIUM
             }
             extraJvmArgs.addAll(javaArgs)
             if (mcRun.obfuscated) {
