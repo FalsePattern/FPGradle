@@ -87,6 +87,7 @@ class ModernJavaTweaks: FPPlugin() {
                 for (it in McRun.standard()) {
                     modifyMinecraftRunTaskModern(it, true)
                 }
+                manifestAttributes.put("Lwjgl3ify-Aware", "true")
             }
         }
     }
