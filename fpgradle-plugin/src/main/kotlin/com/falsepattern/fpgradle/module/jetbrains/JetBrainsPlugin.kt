@@ -40,6 +40,7 @@ class JetBrainsPlugin: FPPlugin() {
             isDownloadSources = true
             isDownloadJavadoc = true
             inheritOutputDirs = true
+            excludeDirs.add(file("run"))
         }
         tasks {
             named("processIdeaSettings").configure {

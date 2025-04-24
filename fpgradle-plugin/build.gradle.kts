@@ -4,7 +4,7 @@ plugins {
     `kotlin-dsl`
 }
 
-val buildscriptVersion = "0.14.0"
+val buildscriptVersion = "0.14.1"
 
 group = "com.falsepattern"
 version = buildscriptVersion
