@@ -24,8 +24,8 @@ package com.falsepattern.fpgradle
 
 internal object PackageRegistry {
     const val JETBRAINS_ANNOTATIONS = "org.jetbrains:annotations:26.0.1"
-    const val MIXINS_GROUP = "com.github.LegacyModdingMC.UniMixins"
-    const val MIXINS_MODULE = "unimixins-all-1.7.10"
+    const val MIXINS_GROUP = "io.github.legacymoddingmc"
+    const val MIXINS_MODULE = "unimixins"
     const val MIXINS_VERSION = "0.1.20"
     const val FERNFLOWER_GROUP = "org.jetbrains"
     const val FERNFLOWER_MODULE = "intellij-fernflower"

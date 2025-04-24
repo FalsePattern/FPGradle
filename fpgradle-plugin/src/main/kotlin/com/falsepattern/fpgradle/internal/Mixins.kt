@@ -204,7 +204,7 @@ class Mixins: FPPlugin() {
             "com.github.GTNewHorizons:Mixingasm",
             "com.github.GTNewHorizons:SpongePoweredMixin",
             "com.github.GTNewHorizons:SpongeMixins",
-            "io.github.legacymoddingmc:unimixins"
+            "com.github.LegacyModdingMC.UniMixins:unimixins-all-1.7.10"
         )
 
         private const val MIXIN_PROVIDER_SPEC_NO_CLASSIFIER = "${PackageRegistry.MIXINS_GROUP}:${PackageRegistry.MIXINS_MODULE}:${PackageRegistry.MIXINS_VERSION}"

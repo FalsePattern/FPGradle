@@ -37,8 +37,8 @@ class CommonDeps: FPPlugin() {
         repositories {
             mavenCentral()
             maven {
-                name = "jitpack_unimixins"
-                url = uri("https://mvn.falsepattern.com/jitpack/")
+                name = "horizon_unimixins"
+                url = uri("https://mvn.falsepattern.com/horizon/")
                 content {
                     includeModule(PackageRegistry.MIXINS_GROUP, PackageRegistry.MIXINS_MODULE)
                 }
