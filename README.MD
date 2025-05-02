@@ -236,3 +236,8 @@ dependencies {
      */
 }
 ```
+
+# Structure
+
+Under the hood, this plugin uses RetroFuturaGradle to handle the core minecraft dev env logic, but wraps it with a lot of additional helpers to make it convenient to use.
+Namely, FPGradle handles publishing to curseforge, modrinth, and maven for you, as well as setting up things like coremodding, jabel, mixins, and so on.
