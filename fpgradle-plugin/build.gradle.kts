@@ -153,16 +153,6 @@ dependencies {
     implementation("org.apache.maven:maven-repository-metadata:3.9.9")
 }
 
-val add: NamedDomainObjectContainer<PluginDeclaration>.(pluginID: String, pluginClass: String) ->
-Unit = { pluginID: String, pluginClass: String ->
-    this.register(pluginID) {
-        id = pluginID
-        group = project.group
-        version = project.version
-        implementationClass = "com.falsepattern.fpgradle.project.$pluginClass"
-    }
-}
-
 gradlePlugin {
     website.set("https://github.com/FalsePattern/FPGradle")
     vcsUrl.set("https://github.com/FalsePattern/FPGradle")
@@ -175,7 +165,6 @@ gradlePlugin {
             tags.set(listOf("minecraft", "forge", "minecraftforge", "java", "mod"))
         }
     }
-    plugins.add("fpgradle-minecraft", "MinecraftPlugin")
 }
 
 tasks.withType<AbstractArchiveTask>().configureEach {

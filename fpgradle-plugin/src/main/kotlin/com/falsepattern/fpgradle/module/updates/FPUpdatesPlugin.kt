@@ -91,6 +91,6 @@ Latest:  $releaseVersion
     }
 
     companion object {
-        private val metaURL = URI.create("https://mvn.falsepattern.com/fpgradle/com/falsepattern/fpgradle-plugin/maven-metadata.xml")
+        private val metaURL = URI.create("https://plugins.gradle.org/m2/com/falsepattern/fpgradle-plugin/maven-metadata.xml")
     }
 }
