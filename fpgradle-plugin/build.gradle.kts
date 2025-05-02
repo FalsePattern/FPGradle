@@ -55,10 +55,6 @@ run {
             outgoing.outgoing.artifact(shadowJar)
         }
 
-        named<Jar>("jar").configure {
-            finalizedBy("shadowJar")
-        }
-
         named<ShadowJar>("shadowJar").configure {
             archiveClassifier = ""
             exclude("META-INF/gradle-plugins/com.gtnewhorizons.*")
