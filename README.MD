@@ -26,7 +26,7 @@ gradle.properties
 build.gradle.kts
 ```kotlin
 plugins {
-    id("fpgradle-minecraft") version("0.14.2")
+    id("com.falsepattern.fpgradle-mc") version "0.15.0"
     // only if you use forgelin
 //    kotlin("jvm") version "2.1.10"
 }
