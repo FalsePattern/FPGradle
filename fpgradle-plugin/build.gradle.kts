@@ -1,10 +1,15 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.kotlin.dsl.assign
+import org.gradle.kotlin.dsl.named
+
 plugins {
     idea
-    `maven-publish`
+    id("com.gradle.plugin-publish") version "1.3.1"
     `kotlin-dsl`
+    id("com.gradleup.shadow") version "9.0.0-beta13"
 }
 
-val buildscriptVersion = "0.14.1"
+val buildscriptVersion = "0.15.0"
 
 group = "com.falsepattern"
 version = buildscriptVersion
@@ -29,6 +34,41 @@ tasks.processResources.configure {
     }
 }
 
+run {
+    val shadowRuntimeElements = configurations.getByName("shadowRuntimeElements")
+    val shadowImplementation = configurations.create("shadowImplementation")
+    shadowImplementation.isCanBeConsumed = false
+    shadowImplementation.isCanBeResolved = true
+    listOf("compileClasspath", "runtimeClasspath", "testCompileClasspath", "testRuntimeClasspath").forEach {
+        configurations.getByName(it)
+            .extendsFrom(shadowImplementation)
+    }
+    tasks {
+        val shadowJar = named<ShadowJar>("shadowJar")
+        shadowJar.configure {
+            configurations = listOf(shadowImplementation)
+        }
+
+        for (outgoingConfig in listOf("runtimeElements", "apiElements")) {
+            val outgoing = configurations.getByName(outgoingConfig)
+            outgoing.outgoing.artifacts.clear()
+            outgoing.outgoing.artifact(shadowJar)
+        }
+
+        named<Jar>("jar").configure {
+            finalizedBy("shadowJar")
+        }
+
+        named<ShadowJar>("shadowJar").configure {
+            archiveClassifier = ""
+            exclude("META-INF/gradle-plugins/com.gtnewhorizons.*")
+            exclude("META-INF/gradle-plugins/io.github.legacymoddingmc.*")
+            exclude("META-INF/gradle-plugins/jtweaker.properties")
+        }
+    }
+    val javaComponent = components.findByName("java") as AdhocComponentWithVariants
+    javaComponent.withVariantsFromConfiguration(shadowRuntimeElements, ConfigurationVariantDetails::skip)
+}
 repositories {
     maven {
         url = uri("https://mvn.falsepattern.com/fpgradle/")
@@ -83,18 +123,22 @@ dependencies {
     // Gson
     implementation("com.google.code.gson:gson:2.13.0")
 
-
     // RFG
-    implementation("com.gtnewhorizons:retrofuturagradle:1.4.5-fp")
+    add("shadowImplementation", "com.gtnewhorizons:retrofuturagradle:1.4.5-fp")
 
     // Shadow
-    implementation("com.github.johnrengelman:shadow:8.1.1")
+    implementation("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.0.0-beta13")
 
     // JTweaker (stubpackage)
-    implementation("com.falsepattern:jtweaker:0.5.0")
+    add("shadowImplementation", "com.falsepattern:jtweaker:0.5.0") {
+        isTransitive = false
+    }
+    implementation("org.apache.bcel:bcel:6.10.0")
 
     // MappingGenerator
-    implementation("io.github.LegacyModdingMC.MappingGenerator:MappingGenerator:0.1.2")
+    add("shadowImplementation", "io.github.LegacyModdingMC.MappingGenerator:MappingGenerator:0.1.2") {
+        isTransitive = false
+    }
 
     // IntelliJ
     implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.10")
@@ -120,24 +164,21 @@ Unit = { pluginID: String, pluginClass: String ->
 }
 
 gradlePlugin {
+    website.set("https://github.com/FalsePattern/FPGradle")
+    vcsUrl.set("https://github.com/FalsePattern/FPGradle")
+    plugins {
+        create("fpgradle-mc") {
+            id = "com.falsepattern.fpgradle-mc"
+            implementationClass = "com.falsepattern.fpgradle.project.MinecraftPlugin"
+            displayName = "FPGradle Mod Development Plugin"
+            description = "A gradle plugin for Minecraft 1.7.10 mod development with a declarative-like configuration system."
+            tags.set(listOf("minecraft", "forge", "minecraftforge", "java", "mod"))
+        }
+    }
     plugins.add("fpgradle-minecraft", "MinecraftPlugin")
 }
 
-publishing {
-    repositories {
-        maven {
-            name = "fpgradle"
-            url = uri("https://mvn.falsepattern.com/fpgradle/")
-            val user = System.getenv("MAVEN_DEPLOY_USER")
-            val pass = System.getenv("MAVEN_DEPLOY_PASSWORD")
-            if (user != null && pass != null) {
-                credentials {
-                    username = user
-                    password = pass
-                }
-            } else {
-                credentials(PasswordCredentials::class)
-            }
-        }
-    }
+tasks.withType<AbstractArchiveTask>().configureEach {
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
 }

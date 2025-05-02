@@ -71,7 +71,7 @@ class Shadow: FPPlugin() {
 
                 if (mc.shadow.relocate.get()) {
                     relocationPrefix = "${mc.mod.rootPkg.get()}.shadow"
-                    isEnableRelocation = true
+                    enableRelocation = true
                 }
 
                 onlyIf {
