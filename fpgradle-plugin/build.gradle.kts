@@ -1,15 +1,16 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.named
+import org.jetbrains.kotlin.gradle.utils.extendsFrom
 
 plugins {
     idea
     id("com.gradle.plugin-publish") version "1.3.1"
+    `maven-publish`
     `kotlin-dsl`
     id("com.gradleup.shadow") version "9.0.0-beta13"
 }
 
-val buildscriptVersion = "0.15.0"
+val buildscriptVersion = "0.15.1"
 
 group = "com.falsepattern"
 version = buildscriptVersion
@@ -34,25 +35,28 @@ tasks.processResources.configure {
     }
 }
 
+// Lobotomize shadowJar to work in the inverse direction
 run {
-    val shadowRuntimeElements = configurations.getByName("shadowRuntimeElements")
-    val shadowImplementation = configurations.create("shadowImplementation")
-    shadowImplementation.isCanBeConsumed = false
-    shadowImplementation.isCanBeResolved = true
+    val shadowImplementation = configurations.register("shadowImplementation")
+    shadowImplementation.configure {
+        isCanBeConsumed = false
+        isCanBeResolved = true
+    }
     listOf("compileClasspath", "runtimeClasspath", "testCompileClasspath", "testRuntimeClasspath").forEach {
-        configurations.getByName(it)
+        configurations.named(it)
             .extendsFrom(shadowImplementation)
     }
     tasks {
         val shadowJar = named<ShadowJar>("shadowJar")
         shadowJar.configure {
-            configurations = listOf(shadowImplementation)
+            configurations = listOf(shadowImplementation.get())
         }
 
         for (outgoingConfig in listOf("runtimeElements", "apiElements")) {
-            val outgoing = configurations.getByName(outgoingConfig)
-            outgoing.outgoing.artifacts.clear()
-            outgoing.outgoing.artifact(shadowJar)
+            configurations.named(outgoingConfig).configure {
+                outgoing.artifacts.clear()
+                outgoing.artifact(shadowJar)
+            }
         }
 
         named<ShadowJar>("shadowJar").configure {
@@ -62,8 +66,19 @@ run {
             exclude("META-INF/gradle-plugins/jtweaker.properties")
         }
     }
-    val javaComponent = components.findByName("java") as AdhocComponentWithVariants
-    javaComponent.withVariantsFromConfiguration(shadowRuntimeElements, ConfigurationVariantDetails::skip)
+    // afterEvaluate because plugin-publish plugin messes with these
+    afterEvaluate {
+        components.named("java").configure {
+            this as AdhocComponentWithVariants
+            addVariantsFromConfiguration(configurations.getByName("apiElements")) {
+                mapToMavenScope("runtime")
+            }
+            addVariantsFromConfiguration(configurations.getByName("runtimeElements")) {
+                mapToMavenScope("runtime")
+            }
+            addVariantsFromConfiguration(configurations.getByName("shadowRuntimeElements"), ConfigurationVariantDetails::skip)
+        }
+    }
 }
 repositories {
     maven {
