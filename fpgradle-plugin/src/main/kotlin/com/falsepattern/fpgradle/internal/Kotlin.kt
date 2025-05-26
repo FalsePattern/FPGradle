@@ -40,6 +40,9 @@ class Kotlin: FPPlugin() {
                 exclusive(mega()) {
                     includeModule("mega", "forgelin-mc1.7.10")
                 }
+                exclusive(mavenpattern()) {
+                    includeModule("com.falsepattern", "falsepatternlib-mc1.7.10")
+                }
             }
             dependencies {
                 add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "mega:forgelin-mc1.7.10:${mc.kotlin.forgelinVersion.get()}")
