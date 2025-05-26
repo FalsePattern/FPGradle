@@ -1,6 +1,6 @@
 plugins {
     id("com.falsepattern.fpgradle-mc")
-    kotlin("jvm") version "2.1.10"
+    kotlin("jvm") version "2.1.21"
 }
 
 group = "com.example"
@@ -48,7 +48,7 @@ minecraft_fp {
 //    }
 
     kotlin {
-        forgelinVersion = "2.0.0-2.1.10"
+        forgelinVersion = "2.1.0-2.1.21"
     }
 
     // optional
