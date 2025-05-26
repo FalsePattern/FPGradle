@@ -23,7 +23,7 @@
 package com.falsepattern.fpgradle
 
 internal object PackageRegistry {
-    const val JETBRAINS_ANNOTATIONS = "org.jetbrains:annotations:26.0.1"
+    const val JETBRAINS_ANNOTATIONS = "org.jetbrains:annotations:26.0.2"
     const val MIXINS_GROUP = "io.github.legacymoddingmc"
     const val MIXINS_MODULE = "unimixins"
     const val MIXINS_VERSION = "0.1.20"
