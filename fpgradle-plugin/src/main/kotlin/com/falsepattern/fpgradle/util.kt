@@ -53,8 +53,9 @@ fun <T, P: ValueSourceParameters> Project.getValueSource(sourceType: KClass<out 
         configuration(parameters)
     }
 
-private enum class Language(val sourceDir: String, val extension: String) {
+private enum class Language(val sourceDir: String, vararg val extensions: String) {
     Java("src/main/java", ".java"),
+    Scala("src/main/scala", ".java", ".scala"),
     Kotlin("src/main/kotlin", ".kt")
 }
 
@@ -65,7 +66,10 @@ fun Project.verifyPackage(thePackage: String, propName: String, ignoreRootPkg: B
 }
 
 fun Project.verifyClass(theClass: String, propName: String, ignoreRootPkg: Boolean) {
-    val targetClasses = Language.values().map { targetFile(it.sourceDir, theClass, ignoreRootPkg) + it.extension }
+    val targetClasses = Language.values().flatMap {
+        val tf = targetFile(it.sourceDir, theClass, ignoreRootPkg)
+        it.extensions.map { extension ->  tf + extension }
+    }
     if (!targetClasses.any { file(it).isFile })
         throw GradleException("Could not resolve \"$propName\"! Could not find $${targetClasses.joinToString(prefix = "\n    ", separator = "\n    ")}")
 }
