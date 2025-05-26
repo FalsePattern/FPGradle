@@ -117,7 +117,7 @@ dependencies {
     implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:8.13.1")
 
     // JGit
-    implementation("org.eclipse.jgit:org.eclipse.jgit:7.2.0.202503040940-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:7.2.1.202505142326-r")
 
     // Apache Commons Lang
     implementation("org.apache.commons:commons-lang3:3.17.0")
@@ -132,7 +132,7 @@ dependencies {
     implementation("org.tukaani:xz:1.10")
 
     // Gson
-    implementation("com.google.code.gson:gson:2.13.0")
+    implementation("com.google.code.gson:gson:2.13.1")
 
     // RFG
     add("shadowImplementation", "com.gtnewhorizons:retrofuturagradle:1.4.5-fp")
