@@ -34,22 +34,22 @@ import org.gradle.kotlin.dsl.register
 class ApiPackage: FPPlugin() {
     override fun Project.onPluginInit() {
         tasks.register<Jar>("apiJar").configure {
-            val group = if (mc.api.ignoreRootPkg.get()) "" else (mc.mod.rootPkg.map { it.replace('.', '/') }.get() + "/")
-            val pkgs = mc.api.packages.map { it.map { str -> str.replace('.', '/') } }.get()
-            val pkgsNoRecurse = mc.api.packagesNoRecurse.map { it.map { str -> str.replace('.', '/') } }.get()
+            val group = mc.api.ignoreRootPkg.flatMap { if (it) provider { "" } else mc.mod.rootPkg.map { pkg -> pkg.replace('.', '/') + "/" }}
+            val pkgs = mc.api.packages.map { it.map { str -> str.replace('.', '/') } }
+            val pkgsNoRecurse = mc.api.packagesNoRecurse.map { it.map { str -> str.replace('.', '/') } }
 
             from(sourceSets.getByName("main").allSource) {
-                for (pkg in pkgs)
-                    include("$group$pkg/**")
-                for (pkg in pkgsNoRecurse)
-                    include("$group$pkg/*")
+                for (pkg in pkgs.get())
+                    include("${group.get()}$pkg/**")
+                for (pkg in pkgsNoRecurse.get())
+                    include("${group.get()}$pkg/*")
             }
 
             from(sourceSets.getByName("main").output) {
-                for (pkg in pkgs)
-                    include("$group$pkg/**")
-                for (pkg in pkgsNoRecurse)
-                    include("$group$pkg/*")
+                for (pkg in pkgs.get())
+                    include("${group.get()}$pkg/**")
+                for (pkg in pkgsNoRecurse.get())
+                    include("${group.get()}$pkg/*")
 
             }
             from(sourceSets.getByName("main").resources.srcDirs) {

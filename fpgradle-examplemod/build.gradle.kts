@@ -1,6 +1,7 @@
 plugins {
     id("com.falsepattern.fpgradle-mc")
     kotlin("jvm") version "2.1.21"
+    //scala
 }
 
 group = "com.example"
