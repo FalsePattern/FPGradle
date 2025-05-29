@@ -22,20 +22,41 @@
 
 package org.gradle.kotlin.dsl
 
+import org.gradle.api.GradleException
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.ArtifactRepository
 import org.gradle.api.artifacts.repositories.InclusiveRepositoryContentDescriptor
 import org.gradle.api.artifacts.repositories.IvyArtifactRepository
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 
-fun RepositoryHandler.maven(name: String, url: Any, action: MavenArtifactRepository.() -> Unit = {}) =
+private typealias MavenAction = MavenArtifactRepository.() -> Unit
+private typealias IvyAction = IvyArtifactRepository.() -> Unit
+private typealias ExFilter = InclusiveRepositoryContentDescriptor.() -> Unit
+
+inline fun RepositoryHandler.maven(name: String, url: Any, crossinline action: MavenAction = {}) =
     maven {
         this.name = name
         setUrl(url)
         action()
     }
-fun RepositoryHandler.ivy(url: Any, pattern: String, action: IvyArtifactRepository.() -> Unit = {}) =
+
+inline fun RepositoryHandler.mavenNamed(name: String, ifNotPresent: (name: String, action: MavenAction) -> MavenArtifactRepository, crossinline action: MavenAction = {}): MavenArtifactRepository {
+    val repo = findByName(name)
+    if (repo != null) {
+        if (repo !is MavenArtifactRepository) {
+            throw GradleException("Repo with name $name is not a maven repository!")
+        }
+        action.invoke(repo)
+        return repo
+    }
+    return ifNotPresent(name) {
+        action.invoke(this@ifNotPresent)
+    }
+}
+
+inline fun RepositoryHandler.ivy(name: String, url: Any, pattern: String, crossinline action: IvyAction = {}) =
     ivy {
+        this.name = name
         setUrl(url)
         patternLayout {
             artifact(pattern)
@@ -46,24 +67,21 @@ fun RepositoryHandler.ivy(url: Any, pattern: String, action: IvyArtifactReposito
         action()
     }
 
-fun RepositoryHandler.cursemaven(action: MavenArtifactRepository.() -> Unit = {}) = maven("cursemaven", "https://mvn.falsepattern.com/cursemaven/", action)
-fun RepositoryHandler.cursemavenEX(vararg extraGroups: String, extraFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) = exclusive(cursemaven(), "curse.maven", *extraGroups, theFilter = extraFilter)
-fun RepositoryHandler.modrinth(action: MavenArtifactRepository.() -> Unit = {}) = maven("modrinth", "https://mvn.falsepattern.com/modrinth/", action)
-fun RepositoryHandler.modrinthEX(vararg extraGroups: String, extraFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) = exclusive(modrinth(), "maven.modrinth", *extraGroups, theFilter = extraFilter)
-fun RepositoryHandler.mavenpattern(action: MavenArtifactRepository.() -> Unit = {}) = maven("mavenpattern", "https://mvn.falsepattern.com/releases/", action)
-fun RepositoryHandler.jitpack(action: MavenArtifactRepository.() -> Unit = {}) = maven("jitpack", "https://mvn.falsepattern.com/jitpack/", action)
-fun RepositoryHandler.mega(action: MavenArtifactRepository.() -> Unit = {}) = maven("mega", "https://mvn.falsepattern.com/gtmega_releases/", action)
-fun RepositoryHandler.mega_uploads(action: MavenArtifactRepository.() -> Unit = {}) = maven("mega_uploads", "https://mvn.falsepattern.com/gtmega_uploads/", action)
-fun RepositoryHandler.horizon(action: MavenArtifactRepository.() -> Unit = {}) = maven("horizon", "https://mvn.falsepattern.com/horizon/", action)
-fun RepositoryHandler.fp_mirror(action: IvyArtifactRepository.() -> Unit = {}) = ivy("https://mvn.falsepattern.com/releases/mirror/", "[orgPath]/[artifact]-[revision].[ext]", action)
-fun RepositoryHandler.ic2(action: MavenArtifactRepository.() -> Unit = {}) = maven("ic2", "https://mvn.falsepattern.com/ic2/") {
-    metadataSources {
-        artifact()
+inline fun RepositoryHandler.ivyNamed(name: String, ifNotPresent: (name: String, action: IvyAction) -> IvyArtifactRepository, crossinline action: IvyAction = {}): IvyArtifactRepository {
+    val repo = findByName(name)
+    if (repo != null) {
+        if (repo !is IvyArtifactRepository) {
+            throw GradleException("Repo with name $name is not an ivy repository!")
+        }
+        action.invoke(repo)
+        return repo
     }
-    action()
+    return ifNotPresent(name) {
+        action.invoke(this@ifNotPresent)
+    }
 }
-fun RepositoryHandler.ic2EX(vararg extraGroups: String, extraFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) = exclusive(ic2(), "net.industrial-craft", *extraGroups, theFilter = extraFilter)
-fun RepositoryHandler.exclusive(repo: ArtifactRepository, vararg groups: String, theFilter: InclusiveRepositoryContentDescriptor.() -> Unit = {}) {
+
+inline fun RepositoryHandler.exclusive(repo: ArtifactRepository, vararg groups: String, crossinline theFilter: ExFilter = {}) {
     exclusiveContent {
         forRepositories(repo)
         filter {
@@ -72,6 +90,38 @@ fun RepositoryHandler.exclusive(repo: ArtifactRepository, vararg groups: String,
         }
     }
 }
+
+inline fun RepositoryHandler.wellKnownMaven(name: String, url: Any, crossinline action: MavenAction) = mavenNamed(name, { theName, theAction -> maven(theName, url, theAction)}, action)
+inline fun RepositoryHandler.wellKnownIvy(name: String, url: Any, pattern: String, crossinline action: IvyAction) = ivyNamed(name, {theName, theAction -> ivy(theName, url, pattern, theAction)}, action)
+
+inline fun RepositoryHandler.cursemaven(crossinline action: MavenAction = {}) = wellKnownMaven("cursemaven", "https://mvn.falsepattern.com/cursemaven/", action)
+inline fun RepositoryHandler.cursemavenEX(vararg extraGroups: String, crossinline extraFilter: ExFilter = {}) = exclusive(cursemaven(), "curse.maven", *extraGroups, theFilter = extraFilter)
+
+inline fun RepositoryHandler.modrinth(crossinline action: MavenAction = {}) = wellKnownMaven("modrinth", "https://mvn.falsepattern.com/modrinth/", action)
+inline fun RepositoryHandler.modrinthEX(vararg extraGroups: String, crossinline extraFilter: ExFilter = {}) = exclusive(modrinth(), "maven.modrinth", *extraGroups, theFilter = extraFilter)
+
+inline fun RepositoryHandler.mavenpattern(crossinline action: MavenAction = {}) = wellKnownMaven("mavenpattern", "https://mvn.falsepattern.com/releases/", action)
+inline fun RepositoryHandler.venmaven(crossinline action: MavenAction = {}) = wellKnownMaven("venmaven", "https://mvn.ventooth.com/releases", action)
+
+inline fun RepositoryHandler.jitpack(crossinline action: MavenAction = {}) = wellKnownMaven("jitpack", "https://mvn.falsepattern.com/jitpack/", action)
+
+inline fun RepositoryHandler.mega(crossinline action: MavenAction = {}) = wellKnownMaven("mega", "https://mvn.falsepattern.com/gtmega_releases/", action)
+
+inline fun RepositoryHandler.mega_uploads(crossinline action: MavenAction = {}) = wellKnownMaven("mega_uploads", "https://mvn.falsepattern.com/gtmega_uploads/", action)
+
+inline fun RepositoryHandler.horizon(crossinline action: MavenAction = {}) = wellKnownMaven("horizon", "https://mvn.falsepattern.com/horizon/", action)
+
+inline fun RepositoryHandler.fp_mirror(crossinline action: IvyAction = {}) = wellKnownIvy("fp_mirror", "https://mvn.falsepattern.com/releases/mirror/", "[orgPath]/[artifact]-[revision].[ext]", action)
+
+inline fun RepositoryHandler.ic2(crossinline action: MavenAction = {}) = wellKnownMaven("ic2", "https://mvn.falsepattern.com/ic2/") {
+    metadataSources {
+        artifact()
+    }
+    action()
+}
+
+inline fun RepositoryHandler.ic2EX(vararg extraGroups: String, crossinline extraFilter: ExFilter = {}) = exclusive(ic2(), "net.industrial-craft", *extraGroups, theFilter = extraFilter)
+
 
 fun InclusiveRepositoryContentDescriptor.includeGroups(vararg groups: String) {
     for (group in groups) {
