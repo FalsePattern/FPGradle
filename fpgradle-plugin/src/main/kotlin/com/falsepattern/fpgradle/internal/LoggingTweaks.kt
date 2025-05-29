@@ -42,9 +42,9 @@ class LoggingTweaks: FPPlugin() {
 
             val replacement = if (logLevel == FPMinecraftProjectExtension.Logging.Level.ALL) "" else "level=\"${logLevel.name}\""
             filesMatching("log4j2.xml") {
-                filter(Transformer<String, String> {
+                filter {
                     it.replace("level=\"INFO\"", replacement)
-                })
+                }
             }
         }
         tasks.withType<RunMinecraftTask>().configureEach {
