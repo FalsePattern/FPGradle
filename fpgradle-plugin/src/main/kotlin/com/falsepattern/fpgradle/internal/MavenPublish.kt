@@ -41,8 +41,7 @@ class MavenPublish: FPPlugin() {
             publications {
                 create<MavenPublication>("maven") {
                     from(components.getByName("java"))
-
-                    if (mc.api.packages.get().isNotEmpty() || mc.api.packagesNoRecurse.get().isNotEmpty())
+                    if (mc.api.classes.get().isNotEmpty() || mc.api.packages.get().isNotEmpty() || mc.api.packagesNoRecurse.get().isNotEmpty())
                         artifact(tasks.named("apiJar"))
 
                     groupId = mvn.group.get()

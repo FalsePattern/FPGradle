@@ -33,9 +33,11 @@ minecraft_fp {
     // optional
     // For generating an -api jar
 //    api {
+//        classes           = listOf() //Convention
 //        packages          = listOf() //Convention
 //        packagesNoRecurse = listOf() //Convention
 //        ignoreRootPkg     = false    //Convention
+//        includeSources    = false     //Convention
 //    }
 
     // optional

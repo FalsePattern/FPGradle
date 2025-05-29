@@ -10,7 +10,7 @@ plugins {
     id("com.gradleup.shadow") version "9.0.0-beta13"
 }
 
-val buildscriptVersion = "0.16.1"
+val buildscriptVersion = "0.17.0"
 
 group = "com.falsepattern"
 version = buildscriptVersion

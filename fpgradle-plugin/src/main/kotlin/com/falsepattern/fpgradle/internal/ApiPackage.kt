@@ -25,8 +25,11 @@ package com.falsepattern.fpgradle.internal
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.mc
 import com.falsepattern.fpgradle.sourceSets
+import com.falsepattern.fpgradle.verifyClass
 import com.falsepattern.fpgradle.verifyPackage
 import org.gradle.api.Project
+import org.gradle.api.file.CopySpec
+import org.gradle.api.provider.Provider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.register
@@ -34,24 +37,29 @@ import org.gradle.kotlin.dsl.register
 class ApiPackage: FPPlugin() {
     override fun Project.onPluginInit() {
         tasks.register<Jar>("apiJar").configure {
-            val group = mc.api.ignoreRootPkg.flatMap { if (it) provider { "" } else mc.mod.rootPkg.map { pkg -> pkg.replace('.', '/') + "/" }}
-            val pkgs = mc.api.packages.map { it.map { str -> str.replace('.', '/') } }
-            val pkgsNoRecurse = mc.api.packagesNoRecurse.map { it.map { str -> str.replace('.', '/') } }
-
+            val ignoreRootPkg = mc.api.ignoreRootPkg
+            val rootPkg = mc.mod.rootPkg
+            val group = ignoreRootPkg.flatMap { if (it) provider { "" } else rootPkg.map { pkg -> pkg.replace('.', '/') + "/" } }
+            val classes = mc.api.classes.asPathWithPrefix(group)
+            val pkgs = mc.api.packages.asPathWithPrefix(group)
+            val pkgsNoRecurse = mc.api.packagesNoRecurse.asPathWithPrefix(group)
+            val includeSources = mc.api.includeSources
+            val config = fun CopySpec.() {
+                for (klass in classes.get())
+                    include("$klass.*")
+                for (pkg in pkgs.get())
+                    include("$pkg/**")
+                for (pkg in pkgsNoRecurse.get())
+                    include("$pkg/*")
+            }
             from(sourceSets.getByName("main").allSource) {
-                for (pkg in pkgs.get())
-                    include("${group.get()}$pkg/**")
-                for (pkg in pkgsNoRecurse.get())
-                    include("${group.get()}$pkg/*")
+                if (includeSources.get()) {
+                    config.invoke(this)
+                } else {
+                    include { false }
+                }
             }
-
-            from(sourceSets.getByName("main").output) {
-                for (pkg in pkgs.get())
-                    include("${group.get()}$pkg/**")
-                for (pkg in pkgsNoRecurse.get())
-                    include("${group.get()}$pkg/*")
-
-            }
+            from(sourceSets.getByName("main").output, config)
             from(sourceSets.getByName("main").resources.srcDirs) {
                 include("LICENSE")
             }
@@ -61,15 +69,24 @@ class ApiPackage: FPPlugin() {
     }
 
     override fun Project.onPluginPostInitAfterDeps() {
-        if (mc.api.packages.get().isEmpty() &&
-            mc.api.packagesNoRecurse.get().isEmpty())
+        val classes = mc.api.classes.get()
+        val packages = mc.api.packages.get()
+        val packagesNoRecurse = mc.api.packagesNoRecurse.get()
+        val ignoreRootPkg = mc.api.ignoreRootPkg.get()
+        if (classes.isEmpty() && packages.isEmpty() && packagesNoRecurse.isEmpty())
             return
-        for (pkg in mc.api.packages.get())
-            verifyPackage(pkg, "apiPackages", mc.api.ignoreRootPkg.get())
-        for (pkg in mc.api.packagesNoRecurse.get())
-            verifyPackage(pkg, "apiPackagesNoRecurse", mc.api.ignoreRootPkg.get())
+        for (klass in classes)
+            verifyClass(klass, "api -> classes", ignoreRootPkg)
+        for (pkg in packages)
+            verifyPackage(pkg, "api -> packages", ignoreRootPkg)
+        for (pkg in packagesNoRecurse)
+            verifyPackage(pkg, "api -> packagesNoRecurse", ignoreRootPkg)
         artifacts {
             add("archives", tasks.named("apiJar"))
         }
     }
+}
+
+private fun Provider<List<String>>.asPathWithPrefix(prefix: Provider<String>): Provider<List<String>> {
+    return prefix.flatMap { pfx -> this@asPathWithPrefix.map { it.map { str -> pfx + str.replace('.', '/') } } }
 }

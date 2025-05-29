@@ -54,9 +54,11 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
 
         run.username.convention("Developer")
 
+        api.classes.convention(listOf())
         api.packages.convention(listOf())
         api.packagesNoRecurse.convention(listOf())
         api.ignoreRootPkg.convention(false)
+        api.includeSources.convention(true)
 
         mixin.debug.convention(false)
         mixin.hasMixinDeps.convention(java.compatibility.map { it == Java.Compatibility.ModernJava })
@@ -151,9 +153,11 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
 
     //region api
     abstract class Api: ExtensionAware {
+        abstract val classes: ListProperty<String>
         abstract val packages: ListProperty<String>
         abstract val packagesNoRecurse: ListProperty<String>
         abstract val ignoreRootPkg: Property<Boolean>
+        abstract val includeSources: Property<Boolean>
     }
     @get:Nested
     abstract val api: Api
