@@ -31,9 +31,9 @@ gradle.properties
 build.gradle.kts
 ```kotlin
 plugins {
-    id("com.falsepattern.fpgradle-mc") version "0.15.0"
-    // only if you use forgelin
-//    kotlin("jvm") version "2.1.10"
+    id("com.falsepattern.fpgradle-mc") version "0.17.0"
+//    kotlin("jvm") version "2.1.21"  //If you want Kotlin. You need to also uncomment the scala line in gradle.properties, and enable Forgelin in the minecraft_fp block!
+//    scala  //If you want Scala, not compatible with jabel/modern java!
 }
 
 group = "com.example"
@@ -65,9 +65,11 @@ minecraft_fp {
     // optional
     // For generating an -api jar
 //    api {
+//        classes           = listOf() //Convention
 //        packages          = listOf() //Convention
 //        packagesNoRecurse = listOf() //Convention
 //        ignoreRootPkg     = false    //Convention
+//        includeSources    = false     //Convention
 //    }
 
     // optional
@@ -82,7 +84,7 @@ minecraft_fp {
 
     // optional
 //    kotlin {
-//        forgelinVersion = "2.0.0-2.1.10"
+//        forgelinVersion = "2.1.0-2.1.21"
 //    }
 
 
@@ -237,9 +239,10 @@ dependencies {
      * Gradle names for some of the configuration can be misleading, compileOnlyApi and runtimeOnly both get published as dependencies in Maven, but compileOnly does not.
      * The buildscript adds runtimeOnlyNonPublishable to also have a runtime dependency that's not published.
      *
-     * For more details, see https://docs.gradle.org/8.13/userguide/java_library_plugin.html#sec:java_library_configurations_graph
+     * For more details, see https://docs.gradle.org/8.14.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
      */
 }
+
 ```
 
 # Structure
