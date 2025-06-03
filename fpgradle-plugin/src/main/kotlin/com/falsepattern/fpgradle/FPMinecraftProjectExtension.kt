@@ -33,6 +33,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
+import org.gradle.jvm.toolchain.JvmVendorSpec
 import java.util.*
 
 @Suppress("unused", "LeakingThis", "PropertyName")
@@ -44,6 +45,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             Java.Compatibility.Jabel -> JavaVersion.VERSION_17
             Java.Compatibility.ModernJava -> JavaVersion.VERSION_21
         } })
+        java.vendor.convention(JvmVendorSpec.ADOPTIUM)
         java.modernRuntimeVersion.convention(java.compatibility.map { when(it) {
             Java.Compatibility.LegacyJava -> JavaVersion.VERSION_21
             Java.Compatibility.Jabel -> JavaVersion.VERSION_21
@@ -105,6 +107,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
     //region java
     abstract class Java: ExtensionAware {
         abstract val version: Property<JavaVersion>
+        abstract val vendor: Property<JvmVendorSpec>
         abstract val modernRuntimeVersion: Property<JavaVersion>
         abstract val compatibility: Property<Compatibility>
 

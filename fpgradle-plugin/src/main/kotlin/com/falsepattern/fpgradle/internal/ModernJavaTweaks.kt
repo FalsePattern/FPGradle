@@ -99,8 +99,8 @@ class ModernJavaTweaks: FPPlugin() {
     }
 
     private fun Project.setToolchainVersionLegacy() {
-        java.toolchain.languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_1_8.majorVersion)
-        java.toolchain.vendor = JvmVendorSpec.ADOPTIUM
+        java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
+        java.toolchain.vendor = mc.java.vendor
     }
 
     private fun Project.setToolchainVersionJabel() {
@@ -133,7 +133,7 @@ class ModernJavaTweaks: FPPlugin() {
             add(MCPTasks.PATCHED_MINECRAFT_CONFIGURATION_NAME, "me.eigenraven.java8unsupported:java-8-unsupported-shim:1.0.0")
         }
         java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
-        java.toolchain.vendor = JvmVendorSpec.ADOPTIUM
+        java.toolchain.vendor = mc.java.vendor
 
         val jabelCompiler = toolchains.compilerFor(java.toolchain)
         tasks.withType<JavaCompile>().configureEachFiltered {
@@ -145,7 +145,7 @@ class ModernJavaTweaks: FPPlugin() {
 
     private fun Project.setToolchainVersionModern() {
         java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
-        java.toolchain.vendor = JvmVendorSpec.ADOPTIUM
+        java.toolchain.vendor = mc.java.vendor
         val modernCompiler = toolchains.compilerFor(java.toolchain)
         project.tasks.withType<JavaCompile>().configureEachFiltered {
             sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
@@ -253,7 +253,7 @@ class ModernJavaTweaks: FPPlugin() {
             lwjglVersion = 3
             javaLauncher = toolchains.launcherFor {
                 languageVersion = mc.java.modernRuntimeVersion.map { JavaLanguageVersion.of(it.majorVersion) }
-                vendor = JvmVendorSpec.ADOPTIUM
+                vendor = mc.java.vendor
             }
             extraJvmArgs.addAll(javaArgs)
             if (mcRun.obfuscated) {
