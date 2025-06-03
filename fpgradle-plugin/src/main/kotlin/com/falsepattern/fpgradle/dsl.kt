@@ -34,11 +34,9 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.plugins.BasePluginExtension
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.provider.MapProperty
 import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.jvm.toolchain.JavaToolchainService
-import org.gradle.kotlin.dsl.getByName
 import org.gradle.kotlin.dsl.getByType
 import org.gradle.plugins.ide.idea.model.IdeaModel
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
@@ -52,11 +50,13 @@ internal inline val Project.minecraftTasks get() = ext<MinecraftTasks>()
 internal inline val Project.java get() = ext<JavaPluginExtension>()
 internal inline val Project.mappingGenerator get() = ext<MappingGeneratorExtension>()
 internal inline val Project.toolchains get() = ext<JavaToolchainService>()
-internal inline val Project.manifestAttributes get() = extensions.getByName<MapProperty<String, String>>("fp_ctx_internal")
+internal inline val Project.fp_ctx_internal get() = ext<FPInternalProjectExtension>()
+internal inline val Project.manifestAttributes get() = fp_ctx_internal.manifestAttributes
 internal inline val Project.publishing get() = ext<PublishingExtension>()
 internal inline val Project.base get() = ext<BasePluginExtension>()
 internal inline val Project.modUtils get() = ext<ModUtils>()
 internal inline val Project.sourceSets get() = ext<SourceSetContainer>()
+internal inline val Project.javaToolchains get() = ext<JavaToolchainService>()
 internal inline val Project.lombok get() = ext<LombokExtension>()
 internal inline val Project.idea get() = ext<IdeaModel>()
 internal inline val Project.kotlin get() = ext<KotlinJvmProjectExtension>()

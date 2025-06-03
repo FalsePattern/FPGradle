@@ -22,6 +22,7 @@
 
 package com.falsepattern.fpgradle.project
 
+import com.falsepattern.fpgradle.FPInternalProjectExtension
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.internal.*
@@ -37,7 +38,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.create
-import org.gradle.kotlin.dsl.mapProperty
 import kotlin.reflect.KClass
 
 class MinecraftPlugin: FPPlugin() {
@@ -58,6 +58,7 @@ class MinecraftPlugin: FPPlugin() {
             GitPlugin::class,
             Kotlin::class,
             Scala::class,
+            JarInJar::class,
 
             NonPublishable::class,
             CommonDeps::class,
@@ -83,7 +84,7 @@ class MinecraftPlugin: FPPlugin() {
     }
 
     override fun Project.onPluginApplyBeforeDeps() {
-        extensions.add("fp_ctx_internal", project.objects.mapProperty<String, String>())
+        extensions.create("fp_ctx_internal", FPInternalProjectExtension::class)
         extensions.create("minecraft_fp", FPMinecraftProjectExtension::class, project)
     }
 
