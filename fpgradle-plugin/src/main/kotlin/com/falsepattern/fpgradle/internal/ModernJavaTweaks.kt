@@ -28,17 +28,15 @@ import com.gtnewhorizons.retrofuturagradle.ObfuscationAttribute
 import com.gtnewhorizons.retrofuturagradle.mcp.MCPTasks
 import com.gtnewhorizons.retrofuturagradle.mcp.RemapSourceJarTask
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
-import com.gtnewhorizons.retrofuturagradle.shadow.de.undercouch.gradle.tasks.download.Download
 import com.gtnewhorizons.retrofuturagradle.util.Distribution
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
-import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import java.nio.charset.StandardCharsets
 import org.gradle.api.plugins.JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME as ANNOTATION_PROCESSOR
@@ -233,17 +231,14 @@ class ModernJavaTweaks: FPPlugin() {
             )
         } else {
             val paramsFile = project.layout.buildDirectory.file("extra-mappings/parameters.csv")
-            val dl = tasks.register<Download>("downloadExtraMappings")
-            dl.configure {
-                src("https://mvn.falsepattern.com/filedrop/parameters.csv")
-                dest(paramsFile)
-                onlyIfModified(true)
-                overwrite(true)
-                quiet(true)
+            val unpack = tasks.register<Copy>("unpackExtraMappings") {
+                val pluginJar = provider {FPPlugin::class.java.getResource("")!!.file.split('!')[0]}
+                from(pluginJar.map { jar -> project.resources.text.fromArchiveEntry(jar, "/fpgradle/parameters.csv").asFile()})
+                into(project.layout.buildDirectory.dir("extra-mappings"))
             }
             project.minecraft.extraParamsCsvs.from(paramsFile)
             tasks.named<RemapSourceJarTask>("remapDecompiledJar").configure {
-                dependsOn(dl)
+                dependsOn(unpack)
             }
         }
     }
