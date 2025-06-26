@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.19.0] - 2025-06-26
+
 ### Changed
 
 - Update and bundle MC parameter mappings directly in the plugin jar
