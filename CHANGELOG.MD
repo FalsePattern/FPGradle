@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Configuration cache failing on mixins
+
 ## [0.19.1] - 2025-06-26
 
 ### Fixed
