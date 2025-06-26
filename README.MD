@@ -35,7 +35,7 @@ build.gradle.kts
 ```kotlin
 plugins {
     id("com.falsepattern.fpgradle-mc") version "0.19.0"
-//    kotlin("jvm") version "2.1.21"  //If you want Kotlin. You need to also uncomment the scala line in gradle.properties, and enable Forgelin in the minecraft_fp block!
+//    kotlin("jvm") version "2.2.0"  //If you want Kotlin. You need to also uncomment the scala line in gradle.properties, and enable Forgelin in the minecraft_fp block!
 //    scala  //If you want Scala, not compatible with jabel/modern java!
 }
 
@@ -87,7 +87,7 @@ minecraft_fp {
 
     // optional
 //    kotlin {
-//        forgelinVersion = "2.1.0-2.1.21"
+//        forgelinVersion = "2.1.1-2.2.0"
 //    }
 
 
