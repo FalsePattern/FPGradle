@@ -20,15 +20,15 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package com.falsepattern.fpgradle.module.git
+package com.falsepattern.fpgradle
 
-import com.falsepattern.fpgradle.currentTimestamp
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
-class GitTagVersion(private val version: String, private val isClean: Boolean) {
-    override fun toString(): String {
-        return if (isClean)
-            version
-        else
-            "$version-$currentTimestamp"
+abstract class TimestampValueSource: ValueSource<LocalDateTime, ValueSourceParameters.None> {
+    override fun obtain(): LocalDateTime? {
+        return LocalDateTime.now(ZoneOffset.UTC)
     }
 }

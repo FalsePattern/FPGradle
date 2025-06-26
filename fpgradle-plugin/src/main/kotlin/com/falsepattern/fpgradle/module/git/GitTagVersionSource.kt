@@ -30,16 +30,17 @@ import org.gradle.api.provider.ValueSourceParameters
 import java.io.File
 import java.io.IOException
 
-abstract class GitTagVersionSource: ValueSource<GitTagVersion, GitTagVersionSource.Params> {
+abstract class GitTagVersionSource: ValueSource<String, GitTagVersionSource.Params> {
     interface Params: ValueSourceParameters {
         val gitRepoDir: Property<File>
+        val dirtySuffix: Property<String>
     }
 
-    override fun obtain(): GitTagVersion? {
+    override fun obtain(): String? {
         val gitRepoDir = parameters.gitRepoDir.orNull ?: return null
 
         try {
-            return Git.open(gitRepoDir).use { git ->
+            Git.open(gitRepoDir).use { git ->
                 val repo = git.repository
                 val status = git.status().call()
                 val isClean = status.isClean
@@ -50,7 +51,11 @@ abstract class GitTagVersionSource: ValueSource<GitTagVersion, GitTagVersionSour
                     repo.branch + "-" + git.describe().setAlways(true).call()
                 }.getOrNull() ?: (repo.branch + "-unknown")
 
-                return@use GitTagVersion(describe, isClean)
+                if (isClean) {
+                    return describe
+                }
+
+                return "$describe-${parameters.dirtySuffix.getOrElse("dirty")}"
             }
         } catch (_: IOException) {} catch (_: GitAPIException) {}
         return null

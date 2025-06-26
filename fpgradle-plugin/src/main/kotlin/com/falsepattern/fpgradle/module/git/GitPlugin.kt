@@ -26,30 +26,65 @@ import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.currentTimestamp
 import com.falsepattern.fpgradle.getValueSource
 import org.gradle.api.Project
+import org.gradle.api.configuration.BuildFeatures
+import org.gradle.api.provider.Provider
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
 import org.gradle.kotlin.dsl.assign
+import javax.inject.Inject
 
-class GitPlugin: FPPlugin() {
+abstract class GitPlugin: FPPlugin() {
+    @get:Inject
+    protected abstract val buildFeatures: BuildFeatures
+
     override fun Project.addTasks() = mapOf(
         Pair("extractGitIgnore", ExtractGitIgnoreTask::class),
         Pair("extractGitAttributes", ExtractGitAttributesTask::class),
     )
 
     override fun Project.onPluginInit() {
-        version = System.getenv("RELEASE_VERSION") ?: when(hasProperty("versionOverride")) {
-            true -> property("versionOverride")!!
-            false -> autoVersion
-        }
+        version = ProviderStringifier(getValueSource(EnvVersionSource::class)
+            .orElse(provider { if (hasProperty("versionOverride")) property("versionOverride")?.toString() else null })
+            .orElse(autoVersion))
     }
 
-    private val Project.autoVersion get() = gitTagVersion?.toString() ?: currentTimestamp
+    private val Project.autoVersion get() = gitTagVersion.orElse(ccSafeTimestamp("unknown"))
 
-    private val Project.gitTagVersion: GitTagVersion? get() {
+    private val Project.gitTagVersion: Provider<String>
+        get() {
         var gitRepoDir = rootDir
         if (!gitRepoDir.resolve(".git").exists()) {
             gitRepoDir = gitRepoDir.parentFile!!
         }
         return getValueSource(GitTagVersionSource::class) {
             this.gitRepoDir = gitRepoDir
-        }.orNull
+            this.dirtySuffix = ccSafeTimestamp(null)
+        }
+    }
+
+    private fun Project.ccSafeTimestamp(otherwise: String?): Provider<String> {
+        return buildFeatures.configurationCache.requested.orElse(false)
+            .flatMap { configCache ->
+                if (configCache || (hasProperty("fpgradle.timestamp-in-version") && property("fpgradle.timestamp-in-version") == "false")) {
+                    provider { otherwise }
+                } else {
+                    currentTimestamp
+                }
+            }
+    }
+
+    class ProviderStringifier(val prov: Provider<*>) {
+        private val strValue: String by lazy {
+            prov.orNull.toString()
+        }
+        override fun toString(): String {
+            return strValue
+        }
+    }
+
+    abstract class EnvVersionSource: ValueSource<String, ValueSourceParameters.None> {
+        override fun obtain(): String? {
+            return System.getenv("RELEASE_VERSION")
+        }
     }
 }

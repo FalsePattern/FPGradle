@@ -42,13 +42,13 @@ fun resolvePath(basePath: String, vararg classPaths: String): String {
     return result.toString()
 }
 
-val currentTimestamp get() = currentTime.formatted
+val Project.currentTimestamp get() = currentTime.map { it.formatted }
 
-val currentTime: LocalDateTime get() = LocalDateTime.now(ZoneOffset.UTC)
+val Project.currentTime get() = getValueSource(TimestampValueSource::class)
 
 val LocalDateTime.formatted: String get() = this.format(TIMESTAMP_FORMAT)
 
-fun <T, P: ValueSourceParameters> Project.getValueSource(sourceType: KClass<out ValueSource<T, P>>, configuration: P.() -> Unit) =
+inline fun <T, P: ValueSourceParameters?> Project.getValueSource(sourceType: KClass<out ValueSource<T, P>>, crossinline configuration: P.() -> Unit = {}) =
     providers.of(sourceType.java) {
         configuration(parameters)
     }
