@@ -59,6 +59,7 @@ class MinecraftPlugin: FPPlugin() {
             Kotlin::class,
             Scala::class,
             JarInJar::class,
+            ReproducibleJars::class,
 
             NonPublishable::class,
             CommonDeps::class,

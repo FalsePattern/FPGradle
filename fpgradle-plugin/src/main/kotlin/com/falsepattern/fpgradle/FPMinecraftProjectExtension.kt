@@ -91,6 +91,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
                 "No changelog was provided."
         })
 
+        publish.reproducibleJars.convention(true)
         publish.maven.sources.convention(true)
         publish.maven.group.convention(project.provider { project.group.toString() })
         publish.maven.artifact.convention(mod.modid.map { "$it-mc1.7.10" })
@@ -270,6 +271,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
 
     //region publish
     abstract class Publish: ExtensionAware {
+        abstract val reproducibleJars: Property<Boolean>
         abstract val changelog: Property<String>
         abstract class Maven: ExtensionAware {
             abstract val repoUrl: Property<String>
