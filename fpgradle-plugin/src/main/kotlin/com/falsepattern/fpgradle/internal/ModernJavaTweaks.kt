@@ -67,7 +67,7 @@ class ModernJavaTweaks: FPPlugin() {
                 injectLWJGL3ifyModern(false)
                 McRun.standardNonObf().forEach { createModernCloneFor(tasks.named<RunMinecraftTask>(it.taskName), it.side) }
                 for (it in McRun.modern()) {
-                    modifyMinecraftRunTaskModern(it, false)
+                    modifyMinecraftRunTaskModern(it)
                 }
             }
             Jabel -> {
@@ -76,7 +76,7 @@ class ModernJavaTweaks: FPPlugin() {
                 injectLWJGL3ifyModern(false)
                 McRun.standardNonObf().forEach { createModernCloneFor(tasks.named<RunMinecraftTask>(it.taskName), it.side) }
                 for (it in McRun.modern()) {
-                    modifyMinecraftRunTaskModern(it, false)
+                    modifyMinecraftRunTaskModern(it)
                 }
             }
             ModernJava -> {
@@ -85,7 +85,7 @@ class ModernJavaTweaks: FPPlugin() {
                 swapLWJGLVersionModern()
                 injectLWJGL3ifyModern(true)
                 for (it in McRun.standard()) {
-                    modifyMinecraftRunTaskModern(it, true)
+                    modifyMinecraftRunTaskModern(it)
                 }
                 manifestAttributes.put("Lwjgl3ify-Aware", "true")
             }
@@ -248,7 +248,7 @@ class ModernJavaTweaks: FPPlugin() {
         }
     }
 
-    private fun Project.modifyMinecraftRunTaskModern(mcRun: McRun, modernCompile: Boolean) {
+    private fun Project.modifyMinecraftRunTaskModern(mcRun: McRun) {
         tasks.named<RunMinecraftTask>(mcRun.taskName).configure {
             lwjglVersion = 3
             javaLauncher = toolchains.launcherFor {

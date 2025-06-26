@@ -107,7 +107,7 @@ fun Project.jarInJar_fp(
             }
         }
 
-        fp_ctx_internal.mergedJarExcludeSpecs.add(artifactFullPath.map { artifactFullPath -> Function<FileTreeElement, Boolean> { it.relativePath.pathString == artifactFullPath } })
+        fp_ctx_internal.mergedJarExcludeSpecs.add(artifactFullPath.map { theFullPath -> Function<FileTreeElement, Boolean> { it.relativePath.pathString == theFullPath } })
     }
 
     return sourceSet
