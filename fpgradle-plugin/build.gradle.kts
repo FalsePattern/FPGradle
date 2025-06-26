@@ -108,16 +108,16 @@ repositories {
 
 dependencies {
     // Kotlin Plugin
-    compileOnly("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:2.1.20")
+    compileOnly("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:2.2.0")
 
     // JetBrains Java Annotations
     implementation("org.jetbrains:annotations:26.0.2")
 
     // Lombok Gradle Plugin
-    implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:8.13.1")
+    implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:8.14")
 
     // JGit
-    implementation("org.eclipse.jgit:org.eclipse.jgit:7.2.1.202505142326-r")
+    implementation("org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r")
 
     // Apache Commons Lang
     implementation("org.apache.commons:commons-lang3:3.17.0")
@@ -161,7 +161,7 @@ dependencies {
     implementation("com.modrinth.minotaur:Minotaur:2.8.7")
 
     // Maven metadata
-    implementation("org.apache.maven:maven-repository-metadata:3.9.9")
+    implementation("org.apache.maven:maven-repository-metadata:3.9.10")
 }
 
 gradlePlugin {
