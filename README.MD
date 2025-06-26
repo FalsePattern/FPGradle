@@ -178,6 +178,15 @@ minecraft_fp {
 //    }
 }
 
+
+//val myJarInJar = jarInJar_fp("jarjar") {
+//    artifactName = "examplemod-jarinjar"
+//    javaCompiler = javaToolchains.compilerFor {
+//        languageVersion = JavaLanguageVersion.of(21)
+//        vendor = minecraft_fp.java.vendor
+//    }
+//}
+
 repositories {
     //Add repositories here
     //You can use maven("reponame", "https://example.com/") as a shortcut for maven repositories.
