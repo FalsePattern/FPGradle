@@ -26,6 +26,9 @@ gradle.properties
 ```properties
 # Only if you use forgelin
 #kotlin.stdlib.default.dependency=false
+# Enabled by default, set this to false if you don't want timestamps in your mod versions.
+# Note that enabling the gradle configuration cache force-disables timestamps in versions.
+#fpgradle.timestamp-in-version=false
 ```
 
 build.gradle.kts
@@ -123,6 +126,9 @@ minecraft_fp {
     // optional
     // Use this if you want to publish on maven/curse/modrinth
 //    publish {
+//        // optional
+//        // Enabled by default, makes your mod jars more reproducible between rebuilds if the source code didn't change
+//        reproducibleJars = true //Convention
 //        // optional
 //        // If not set, tries to read CHANGELOG.md (or the file specified in the CHANGELOG_FILE env var, if set)
 //        changelog = "https://github.com/myname/mymod/releases/tag/{version}"
@@ -239,7 +245,7 @@ dependencies {
      * Gradle names for some of the configuration can be misleading, compileOnlyApi and runtimeOnly both get published as dependencies in Maven, but compileOnly does not.
      * The buildscript adds runtimeOnlyNonPublishable to also have a runtime dependency that's not published.
      *
-     * For more details, see https://docs.gradle.org/8.14.1/userguide/java_library_plugin.html#sec:java_library_configurations_graph
+     * For more details, see https://docs.gradle.org/8.14.2/userguide/java_library_plugin.html#sec:java_library_configurations_graph
      */
 }
 
