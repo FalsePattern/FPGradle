@@ -53,6 +53,17 @@ class Kotlin: FPPlugin() {
             tasks.withType<KotlinCompile> {
                 this.kotlinJavaToolchainProvider
             }
+        } else {
+            //joml moment
+            val hkd = mc.kotlin.hasKotlinDeps
+            configurations.configureEach {
+                if (!hkd.get()) {
+                    exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk8")
+                    exclude("org.jetbrains.kotlin", "kotlin-stdlib-jdk7")
+                    exclude("org.jetbrains.kotlin", "kotlin-stdlib")
+                    exclude("org.jetbrains.kotlin", "kotlin-stdlib-common")
+                }
+            }
         }
     }
 }

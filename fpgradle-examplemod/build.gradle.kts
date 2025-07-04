@@ -52,6 +52,7 @@ minecraft_fp {
 
     kotlin {
         forgelinVersion = "2.1.1-2.2.0"
+//        hasKotlinDeps = false //Convention
     }
 
     // optional

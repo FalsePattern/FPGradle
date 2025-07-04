@@ -67,7 +67,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         mixin.extraConfigs.convention(listOf())
         mixin.ignoreRootPkg.convention(false)
 
-        kotlin.forgelinVersion.convention(null)
+        kotlin.hasKotlinDeps.convention(false)
 
         core.coreModIgnoreRootPkg.convention(false)
         core.containsMixinsAndOrCoreModOnly.convention(false)
@@ -189,6 +189,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
     //endregion
     abstract class Kotlin: ExtensionAware {
         abstract val forgelinVersion: Property<String>
+        abstract val hasKotlinDeps: Property<Boolean>
     }
     @get:Nested
     abstract val kotlin: Kotlin

@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Automatic filtering for removing kotlin stdlib transitive dependencies if forgelin is not active (joml includes it for some reason)
+
 ## [0.19.2] - 2025-06-26
 
 ### Fixed
