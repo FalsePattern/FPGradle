@@ -84,9 +84,10 @@ fun Project.jarInJar_fp(
 
     val artifactFullPath = artifactPath.flatMap { path -> artifactFileName.map { name -> "$path/$name" }}
 
+    val outputJar = thisJar.flatMap { it.archiveFile }
     tasks.named<Jar>("jar") {
-        dependsOn(thisJar)
-        from(thisJar.map { it.outputs }) {
+        dependsOn(sourceSet.jarTaskName)
+        from(outputJar) {
             into(artifactPath)
         }
     }
@@ -96,13 +97,17 @@ fun Project.jarInJar_fp(
             extendsFrom(configurations.getByName(sourceSet.compileClasspathConfigurationName))
         }
 
-        val reobfThisJar = tasks.named<ReobfuscatedJar>("reobf${sourceSet.jarTaskName}") {
+        val name = "reobf${sourceSet.jarTaskName}"
+
+        val reobfThisJar = tasks.named<ReobfuscatedJar>(name) {
             referenceClasspath.from(sourceSets.named("main").map { it.output }, reobfInputs)
         }
 
+        val reobfOutputJar = reobfThisJar.flatMap { it.archiveFile }
+
         tasks.named<Jar>("mergeJarPreReobf") {
-            dependsOn(reobfThisJar)
-            from(reobfThisJar.map { it.outputs }) {
+            dependsOn(name)
+            from(reobfOutputJar) {
                 into(artifactPath)
             }
         }

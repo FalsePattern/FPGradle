@@ -25,44 +25,44 @@ package com.falsepattern.fpgradle.internal
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.fp_ctx_internal
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
-import org.gradle.api.DefaultTask
 import org.gradle.api.Project
+import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.nio.charset.StandardCharsets
 import java.util.jar.Manifest
+import javax.inject.Inject
 
-class JarInJar: FPPlugin() {
+abstract class JarInJar: FPPlugin() {
+    @get:Inject
+    abstract val archiveOperations: ArchiveOperations
     override fun Project.onPluginInit() {
         tasks.addRule("mergeJarPreReobf") {
             if (this != "mergeJarPreReobf") {
                 return@addRule
             }
             val jarTask = tasks.named<Jar>("jar")
-            val srcJar = jarTask.map { it.outputs.files.map { it2 -> zipTree(it2) } }
+            val srcJar = jarTask.flatMap { it.archiveFile }
             val specs = fp_ctx_internal.mergedJarExcludeSpecs
             val textResourceFactory = resources.text
-            val mergedManifest = srcJar.map { trees ->
+            val mergedManifest = srcJar.map { jar ->
                 val output = Manifest()
-                trees.forEach { tree ->
-                    val file = tree.find { file -> file.name == "MANIFEST.MF" } ?: return@forEach
-                    file.inputStream().use { output.read(it) }
-                }
+                val theFile = archiveOperations.zipTree(jar).find { file -> file.name == "MANIFEST.MF" }
+                theFile?.inputStream()?.use { output.read(it) }
                 val out = ByteArrayOutputStream()
                 output.write(out)
                 val str = String(out.toByteArray(), StandardCharsets.UTF_8)
                 textResourceFactory.fromString(str)
             }
             val mergeJarTask = tasks.register<Jar>(this) {
-                dependsOn(jarTask)
+                dependsOn("jar")
                 group = "falsepattern"
                 description = "Merges nested jars before reobfuscation"
                 archiveClassifier.set("merged-pre-reobf")
 
-                from(srcJar) {
+                from(archiveOperations.zipTree(srcJar)) {
                     exclude { file ->
                         println(file.relativePath.pathString)
                         specs.get().all { spec -> spec.apply(file) }

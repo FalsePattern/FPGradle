@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Make jarInJar compatible with gradle configuration cache
+
 ## [0.19.3] - 2025-07-04
 
 ### Added
