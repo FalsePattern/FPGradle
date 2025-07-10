@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.19.5] - 2025-07-10
+
 ### Fixed
 
 - Update checker will no longer run/crash if gradle is in offline mode or internet is unavailable
