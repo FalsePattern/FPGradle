@@ -39,6 +39,7 @@ import java.net.http.HttpResponse
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import javax.inject.Inject
 
 
@@ -70,23 +71,33 @@ Latest:  $releaseVersion
     protected abstract fun getFlowScope(): FlowScope
 
     override fun Project.onPluginPostInitBeforeDeps() {
-        if (!mc.updates.check.get())
+        if (!mc.updates.check.get() || gradle.startParameter.isOffline)
             return
         val metadata = CompletableFuture.supplyAsync {
-            HttpClient.newBuilder().build().use { client ->
-                val response = client.send(
-                    HttpRequest.newBuilder().GET().uri(Companion.metaURL).build(),
-                    HttpResponse.BodyHandlers.ofInputStream()
-                )
-                if (response.statusCode() != 200)
-                    null
-                else
-                    MetadataXpp3Reader().read(response.body())
+            try {
+                HttpClient.newBuilder().build().use { client ->
+                    val response = client.send(
+                        HttpRequest.newBuilder().GET().uri(Companion.metaURL).build(),
+                        HttpResponse.BodyHandlers.ofInputStream()
+                    )
+                    if (response.statusCode() != 200)
+                        null
+                    else
+                        MetadataXpp3Reader().read(response.body())
+                }
+            } catch (_: Exception) {
+                null
             }
         }
 
         getFlowScope().always(UpdateCheck::class.java) {
-            parameters.getMetadata().set(provider { metadata.get(2, TimeUnit.SECONDS) })
+            parameters.getMetadata().set(provider {
+                try {
+                    metadata.get(2, TimeUnit.SECONDS)
+                } catch(_: TimeoutException) {
+                    null
+                }
+            })
         }
     }
 
