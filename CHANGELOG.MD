@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.19.6] - 2025-07-12
+
 ### Fixed
 
 - Configuration cache compatibility with gradle offline mode
