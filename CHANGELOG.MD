@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [0.19.7] - 2025-07-27
+
 ### Changed
 
 - Update UniMixins to 0.1.22
