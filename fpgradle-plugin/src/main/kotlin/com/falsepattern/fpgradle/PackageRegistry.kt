@@ -26,7 +26,7 @@ internal object PackageRegistry {
     const val JETBRAINS_ANNOTATIONS = "org.jetbrains:annotations:26.0.2"
     const val MIXINS_GROUP = "io.github.legacymoddingmc"
     const val MIXINS_MODULE = "unimixins"
-    const val MIXINS_VERSION = "0.1.20"
+    const val MIXINS_VERSION = "0.1.22"
     const val FERNFLOWER_GROUP = "org.jetbrains"
     const val FERNFLOWER_MODULE = "intellij-fernflower"
     const val MIXINS_AP_ASM = "org.ow2.asm:asm-debug-all:5.0.3"
