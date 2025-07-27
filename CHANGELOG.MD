@@ -6,6 +6,10 @@
 
 - Update UniMixins to 0.1.22
 
+### Fixed
+
+- Remove security manager command line arg for java 24+ compat
+
 ## [0.19.6] - 2025-07-12
 
 ### Fixed

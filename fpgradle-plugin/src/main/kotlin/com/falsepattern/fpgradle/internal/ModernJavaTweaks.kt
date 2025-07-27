@@ -264,7 +264,6 @@ class ModernJavaTweaks: FPPlugin() {
             }
             systemProperty("java.system.class.loader", "com.gtnewhorizons.retrofuturabootstrap.RfbSystemClassLoader")
             systemProperty("file.encoding", "UTF-8")
-            systemProperty("java.security.manager", "allow")
 
             val modernJavaPatchDependencies = configurations.getByName(MODERN_PATCH_DEPS)
             val modernJavaPatchDependenciesObf = configurations.getByName(MODERN_PATCH_DEPS_OBF)
