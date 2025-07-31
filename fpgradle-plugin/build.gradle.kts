@@ -135,7 +135,7 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.1")
 
     // RFG
-    add("shadowImplementation", "com.gtnewhorizons:retrofuturagradle:1.4.6-fp2")
+    add("shadowImplementation", "com.gtnewhorizons:retrofuturagradle:1.4.6-fp3")
 
     // Shadow
     implementation("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.0.0-beta17")

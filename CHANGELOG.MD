@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- JavaCompatibility api for jarInJar
+
+### Added
+
+- Lwjgl3ify support for jarInJar modern java
+
 ## [0.19.7] - 2025-07-27
 
 ### Changed

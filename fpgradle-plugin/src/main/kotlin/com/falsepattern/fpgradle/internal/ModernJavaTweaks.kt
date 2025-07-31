@@ -23,20 +23,26 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.*
+import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.Compatibility
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.Compatibility.*
 import com.gtnewhorizons.retrofuturagradle.ObfuscationAttribute
 import com.gtnewhorizons.retrofuturagradle.mcp.MCPTasks
 import com.gtnewhorizons.retrofuturagradle.mcp.RemapSourceJarTask
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import com.gtnewhorizons.retrofuturagradle.util.Distribution
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskCollection
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import java.nio.charset.StandardCharsets
 import org.gradle.api.plugins.JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME as ANNOTATION_PROCESSOR
@@ -58,34 +64,25 @@ class ModernJavaTweaks: FPPlugin() {
     }
 
     override fun Project.onPluginPostInitBeforeDeps() {
-        when(mc.java.compatibility.get()) {
+        val compat = mc.java.compatibility.get()
+        injectLwjgl3ifyForSetInternal(compat, mc.java.version, mc.java.vendor, null)
+        when(compat) {
             LegacyJava -> {
-                setToolchainVersionLegacy()
-                setupJavaConfigsModern(false)
-                injectLWJGL3ifyModern(false)
                 McRun.standardNonObf().forEach { createModernCloneFor(tasks.named<RunMinecraftTask>(it.taskName), it.side) }
                 for (it in McRun.modern()) {
                     modifyMinecraftRunTaskModern(it)
                 }
             }
             Jabel -> {
-                setToolchainVersionJabel()
-                setupJavaConfigsModern(false)
-                injectLWJGL3ifyModern(false)
                 McRun.standardNonObf().forEach { createModernCloneFor(tasks.named<RunMinecraftTask>(it.taskName), it.side) }
                 for (it in McRun.modern()) {
                     modifyMinecraftRunTaskModern(it)
                 }
             }
             ModernJava -> {
-                setToolchainVersionModern()
-                setupJavaConfigsModern(true)
-                swapLWJGLVersionModern()
-                injectLWJGL3ifyModern(true)
                 for (it in McRun.standard()) {
                     modifyMinecraftRunTaskModern(it)
                 }
-                manifestAttributes.put("Lwjgl3ify-Aware", "true")
             }
         }
     }
@@ -93,129 +90,6 @@ class ModernJavaTweaks: FPPlugin() {
     override fun Project.onPluginPostInitAfterDeps() {
         tasks.withType<JavaCompile>().configureEach {
             options.encoding = StandardCharsets.UTF_8.name()
-        }
-    }
-
-    private fun Project.setToolchainVersionLegacy() {
-        java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
-        java.toolchain.vendor = mc.java.vendor
-    }
-
-    private fun Project.setToolchainVersionJabel() {
-        repositories {
-            exclusiveContent {
-                forRepositories(repositories.mavenCentral {
-                    name = "mavenCentral_java8Unsupported"
-                })
-                filter {
-                    includeGroup("me.eigenraven.java8unsupported")
-                }
-            }
-            maven {
-                name = "horizon"
-                url = uri("https://mvn.falsepattern.com/horizon/")
-                content {
-                    includeModule("com.github.bsideup.jabel", "jabel-javac-plugin")
-                }
-            }
-        }
-        dependencies {
-            add(ANNOTATION_PROCESSOR, JABEL)
-            add(COMPILE_ONLY, JABEL) {
-                isTransitive = false
-            }
-            // Workaround for https://github.com/bsideup/jabel/issues/174
-            add(ANNOTATION_PROCESSOR, "net.java.dev.jna:jna-platform:5.13.0")
-            // Allow using jdk.unsupported classes like sun.misc.Unsafe in the compiled code, working around
-            // JDK-8206937.
-            add(MCPTasks.PATCHED_MINECRAFT_CONFIGURATION_NAME, "me.eigenraven.java8unsupported:java-8-unsupported-shim:1.0.0")
-        }
-        java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
-        java.toolchain.vendor = mc.java.vendor
-
-        val jabelCompiler = toolchains.compilerFor(java.toolchain)
-        tasks.withType<JavaCompile>().configureEachFiltered {
-            sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
-            options.release = 8
-            javaCompiler = jabelCompiler
-        }
-    }
-
-    private fun Project.setToolchainVersionModern() {
-        java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
-        java.toolchain.vendor = mc.java.vendor
-        val modernCompiler = toolchains.compilerFor(java.toolchain)
-        project.tasks.withType<JavaCompile>().configureEachFiltered {
-            sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
-            targetCompatibility = mc.java.version.map { it.majorVersion }.get()
-            javaCompiler = modernCompiler
-        }
-    }
-
-    private fun Project.setupJavaConfigsModern(modernCompile: Boolean) {
-        with(configurations) {
-            if (modernCompile) {
-                val modernJavaPatchDependencies = create(MODERN_PATCH_DEPS_COMPILE_ONLY) {
-                    attributes.attribute(ObfuscationAttribute.OBFUSCATION_ATTRIBUTE, ObfuscationAttribute.getMcp(objects))
-                }
-                getByName("compileOnly") {
-                    extendsFrom(modernJavaPatchDependencies)
-                }
-            }
-        }
-    }
-
-    private fun Project.swapLWJGLVersionModern() {
-        with(configurations) {
-            getByName("compileOnly") {
-                extendsFrom(minecraftTasks.lwjgl3Configuration)
-            }
-            getByName("compileClasspath") {
-                exclude(mapOf(Pair("group", "org.lwjgl.lwjgl")))
-            }
-        }
-    }
-
-    private fun Project.injectLWJGL3ifyModern(modernCompile: Boolean) {
-        repositories {
-            maven {
-                name = "horizon_3ify"
-                url = uri("https://mvn.falsepattern.com/horizon/")
-                content {
-                    includeGroup("com.gtnewhorizons")
-                    includeGroup("com.gtnewhorizons.retrofuturabootstrap")
-                    includeGroup("com.github.GTNewHorizons")
-                }
-            }
-        }
-
-        val asmVersion = provider { PackageRegistry.MODERN_JAVA_ASM_VERSION }
-        val rfbVersion = provider { PackageRegistry.RFB_VERSION }
-        val lwjgl3ifyVersion = provider { PackageRegistry.LWJGL3IFY_VERSION }
-
-        val lwjgl3ify = lwjgl3ifyVersion.map { "com.github.GTNewHorizons:lwjgl3ify:$it" }
-
-        dependencies {
-            if (modernCompile) {
-                addProvider("devOnlyNonPublishable", lwjgl3ify.map { "$it:dev" })
-
-                addProvider<_, ExternalModuleDependency>(
-                    MODERN_PATCH_DEPS_COMPILE_ONLY,
-                    rfbVersion.map { "com.gtnewhorizons.retrofuturabootstrap:RetroFuturaBootstrap:$it" }) { isTransitive = false }
-                addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, asmVersion.map { "org.ow2.asm:asm:$it" })
-                addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, asmVersion.map { "org.ow2.asm:asm-commons:$it" })
-                addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, asmVersion.map { "org.ow2.asm:asm-tree:$it" })
-                addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, asmVersion.map { "org.ow2.asm:asm-analysis:$it" })
-                addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, asmVersion.map { "org.ow2.asm:asm-util:$it" })
-                addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { "org.ow2.asm:asm-deprecated:7.1" })
-                addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { PackageRegistry.MODERN_JAVA_COMMONS_LANG })
-                addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { PackageRegistry.MODERN_JAVA_COMMONS_COMPRESS })
-                addProvider(MODERN_PATCH_DEPS_COMPILE_ONLY, provider { PackageRegistry.MODERN_JAVA_COMMONS_IO })
-            } else {
-                addProvider(MODERN_PATCH_DEPS, lwjgl3ify.map { "$it:dev" })
-            }
-            addProvider<_, ExternalModuleDependency>(MODERN_PATCH_DEPS, lwjgl3ify.map { "$it:forgePatches" }) { isTransitive = false }
-            addProvider<_, ExternalModuleDependency>(MODERN_PATCH_DEPS_OBF, lwjgl3ify.map { "$it:forgePatches" }) { isTransitive = false }
         }
     }
 
@@ -359,6 +233,209 @@ class ModernJavaTweaks: FPPlugin() {
             this.configureEach {
                 if (!BLACKLISTED_TASKS.contains(name))
                     action(this)
+            }
+        }
+
+
+        fun Project.injectLwjgl3ifyForSet(compat: Compatibility, javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet) {
+            injectLwjgl3ifyForSetInternal(compat, javaVersion, javaVendor, set)
+        }
+
+        private fun Project.injectLwjgl3ifyForSetInternal(compat: Compatibility, javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+            when(compat) {
+                LegacyJava -> {
+                    setToolchainVersionLegacy(javaVersion, javaVendor, set)
+                    setupJavaConfigsModern(false, set)
+                    injectLWJGL3ifyModern(false, set)
+                }
+                Jabel -> {
+                    setToolchainVersionJabel(javaVersion, javaVendor, set)
+                    setupJavaConfigsModern(false, set)
+                    injectLWJGL3ifyModern(false, set)
+                }
+                ModernJava -> {
+                    setToolchainVersionModern(javaVersion, javaVendor, set)
+                    setupJavaConfigsModern(true, set)
+                    swapLWJGLVersionModern(set)
+                    injectLWJGL3ifyModern(true, set)
+                    if (set == null) {
+                        manifestAttributes.put("Lwjgl3ify-Aware", "true")
+                    } else {
+                        tasks.named<Jar>(set.jarTaskName) {
+                            manifest {
+                                attributes("Lwjgl3ify-Aware" to "true")
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        private fun Project.setToolchainVersionLegacy(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+            if (set == null) {
+                java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
+                java.toolchain.vendor = mc.java.vendor
+                val legacyCompiler = toolchains.compilerFor(java.toolchain)
+                tasks.withType<JavaCompile>().configureEachFiltered {
+                    javaCompiler = legacyCompiler
+                }
+            } else {
+                val legacyCompiler = toolchains.compilerFor {
+                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
+                    vendor.set(javaVendor)
+                }
+                tasks.named<JavaCompile>(set.compileJavaTaskName) {
+                    javaCompiler = legacyCompiler
+                }
+            }
+        }
+
+        private fun Project.setToolchainVersionJabel(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+            repositories {
+                exclusiveContent {
+                    forRepositories(repositories.mavenCentral {
+                        name = "mavenCentral_java8Unsupported"
+                    })
+                    filter {
+                        includeGroup("me.eigenraven.java8unsupported")
+                    }
+                }
+                maven {
+                    name = "horizon"
+                    url = uri("https://mvn.falsepattern.com/horizon/")
+                    content {
+                        includeModule("com.github.bsideup.jabel", "jabel-javac-plugin")
+                    }
+                }
+            }
+            dependencies {
+                add(set?.annotationProcessorConfigurationName ?: ANNOTATION_PROCESSOR, JABEL)
+                add(set?.compileOnlyConfigurationName ?: COMPILE_ONLY, JABEL) {
+                    isTransitive = false
+                }
+                // Workaround for https://github.com/bsideup/jabel/issues/174
+                add(set?.annotationProcessorConfigurationName ?: ANNOTATION_PROCESSOR, "net.java.dev.jna:jna-platform:5.13.0")
+                // Allow using jdk.unsupported classes like sun.misc.Unsafe in the compiled code, working around
+                // JDK-8206937.
+                if (set == null) {
+                    add(MCPTasks.PATCHED_MINECRAFT_CONFIGURATION_NAME, "me.eigenraven.java8unsupported:java-8-unsupported-shim:1.0.0")
+                }
+            }
+            if (set == null) {
+                java.toolchain.languageVersion = javaVersion.map { JavaLanguageVersion.of(it.majorVersion) }
+                java.toolchain.vendor = javaVendor
+
+                val jabelCompiler = toolchains.compilerFor(java.toolchain)
+                tasks.withType<JavaCompile>().configureEachFiltered {
+                    sourceCompatibility = javaVersion.map { it.majorVersion }.get()
+                    options.release = 8
+                    javaCompiler = jabelCompiler
+                }
+            } else {
+                val jabelCompiler = toolchains.compilerFor {
+                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
+                    vendor.set(javaVendor)
+                }
+                tasks.named<JavaCompile>(set.compileJavaTaskName) {
+                    sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
+                    options.release = 8
+                    javaCompiler = jabelCompiler
+                }
+            }
+        }
+
+        private fun Project.setToolchainVersionModern(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+            if (set == null) {
+                java.toolchain.languageVersion = javaVersion.map { JavaLanguageVersion.of(it.majorVersion) }
+                java.toolchain.vendor = javaVendor
+                val modernCompiler = toolchains.compilerFor(java.toolchain)
+                tasks.withType<JavaCompile>().configureEachFiltered {
+                    sourceCompatibility = javaVersion.map { it.majorVersion }.get()
+                    targetCompatibility = javaVersion.map { it.majorVersion }.get()
+                    javaCompiler = modernCompiler
+                }
+            } else {
+                val modernCompiler = toolchains.compilerFor {
+                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
+                    vendor.set(javaVendor)
+                }
+                tasks.named<JavaCompile>(set.compileJavaTaskName) {
+                    sourceCompatibility = javaVersion.map { it.majorVersion }.get()
+                    targetCompatibility = javaVersion.map { it.majorVersion }.get()
+                    javaCompiler = modernCompiler
+                }
+            }
+        }
+
+        private fun Project.setupJavaConfigsModern(modernCompile: Boolean, set: SourceSet?) {
+            with(configurations) {
+                if (modernCompile) {
+                    val modernJavaPatchDependencies = create((set?.name ?: "") + MODERN_PATCH_DEPS_COMPILE_ONLY) {
+                        attributes.attribute(ObfuscationAttribute.OBFUSCATION_ATTRIBUTE, ObfuscationAttribute.getMcp(objects))
+                    }
+                    getByName(set?.compileOnlyConfigurationName ?: "compileOnly") {
+                        extendsFrom(modernJavaPatchDependencies)
+                    }
+                }
+            }
+        }
+
+        private fun Project.swapLWJGLVersionModern(set: SourceSet?) {
+            with(configurations) {
+                getByName(set?.compileOnlyConfigurationName ?: "compileOnly") {
+                    extendsFrom(minecraftTasks.lwjgl3Configuration)
+                }
+                getByName(set?.compileClasspathConfigurationName ?: "compileClasspath") {
+                    exclude(mapOf(Pair("group", "org.lwjgl.lwjgl")))
+                }
+            }
+        }
+
+        private fun Project.injectLWJGL3ifyModern(modernCompile: Boolean, set: SourceSet?) {
+            if (set == null) {
+                repositories {
+                    maven {
+                        name = "horizon_3ify"
+                        url = uri("https://mvn.falsepattern.com/horizon/")
+                        content {
+                            includeGroup("com.gtnewhorizons")
+                            includeGroup("com.gtnewhorizons.retrofuturabootstrap")
+                            includeGroup("com.github.GTNewHorizons")
+                        }
+                    }
+                }
+            }
+
+            val asmVersion = provider { PackageRegistry.MODERN_JAVA_ASM_VERSION }
+            val rfbVersion = provider { PackageRegistry.RFB_VERSION }
+            val lwjgl3ifyVersion = provider { PackageRegistry.LWJGL3IFY_VERSION }
+
+            val lwjgl3ify = lwjgl3ifyVersion.map { "com.github.GTNewHorizons:lwjgl3ify:$it" }
+
+            dependencies {
+                if (modernCompile) {
+                    addProvider(set?.compileOnlyConfigurationName ?: "devOnlyNonPublishable", lwjgl3ify.map { "$it:dev" })
+
+                    val pDeps = (set?.name ?: "") + MODERN_PATCH_DEPS_COMPILE_ONLY
+                    addProvider<_, ExternalModuleDependency>(
+                        pDeps,
+                        rfbVersion.map { "com.gtnewhorizons.retrofuturabootstrap:RetroFuturaBootstrap:$it" }) { isTransitive = false }
+                    addProvider(pDeps, asmVersion.map { "org.ow2.asm:asm:$it" })
+                    addProvider(pDeps, asmVersion.map { "org.ow2.asm:asm-commons:$it" })
+                    addProvider(pDeps, asmVersion.map { "org.ow2.asm:asm-tree:$it" })
+                    addProvider(pDeps, asmVersion.map { "org.ow2.asm:asm-analysis:$it" })
+                    addProvider(pDeps, asmVersion.map { "org.ow2.asm:asm-util:$it" })
+                    addProvider(pDeps, provider { "org.ow2.asm:asm-deprecated:7.1" })
+                    addProvider(pDeps, provider { PackageRegistry.MODERN_JAVA_COMMONS_LANG })
+                    addProvider(pDeps, provider { PackageRegistry.MODERN_JAVA_COMMONS_COMPRESS })
+                    addProvider(pDeps, provider { PackageRegistry.MODERN_JAVA_COMMONS_IO })
+                } else if (set == null) {
+                    addProvider(MODERN_PATCH_DEPS, lwjgl3ify.map { "$it:dev" })
+                }
+                if (set == null) {
+                    addProvider<_, ExternalModuleDependency>(MODERN_PATCH_DEPS, lwjgl3ify.map { "$it:forgePatches" }) { isTransitive = false }
+                    addProvider<_, ExternalModuleDependency>(MODERN_PATCH_DEPS_OBF, lwjgl3ify.map { "$it:forgePatches" }) { isTransitive = false }
+                }
             }
         }
     }

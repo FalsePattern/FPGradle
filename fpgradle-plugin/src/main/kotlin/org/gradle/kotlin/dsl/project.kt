@@ -24,13 +24,16 @@ package org.gradle.kotlin.dsl
 
 import com.falsepattern.fpgradle.JarInJarConfigSpec
 import com.falsepattern.fpgradle.fp_ctx_internal
+import com.falsepattern.fpgradle.internal.ModernJavaTweaks.Companion.injectLwjgl3ifyForSet
 import com.falsepattern.fpgradle.sourceSets
+import com.falsepattern.fpgradle.toolchains
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import org.gradle.api.Project
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import java.util.function.Function
 
 fun Project.jarInJar_fp(
@@ -50,8 +53,15 @@ fun Project.jarInJar_fp(
         }
     }
 
+    afterEvaluate {
+        injectLwjgl3ifyForSet(spec.javaCompatibility.get(), spec.javaVersion, spec.javaVendor, sourceSet)
+    }
+
     tasks.named<JavaCompile>(sourceSet.compileJavaTaskName) {
-        javaCompiler = spec.javaCompiler
+        javaCompiler = toolchains.compilerFor {
+            languageVersion.set(spec.javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
+            vendor.set(spec.javaVendor)
+        }
     }
     configurations.named(sourceSet.compileClasspathConfigurationName) {
         if (dependsOnMain) {

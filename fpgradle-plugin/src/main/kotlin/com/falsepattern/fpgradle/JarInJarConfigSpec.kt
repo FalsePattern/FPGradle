@@ -22,15 +22,16 @@
 
 package com.falsepattern.fpgradle
 
+import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.Compatibility
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
-import org.gradle.jvm.toolchain.JavaCompiler
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import javax.inject.Inject
 
 abstract class JarInJarConfigSpec @Inject constructor(project: Project) {
-    abstract val javaCompiler: Property<JavaCompiler>
+    abstract val javaCompatibility: Property<Compatibility>
+    abstract val javaVersion: Property<JavaVersion>
     abstract val javaVendor: Property<JvmVendorSpec>
     abstract val artifactGroup: Property<String>
     abstract val artifactName: Property<String>
@@ -40,9 +41,20 @@ abstract class JarInJarConfigSpec @Inject constructor(project: Project) {
     init {
         with(project) {
             val mc = project.mc
-            javaCompiler.convention(javaToolchains.compilerFor {
-                languageVersion.set(mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) })
-                vendor.set(mc.java.vendor)
+            javaCompatibility.convention(mc.java.compatibility)
+            val javaGenerated = javaCompatibility.map { when(it) {
+                Compatibility.LegacyJava -> JavaVersion.VERSION_1_8
+                Compatibility.Jabel -> JavaVersion.VERSION_17
+                Compatibility.ModernJava -> JavaVersion.VERSION_21
+            } }
+            javaVersion.convention(javaCompatibility.flatMap { thisComp ->
+                mc.java.compatibility.flatMap { mcComp ->
+                    if (mcComp == thisComp) {
+                        mc.java.version
+                    } else {
+                        javaGenerated
+                    }
+                }
             })
             javaVendor.convention(mc.java.vendor)
             artifactGroup.convention(mc.publish.maven.group)
@@ -52,4 +64,8 @@ abstract class JarInJarConfigSpec @Inject constructor(project: Project) {
             dependsOnMain = true
         }
     }
+
+    val legacy = Compatibility.LegacyJava
+    val jabel = Compatibility.Jabel
+    val modern = Compatibility.ModernJava
 }
