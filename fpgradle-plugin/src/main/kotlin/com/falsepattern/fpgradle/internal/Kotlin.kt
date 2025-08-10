@@ -65,6 +65,27 @@ class Kotlin: FPPlugin() {
                 }
             }
         }
+        pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+            val disable = setOf(
+                "kaptGenerateStubsMcLauncherKotlin",
+                "kaptGenerateStubsPatchedMcKotlin",
+                "kaptGenerateStubsInjectedTagsKotlin",
+                "compileMcLauncherKotlin",
+                "compilePatchedMcKotlin",
+                "compileInjectedTagsKotlin",
+                "kaptMcLauncherKotlin",
+                "kaptPatchedMcKotlin",
+                "kaptInjectedTagsKotlin",
+                "kspMcLauncherKotlin",
+                "kspPatchedMcKotlin",
+                "kspInjectedTagsKotlin"
+            )
+            tasks.configureEach {
+                if (name in disable) {
+                    enabled = false
+                }
+            }
+        }
     }
 }
 
