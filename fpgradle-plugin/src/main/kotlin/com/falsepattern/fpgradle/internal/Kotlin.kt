@@ -31,7 +31,6 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.kotlin.dsl.*
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 class Kotlin: FPPlugin() {
     override fun Project.onPluginPostInitAfterDeps() {
@@ -49,9 +48,6 @@ class Kotlin: FPPlugin() {
             }
             if (mc.java.compatibility.get() == FPMinecraftProjectExtension.Java.Compatibility.Jabel) {
                 patchKotlinToolchainJabel()
-            }
-            tasks.withType<KotlinCompile> {
-                this.kotlinJavaToolchainProvider
             }
         } else {
             //joml moment
