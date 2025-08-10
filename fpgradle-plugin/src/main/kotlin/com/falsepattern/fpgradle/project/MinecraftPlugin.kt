@@ -37,16 +37,13 @@ import io.github.legacymoddingmc.mappinggenerator.MappingGeneratorPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.create
 import kotlin.reflect.KClass
 
 class MinecraftPlugin: FPPlugin() {
     override fun Project.addPlugins(): List<KClass<out Plugin<Project>>> {
         val result = ArrayList<KClass<out Plugin<Project>>>()
-        result.addAll(listOf(
-            JavaPlugin::class,
-            UserDevPlugin::class,
-        ))
         if (project.name == "fpgradle-examplemod1") {
             result.add(MappingGeneratorPlugin::class)
         }
@@ -85,6 +82,8 @@ class MinecraftPlugin: FPPlugin() {
     }
 
     override fun Project.onPluginApplyBeforeDeps() {
+        pluginManager.apply(JavaPlugin::class)
+        pluginManager.apply(UserDevPlugin::class)
         extensions.create("fp_ctx_internal", FPInternalProjectExtension::class)
         extensions.create("minecraft_fp", FPMinecraftProjectExtension::class, project)
     }

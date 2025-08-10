@@ -48,9 +48,15 @@ val Project.currentTime get() = getValueSource(TimestampValueSource::class)
 
 val LocalDateTime.formatted: String get() = this.format(TIMESTAMP_FORMAT)
 
-inline fun <T, P: ValueSourceParameters?> Project.getValueSource(sourceType: KClass<out ValueSource<T, P>>, crossinline configuration: P.() -> Unit = {}) =
-    providers.of(sourceType.java) {
-        configuration(parameters)
+inline fun <T: Any, reified P: ValueSourceParameters> Project.getValueSource(sourceType: KClass<out ValueSource<T, P>>, crossinline configuration: P.() -> Unit = {}) =
+    if (P::class == ValueSourceParameters.None::class) {
+        providers.of(sourceType) {}
+    } else {
+        providers.of(sourceType) {
+            parameters {
+                configuration()
+            }
+        }
     }
 
 private enum class Language(val sourceDir: String, vararg val extensions: String) {

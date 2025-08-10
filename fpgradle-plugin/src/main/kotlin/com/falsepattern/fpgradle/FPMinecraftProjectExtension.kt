@@ -33,6 +33,7 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
+import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import java.util.*
 
@@ -51,6 +52,10 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             Java.Compatibility.Jabel -> JavaVersion.VERSION_21
             Java.Compatibility.ModernJava -> java.version.get()
         } })
+        project.java.toolchain {
+            languageVersion.convention(java.version.map { JavaLanguageVersion.of(it.majorVersion) })
+            vendor.convention(java.vendor)
+        }
 
         mod.version.convention(project.provider { project.version.toString() })
 

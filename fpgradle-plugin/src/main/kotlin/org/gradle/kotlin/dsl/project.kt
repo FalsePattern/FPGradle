@@ -54,7 +54,7 @@ fun Project.jarInJar_fp(
     }
 
     afterEvaluate {
-        injectLwjgl3ifyForSet(spec.javaCompatibility.get(), spec.javaVersion, spec.javaVendor, sourceSet)
+        injectLwjgl3ifyForSet(spec.javaCompatibility.get(), sourceSet)
     }
 
     tasks.named<JavaCompile>(sourceSet.compileJavaTaskName) {

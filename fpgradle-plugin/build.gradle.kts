@@ -7,7 +7,7 @@ plugins {
     id("com.gradle.plugin-publish") version "1.3.1"
     `maven-publish`
     `kotlin-dsl`
-    id("com.gradleup.shadow") version "9.0.0-beta17"
+    id("com.gradleup.shadow") version "9.0.1"
 }
 
 val buildscriptVersion = "1.0.0"
@@ -135,10 +135,10 @@ dependencies {
     implementation("com.google.code.gson:gson:2.13.1")
 
     // RFG
-    add("shadowImplementation", "com.gtnewhorizons:retrofuturagradle:1.4.6-fp3")
+    add("shadowImplementation", "com.gtnewhorizons:retrofuturagradle:1.4.6-fp4")
 
     // Shadow
-    implementation("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.0.0-beta17")
+    implementation("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.0.1")
 
     // JTweaker (stubpackage)
     add("shadowImplementation", "com.falsepattern:jtweaker:0.5.0") {

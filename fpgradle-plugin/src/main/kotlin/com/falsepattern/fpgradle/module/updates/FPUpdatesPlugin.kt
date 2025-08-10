@@ -48,7 +48,7 @@ abstract class FPUpdatesPlugin: FPPlugin() {
     abstract class UpdateCheck: FlowAction<UpdateCheck.Parameters> {
         interface Parameters: FlowParameters {
             @Input
-            fun getMetadata(): Property<Metadata?>
+            fun getMetadata(): Property<Metadata>
         }
 
         override fun execute(parameters: Parameters) {

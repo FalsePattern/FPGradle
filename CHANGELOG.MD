@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Updated to Gradle 9.0.0
+
 ## [1.0.0] - 2025-07-31
 
 ### Changed

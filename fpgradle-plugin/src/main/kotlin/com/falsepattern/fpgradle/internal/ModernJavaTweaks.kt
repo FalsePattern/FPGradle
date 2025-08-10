@@ -65,7 +65,7 @@ class ModernJavaTweaks: FPPlugin() {
 
     override fun Project.onPluginPostInitBeforeDeps() {
         val compat = mc.java.compatibility.get()
-        injectLwjgl3ifyForSetInternal(compat, mc.java.version, mc.java.vendor, null)
+        injectLwjgl3ifyForSetInternal(compat, null)
         when(compat) {
             LegacyJava -> {
                 McRun.standardNonObf().forEach { createModernCloneFor(tasks.named<RunMinecraftTask>(it.taskName), it.side) }
@@ -237,24 +237,22 @@ class ModernJavaTweaks: FPPlugin() {
         }
 
 
-        fun Project.injectLwjgl3ifyForSet(compat: Compatibility, javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet) {
-            injectLwjgl3ifyForSetInternal(compat, javaVersion, javaVendor, set)
+        fun Project.injectLwjgl3ifyForSet(compat: Compatibility, set: SourceSet) {
+            injectLwjgl3ifyForSetInternal(compat, set)
         }
 
-        private fun Project.injectLwjgl3ifyForSetInternal(compat: Compatibility, javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+        private fun Project.injectLwjgl3ifyForSetInternal(compat: Compatibility, set: SourceSet?) {
             when(compat) {
                 LegacyJava -> {
-                    setToolchainVersionLegacy(javaVersion, javaVendor, set)
                     setupJavaConfigsModern(false, set)
                     injectLWJGL3ifyModern(false, set)
                 }
                 Jabel -> {
-                    setToolchainVersionJabel(javaVersion, javaVendor, set)
+                    setToolchainVersionJabel(set)
                     setupJavaConfigsModern(false, set)
                     injectLWJGL3ifyModern(false, set)
                 }
                 ModernJava -> {
-                    setToolchainVersionModern(javaVersion, javaVendor, set)
                     setupJavaConfigsModern(true, set)
                     swapLWJGLVersionModern(set)
                     injectLWJGL3ifyModern(true, set)
@@ -271,26 +269,7 @@ class ModernJavaTweaks: FPPlugin() {
             }
         }
 
-        private fun Project.setToolchainVersionLegacy(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
-            if (set == null) {
-                java.toolchain.languageVersion = mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) }
-                java.toolchain.vendor = mc.java.vendor
-                val legacyCompiler = toolchains.compilerFor(java.toolchain)
-                tasks.withType<JavaCompile>().configureEachFiltered {
-                    javaCompiler = legacyCompiler
-                }
-            } else {
-                val legacyCompiler = toolchains.compilerFor {
-                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
-                    vendor.set(javaVendor)
-                }
-                tasks.named<JavaCompile>(set.compileJavaTaskName) {
-                    javaCompiler = legacyCompiler
-                }
-            }
-        }
-
-        private fun Project.setToolchainVersionJabel(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+        private fun Project.setToolchainVersionJabel(set: SourceSet?) {
             repositories {
                 exclusiveContent {
                     forRepositories(repositories.mavenCentral {
@@ -319,50 +298,6 @@ class ModernJavaTweaks: FPPlugin() {
                 // JDK-8206937.
                 if (set == null) {
                     add(MCPTasks.PATCHED_MINECRAFT_CONFIGURATION_NAME, "me.eigenraven.java8unsupported:java-8-unsupported-shim:1.0.0")
-                }
-            }
-            if (set == null) {
-                java.toolchain.languageVersion = javaVersion.map { JavaLanguageVersion.of(it.majorVersion) }
-                java.toolchain.vendor = javaVendor
-
-                val jabelCompiler = toolchains.compilerFor(java.toolchain)
-                tasks.withType<JavaCompile>().configureEachFiltered {
-                    sourceCompatibility = javaVersion.map { it.majorVersion }.get()
-                    options.release = 8
-                    javaCompiler = jabelCompiler
-                }
-            } else {
-                val jabelCompiler = toolchains.compilerFor {
-                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
-                    vendor.set(javaVendor)
-                }
-                tasks.named<JavaCompile>(set.compileJavaTaskName) {
-                    sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
-                    options.release = 8
-                    javaCompiler = jabelCompiler
-                }
-            }
-        }
-
-        private fun Project.setToolchainVersionModern(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
-            if (set == null) {
-                java.toolchain.languageVersion = javaVersion.map { JavaLanguageVersion.of(it.majorVersion) }
-                java.toolchain.vendor = javaVendor
-                val modernCompiler = toolchains.compilerFor(java.toolchain)
-                tasks.withType<JavaCompile>().configureEachFiltered {
-                    sourceCompatibility = javaVersion.map { it.majorVersion }.get()
-                    targetCompatibility = javaVersion.map { it.majorVersion }.get()
-                    javaCompiler = modernCompiler
-                }
-            } else {
-                val modernCompiler = toolchains.compilerFor {
-                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
-                    vendor.set(javaVendor)
-                }
-                tasks.named<JavaCompile>(set.compileJavaTaskName) {
-                    sourceCompatibility = javaVersion.map { it.majorVersion }.get()
-                    targetCompatibility = javaVersion.map { it.majorVersion }.get()
-                    javaCompiler = modernCompiler
                 }
             }
         }
