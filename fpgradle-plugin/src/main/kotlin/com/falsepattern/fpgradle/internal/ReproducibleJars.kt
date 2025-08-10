@@ -26,7 +26,7 @@ import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.mc
 import org.gradle.api.Project
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.withType
 
 class ReproducibleJars: FPPlugin() {
     override fun Project.onPluginInit() {

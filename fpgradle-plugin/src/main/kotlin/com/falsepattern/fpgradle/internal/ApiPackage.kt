@@ -22,11 +22,7 @@
 
 package com.falsepattern.fpgradle.internal
 
-import com.falsepattern.fpgradle.FPPlugin
-import com.falsepattern.fpgradle.mc
-import com.falsepattern.fpgradle.sourceSets
-import com.falsepattern.fpgradle.verifyClass
-import com.falsepattern.fpgradle.verifyPackage
+import com.falsepattern.fpgradle.*
 import org.gradle.api.Project
 import org.gradle.api.file.CopySpec
 import org.gradle.api.provider.Provider

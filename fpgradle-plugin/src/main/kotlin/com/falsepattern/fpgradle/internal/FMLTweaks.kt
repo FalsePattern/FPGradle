@@ -29,8 +29,6 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
-import kotlin.collections.HashMap
-import kotlin.collections.set
 
 class FMLTweaks: FPPlugin() {
     override fun Project.onPluginInit() {

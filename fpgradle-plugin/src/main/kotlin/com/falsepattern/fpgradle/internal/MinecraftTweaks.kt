@@ -31,9 +31,6 @@ import org.gradle.kotlin.dsl.expand
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
 import org.gradle.language.jvm.tasks.ProcessResources
-import kotlin.collections.HashMap
-import kotlin.collections.mapOf
-import kotlin.collections.set
 
 class MinecraftTweaks: FPPlugin() {
 

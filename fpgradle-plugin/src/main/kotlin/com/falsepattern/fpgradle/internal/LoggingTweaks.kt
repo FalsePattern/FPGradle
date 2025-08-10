@@ -27,7 +27,6 @@ import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.mc
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import org.gradle.api.Project
-import org.gradle.api.Transformer
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.withType
 import org.gradle.language.jvm.tasks.ProcessResources

@@ -29,7 +29,8 @@ import org.gradle.api.Project
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
-import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.register
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets
 import java.util.jar.Manifest
