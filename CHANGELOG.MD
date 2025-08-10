@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-08-10
+
 ### Fixed
 
 - Crash when trying to use plugin without kotlin present
