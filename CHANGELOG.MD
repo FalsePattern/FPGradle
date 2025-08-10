@@ -5,6 +5,7 @@
 ### Changed
 
 - Updated to Gradle 9.0.0
+- Updated plugin dependencies
 
 ### Fixed
 

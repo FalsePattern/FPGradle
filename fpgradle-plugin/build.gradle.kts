@@ -120,13 +120,13 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r")
 
     // Apache Commons Lang
-    implementation("org.apache.commons:commons-lang3:3.17.0")
+    implementation("org.apache.commons:commons-lang3:3.18.0")
 
     // Apache Commons IO
-    implementation("commons-io:commons-io:2.19.0")
+    implementation("commons-io:commons-io:2.20.0")
 
     // Apache Commons Compress
-    implementation("org.apache.commons:commons-compress:1.27.1")
+    implementation("org.apache.commons:commons-compress:1.28.0")
 
     // XZ
     implementation("org.tukaani:xz:1.10")
@@ -152,16 +152,16 @@ dependencies {
     }
 
     // IntelliJ
-    implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.1.10")
+    implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.2")
 
     // CurseForgeGradle
     implementation("net.darkhax.curseforgegradle:CurseForgeGradle:1.1.26")
 
     // Minotaur
-    implementation("com.modrinth.minotaur:Minotaur:2.8.7")
+    implementation("com.modrinth.minotaur:Minotaur:2.8.8")
 
     // Maven metadata
-    implementation("org.apache.maven:maven-repository-metadata:3.9.10")
+    implementation("org.apache.maven:maven-repository-metadata:3.9.11")
 }
 
 gradlePlugin {
