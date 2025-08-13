@@ -53,8 +53,15 @@ fun Project.jarInJar_fp(
         }
     }
 
+    tasks.named<JavaCompile>(sourceSet.compileJavaTaskName) {
+        javaCompiler = toolchains.compilerFor {
+            languageVersion.set(spec.javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
+            vendor.set(spec.javaVendor)
+        }
+    }
+
     afterEvaluate {
-        injectLwjgl3ifyForSet(spec.javaVersion, spec.javaVendor, spec.javaCompatibility.get(), sourceSet)
+        injectLwjgl3ifyForSet(spec.javaVersion, spec.javaCompatibility.get(), sourceSet)
     }
 
     configurations.named(sourceSet.compileClasspathConfigurationName) {

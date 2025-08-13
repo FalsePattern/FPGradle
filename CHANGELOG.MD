@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Global CompileJava state cross-pollution to jij configs
+
 ## [1.1.2] - 2025-08-13
 
 ### Fixed

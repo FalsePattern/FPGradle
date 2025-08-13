@@ -85,7 +85,7 @@ class ModernJavaTweaks: FPPlugin() {
 
     override fun Project.onPluginPostInitBeforeDeps() {
         val compat = mc.java.compatibility.get()
-        injectLwjgl3ifyForSetInternal(provider{null}, provider{null}, compat, null)
+        injectLwjgl3ifyForSetInternal(provider{null}, compat, null)
         when(compat) {
             LegacyJava -> {
                 McRun.standardNonObf().forEach { createModernCloneFor(tasks.named<RunMinecraftTask>(it.taskName), it.side) }
@@ -257,24 +257,24 @@ class ModernJavaTweaks: FPPlugin() {
         }
 
 
-        fun Project.injectLwjgl3ifyForSet(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, compat: Compatibility, set: SourceSet) {
-            injectLwjgl3ifyForSetInternal(javaVersion, javaVendor, compat, set)
+        fun Project.injectLwjgl3ifyForSet(javaVersion: Provider<JavaVersion>, compat: Compatibility, set: SourceSet) {
+            injectLwjgl3ifyForSetInternal(javaVersion, compat, set)
         }
 
-        private fun Project.injectLwjgl3ifyForSetInternal(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, compat: Compatibility, set: SourceSet?) {
+        private fun Project.injectLwjgl3ifyForSetInternal(javaVersion: Provider<JavaVersion>, compat: Compatibility, set: SourceSet?) {
             when(compat) {
                 LegacyJava -> {
-                    setToolchainVersionLegacy(javaVersion, javaVendor, set)
+                    setToolchainVersionLegacy(javaVersion, set)
                     setupJavaConfigsModern(false, set)
                     injectLWJGL3ifyModern(false, set)
                 }
                 Jabel -> {
-                    setToolchainVersionJabel(javaVersion, javaVendor, set)
+                    setToolchainVersionJabel(javaVersion, set)
                     setupJavaConfigsModern(false, set)
                     injectLWJGL3ifyModern(false, set)
                 }
                 ModernJava -> {
-                    setToolchainVersionModern(javaVersion, javaVendor, set)
+                    setToolchainVersionModern(javaVersion, set)
                     setupJavaConfigsModern(true, set)
                     swapLWJGLVersionModern(set)
                     injectLWJGL3ifyModern(true, set)
@@ -291,19 +291,18 @@ class ModernJavaTweaks: FPPlugin() {
             }
         }
 
-        private fun Project.setToolchainVersionLegacy(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+        private fun Project.setToolchainVersionLegacy(javaVersion: Provider<JavaVersion>, set: SourceSet?) {
             if (set != null) {
-                val legacyCompiler = toolchains.compilerFor {
-                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
-                    vendor.set(javaVendor)
-                }
                 tasks.named<JavaCompile>(set.compileJavaTaskName) {
-                    javaCompiler = legacyCompiler
+                    sourceCompatibility = javaVersion.map { it.majorVersion }.get()
+                    targetCompatibility = javaVersion.map { it.majorVersion }.get()
+                    options.release = null
                 }
+
             }
         }
 
-        private fun Project.setToolchainVersionJabel(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+        private fun Project.setToolchainVersionJabel(javaVersion: Provider<JavaVersion>, set: SourceSet?) {
             repositories {
                 mavenNamed("mavenCentral_java8Unsupported", {name, _ ->
                     val repo = repositories.mavenCentral {
@@ -341,28 +340,20 @@ class ModernJavaTweaks: FPPlugin() {
                 }
             }
             if (set != null) {
-                val jabelCompiler = toolchains.compilerFor {
-                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
-                    vendor.set(javaVendor)
-                }
                 tasks.named<JavaCompile>(set.compileJavaTaskName) {
-                    sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
+                    sourceCompatibility = javaVersion.map { it.majorVersion }.get()
+                    targetCompatibility = null
                     options.release = 8
-                    javaCompiler = jabelCompiler
                 }
             }
         }
 
-        private fun Project.setToolchainVersionModern(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+        private fun Project.setToolchainVersionModern(javaVersion: Provider<JavaVersion>, set: SourceSet?) {
             if (set != null) {
-                val modernCompiler = toolchains.compilerFor {
-                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
-                    vendor.set(javaVendor)
-                }
                 tasks.named<JavaCompile>(set.compileJavaTaskName) {
                     sourceCompatibility = javaVersion.map { it.majorVersion }.get()
                     targetCompatibility = javaVersion.map { it.majorVersion }.get()
-                    javaCompiler = modernCompiler
+                    options.release = null
                 }
             }
         }
