@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [1.1.2] - 2025-08-13
+
 ### Fixed
 
 - Fixed broken builds when using jabel/modern java
