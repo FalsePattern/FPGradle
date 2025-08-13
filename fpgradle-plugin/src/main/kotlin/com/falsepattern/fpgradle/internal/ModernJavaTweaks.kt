@@ -30,9 +30,11 @@ import com.gtnewhorizons.retrofuturagradle.mcp.MCPTasks
 import com.gtnewhorizons.retrofuturagradle.mcp.RemapSourceJarTask
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import com.gtnewhorizons.retrofuturagradle.util.Distribution
+import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.tasks.TaskCollection
@@ -40,6 +42,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.tasks.Jar
 import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import java.nio.charset.StandardCharsets
 import org.gradle.api.plugins.JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME as ANNOTATION_PROCESSOR
@@ -58,11 +61,31 @@ class ModernJavaTweaks: FPPlugin() {
 
         tweakMappingGenerator()
         minecraft.injectMissingGenerics = true
+        project.java.toolchain {
+            languageVersion.convention(mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) })
+            vendor.convention(mc.java.vendor)
+        }
+        val compiler = toolchains.compilerFor(project.java.toolchain)
+        tasks.withType<JavaCompile>().configureEachFiltered {
+            javaCompiler = compiler
+        }
+        afterEvaluate {
+            tasks.withType<JavaCompile>().configureEachFiltered {
+                    sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
+                    when(mc.java.compatibility.get()) {
+                        LegacyJava -> {}
+                        Jabel -> options.release = 8
+                        ModernJava -> {
+                            targetCompatibility = mc.java.version.map { it.majorVersion }.get()
+                        }
+                    }
+            }
+        }
     }
 
     override fun Project.onPluginPostInitBeforeDeps() {
         val compat = mc.java.compatibility.get()
-        injectLwjgl3ifyForSetInternal(compat, null)
+        injectLwjgl3ifyForSetInternal(provider{null}, provider{null}, compat, null)
         when(compat) {
             LegacyJava -> {
                 McRun.standardNonObf().forEach { createModernCloneFor(tasks.named<RunMinecraftTask>(it.taskName), it.side) }
@@ -234,22 +257,24 @@ class ModernJavaTweaks: FPPlugin() {
         }
 
 
-        fun Project.injectLwjgl3ifyForSet(compat: Compatibility, set: SourceSet) {
-            injectLwjgl3ifyForSetInternal(compat, set)
+        fun Project.injectLwjgl3ifyForSet(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, compat: Compatibility, set: SourceSet) {
+            injectLwjgl3ifyForSetInternal(javaVersion, javaVendor, compat, set)
         }
 
-        private fun Project.injectLwjgl3ifyForSetInternal(compat: Compatibility, set: SourceSet?) {
+        private fun Project.injectLwjgl3ifyForSetInternal(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, compat: Compatibility, set: SourceSet?) {
             when(compat) {
                 LegacyJava -> {
+                    setToolchainVersionLegacy(javaVersion, javaVendor, set)
                     setupJavaConfigsModern(false, set)
                     injectLWJGL3ifyModern(false, set)
                 }
                 Jabel -> {
-                    setToolchainVersionJabel(set)
+                    setToolchainVersionJabel(javaVersion, javaVendor, set)
                     setupJavaConfigsModern(false, set)
                     injectLWJGL3ifyModern(false, set)
                 }
                 ModernJava -> {
+                    setToolchainVersionModern(javaVersion, javaVendor, set)
                     setupJavaConfigsModern(true, set)
                     swapLWJGLVersionModern(set)
                     injectLWJGL3ifyModern(true, set)
@@ -266,23 +291,41 @@ class ModernJavaTweaks: FPPlugin() {
             }
         }
 
-        private fun Project.setToolchainVersionJabel(set: SourceSet?) {
+        private fun Project.setToolchainVersionLegacy(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+            if (set != null) {
+                val legacyCompiler = toolchains.compilerFor {
+                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
+                    vendor.set(javaVendor)
+                }
+                tasks.named<JavaCompile>(set.compileJavaTaskName) {
+                    javaCompiler = legacyCompiler
+                }
+            }
+        }
+
+        private fun Project.setToolchainVersionJabel(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
             repositories {
-                exclusiveContent {
-                    forRepositories(repositories.mavenCentral {
-                        name = "mavenCentral_java8Unsupported"
-                    })
-                    filter {
-                        includeGroup("me.eigenraven.java8unsupported")
+                mavenNamed("mavenCentral_java8Unsupported", {name, _ ->
+                    val repo = repositories.mavenCentral {
+                        this.name = name
                     }
-                }
-                maven {
-                    name = "horizon"
-                    url = uri("https://mvn.falsepattern.com/horizon/")
-                    content {
-                        includeModule("com.github.bsideup.jabel", "jabel-javac-plugin")
+                    exclusiveContent {
+                        forRepositories(repo)
+                        filter {
+                            includeGroup("me.eigenraven.java8unsupported")
+                        }
                     }
-                }
+                    repo
+                })
+                mavenNamed("horizon_jabel", {name, _ ->
+                    maven {
+                        this.name = name
+                        url = uri("https://mvn.falsepattern.com/horizon/")
+                        content {
+                            includeModule("com.github.bsideup.jabel", "jabel-javac-plugin")
+                        }
+                    }
+                })
             }
             dependencies {
                 add(set?.annotationProcessorConfigurationName ?: ANNOTATION_PROCESSOR, JABEL)
@@ -295,6 +338,31 @@ class ModernJavaTweaks: FPPlugin() {
                 // JDK-8206937.
                 if (set == null) {
                     add(MCPTasks.PATCHED_MINECRAFT_CONFIGURATION_NAME, "me.eigenraven.java8unsupported:java-8-unsupported-shim:1.0.0")
+                }
+            }
+            if (set != null) {
+                val jabelCompiler = toolchains.compilerFor {
+                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
+                    vendor.set(javaVendor)
+                }
+                tasks.named<JavaCompile>(set.compileJavaTaskName) {
+                    sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
+                    options.release = 8
+                    javaCompiler = jabelCompiler
+                }
+            }
+        }
+
+        private fun Project.setToolchainVersionModern(javaVersion: Provider<JavaVersion>, javaVendor: Provider<JvmVendorSpec>, set: SourceSet?) {
+            if (set != null) {
+                val modernCompiler = toolchains.compilerFor {
+                    languageVersion.set(javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
+                    vendor.set(javaVendor)
+                }
+                tasks.named<JavaCompile>(set.compileJavaTaskName) {
+                    sourceCompatibility = javaVersion.map { it.majorVersion }.get()
+                    targetCompatibility = javaVersion.map { it.majorVersion }.get()
+                    javaCompiler = modernCompiler
                 }
             }
         }
@@ -324,10 +392,10 @@ class ModernJavaTweaks: FPPlugin() {
         }
 
         private fun Project.injectLWJGL3ifyModern(modernCompile: Boolean, set: SourceSet?) {
-            if (set == null) {
-                repositories {
+            repositories {
+                mavenNamed("horizon_3ify", { name, _ ->
                     maven {
-                        name = "horizon_3ify"
+                        this.name = name
                         url = uri("https://mvn.falsepattern.com/horizon/")
                         content {
                             includeGroup("com.gtnewhorizons")
@@ -335,7 +403,7 @@ class ModernJavaTweaks: FPPlugin() {
                             includeGroup("com.github.GTNewHorizons")
                         }
                     }
-                }
+                })
             }
 
             val asmVersion = provider { PackageRegistry.MODERN_JAVA_ASM_VERSION }

@@ -52,10 +52,6 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             Java.Compatibility.Jabel -> JavaVersion.VERSION_21
             Java.Compatibility.ModernJava -> java.version.get()
         } })
-        project.java.toolchain {
-            languageVersion.convention(java.version.map { JavaLanguageVersion.of(it.majorVersion) })
-            vendor.convention(java.vendor)
-        }
 
         mod.version.convention(project.provider { project.version.toString() })
 
