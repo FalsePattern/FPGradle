@@ -31,7 +31,7 @@ import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.register
 
 class ApiPackage: FPPlugin() {
-    override fun Project.onPluginInit() {
+    override fun Project.onPluginPostInitBeforeDeps() {
         tasks.register<Jar>("apiJar").configure {
             val ignoreRootPkg = mc.api.ignoreRootPkg
             val rootPkg = mc.mod.rootPkg

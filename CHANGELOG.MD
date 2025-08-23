@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- ApiJar logic breaking when `scala` plugin is present
+
 ## [1.1.3] - 2025-08-13
 
 ### Fixed
