@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [2.0.0] - 2025-09-02
+
 ### Changed
 
 - **Breaking:** Heavily refactored the way jtweaker stub removal works.
