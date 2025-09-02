@@ -48,7 +48,7 @@ class MinecraftPlugin: FPPlugin() {
             result.add(MappingGeneratorPlugin::class)
         }
         result.addAll(listOf(
-            JTweakerPlugin::class,
+            Stubs::class,
 
             FPLombokPlugin::class,
             JetBrainsPlugin::class,
@@ -69,6 +69,7 @@ class MinecraftPlugin: FPPlugin() {
             SourcesPublish::class,
             ApiPackage::class,
             Shadow::class,
+            JvmDG::class,
 
             LoggingTweaks::class,
 

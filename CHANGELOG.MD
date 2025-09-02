@@ -2,6 +2,15 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** Heavily refactored the way jtweaker stub removal works.
+If you're doing any custom task shuffling, make sure you read through the changed code.
+
+### Added
+
+- JVMDowngrader support
+
 ## [1.1.4] - 2025-08-23
 
 ### Fixed

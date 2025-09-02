@@ -91,8 +91,8 @@ inline fun RepositoryHandler.exclusive(repo: ArtifactRepository, vararg groups: 
     }
 }
 
-inline fun RepositoryHandler.wellKnownMaven(name: String, url: Any, crossinline action: MavenAction) = mavenNamed(name, { theName, theAction -> maven(theName, url, theAction)}, action)
-inline fun RepositoryHandler.wellKnownIvy(name: String, url: Any, pattern: String, crossinline action: IvyAction) = ivyNamed(name, {theName, theAction -> ivy(theName, url, pattern, theAction)}, action)
+inline fun RepositoryHandler.wellKnownMaven(name: String, url: Any, crossinline action: MavenAction = {}) = mavenNamed(name, { theName, theAction -> maven(theName, url, theAction)}, action)
+inline fun RepositoryHandler.wellKnownIvy(name: String, url: Any, pattern: String, crossinline action: IvyAction = {}) = ivyNamed(name, {theName, theAction -> ivy(theName, url, pattern, theAction)}, action)
 
 inline fun RepositoryHandler.cursemaven(crossinline action: MavenAction = {}) = wellKnownMaven("cursemaven", "https://mvn.falsepattern.com/cursemaven/", action)
 inline fun RepositoryHandler.cursemavenEX(vararg extraGroups: String, crossinline extraFilter: ExFilter = {}) = exclusive(cursemaven(), "curse.maven", *extraGroups, theFilter = extraFilter)

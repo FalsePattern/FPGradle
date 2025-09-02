@@ -23,19 +23,18 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
+import com.falsepattern.fpgradle.internal.Stubs.Companion.JAR_STUB_TASK
 import com.falsepattern.fpgradle.manifestAttributes
 import com.falsepattern.fpgradle.mc
+import com.falsepattern.jtweaker.RemoveStubsJar
 import com.github.jengelman.gradle.plugins.shadow.ShadowPlugin
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import org.gradle.api.Project
 import org.gradle.api.component.AdhocComponentWithVariants
 import org.gradle.api.component.ConfigurationVariantDetails
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
 import org.gradle.jvm.tasks.Jar
-import org.gradle.kotlin.dsl.assign
-import org.gradle.kotlin.dsl.invoke
-import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.*
 
 class Shadow: FPPlugin() {
 
@@ -50,7 +49,7 @@ class Shadow: FPPlugin() {
         val shadowImplementation = configurations.maybeCreate("shadowImplementation")
         shadowImplementation.isCanBeConsumed = false
         shadowImplementation.isCanBeResolved = true
-        listOf("compileClasspath", "runtimeClasspath", "testCompileClasspath", "testRuntimeClasspath").forEach {
+        listOf("compileClasspath", "testCompileClasspath", "testRuntimeClasspath").forEach {
             configurations.getByName(it)
                 .extendsFrom(shadowImplementation)
         }
@@ -67,7 +66,7 @@ class Shadow: FPPlugin() {
 
                 configurations = listOf(shadowImplementation)
 
-                archiveClassifier = "dev"
+                archiveClassifier = "dev-prestub"
 
                 if (mc.shadow.relocate.get()) {
                     relocationPrefix = "${mc.mod.rootPkg.get()}.shadow"
@@ -79,20 +78,14 @@ class Shadow: FPPlugin() {
                 }
             }
 
-            for (outgoingConfig in listOf("runtimeElements", "apiElements")) {
-                val outgoing = configurations.getByName(outgoingConfig)
-                outgoing.outgoing.artifacts.clear()
-                outgoing.outgoing.artifact(shadowJar)
-            }
-
             named<Jar>("jar").configure {
                 if (!empty.get())
                     archiveClassifier = "dev-preshadow"
             }
 
-            named<ReobfuscatedJar>("reobfJar").configure {
+            named<RemoveStubsJar>(JAR_STUB_TASK).configure {
                 if (!empty.get()) {
-                    inputJar = shadowJar.flatMap(AbstractArchiveTask::getArchiveFile)
+                    inputFile = shadowJar.flatMap(AbstractArchiveTask::getArchiveFile)
                     dependsOn("shadowJar")
                 }
             }

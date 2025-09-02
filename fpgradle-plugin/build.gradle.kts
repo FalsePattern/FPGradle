@@ -9,7 +9,7 @@ plugins {
     id("com.gradleup.shadow") version "9.0.1"
 }
 
-val buildscriptVersion = "1.1.4"
+val buildscriptVersion = "2.0.0"
 
 group = "com.falsepattern"
 version = buildscriptVersion
@@ -101,6 +101,13 @@ repositories {
             includeModule("io.github.LegacyModdingMC.MappingGenerator", "MappingGenerator")
         }
     }
+    maven {
+        url = uri("https://maven.wagyourtail.xyz/releases")
+        name = "wagyourtail"
+        content {
+            includeGroup("xyz.wagyourtail.jvmdowngrader")
+        }
+    }
     mavenCentral()
     gradlePluginPortal()
 }
@@ -140,15 +147,19 @@ dependencies {
     implementation("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.0.1")
 
     // JTweaker (stubpackage)
-    add("shadowImplementation", "com.falsepattern:jtweaker:0.5.0") {
+    add("shadowImplementation", "com.falsepattern:jtweaker:0.6.0") {
         isTransitive = false
     }
     implementation("org.apache.bcel:bcel:6.10.0")
+    implementation("org.apache.commons:commons-compress:1.28.0")
 
     // MappingGenerator
     add("shadowImplementation", "io.github.LegacyModdingMC.MappingGenerator:MappingGenerator:0.1.2") {
         isTransitive = false
     }
+
+    // JVMDowngrader
+    add("shadowImplementation", "xyz.wagyourtail.jvmdowngrader:gradle-plugin:1.3.3")
 
     // IntelliJ
     implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.2")

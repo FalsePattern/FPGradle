@@ -22,12 +22,14 @@
 
 package org.gradle.kotlin.dsl
 
+import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.JarInJarConfigSpec
 import com.falsepattern.fpgradle.fp_ctx_internal
 import com.falsepattern.fpgradle.internal.ModernJavaTweaks.Companion.injectLwjgl3ifyForSet
 import com.falsepattern.fpgradle.sourceSets
 import com.falsepattern.fpgradle.toolchains
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.tasks.SourceSet
@@ -61,6 +63,9 @@ fun Project.jarInJar_fp(
     }
 
     afterEvaluate {
+        if (spec.javaCompatibility.get() == FPMinecraftProjectExtension.Java.Compatibility.JvmDowngrader) {
+            throw GradleException("JvmDowngrader is not yet compatible with JarInJar!")
+        }
         injectLwjgl3ifyForSet(spec.javaVersion, spec.javaCompatibility.get(), sourceSet)
     }
 

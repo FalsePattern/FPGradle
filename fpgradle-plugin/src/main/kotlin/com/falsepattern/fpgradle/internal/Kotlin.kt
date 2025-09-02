@@ -36,11 +36,15 @@ class Kotlin: FPPlugin() {
     override fun Project.onPluginPostInitAfterDeps() {
         if (mc.kotlin.forgelinVersion.isPresent) {
             repositories {
-                exclusive(mega()) {
-                    includeModule("mega", "forgelin-mc1.7.10")
+                wellKnownMaven("mega_forgelin", "https://mvn.falsepattern.com/gtmega_releases/") {
+                    content {
+                        includeModule("mega", "forgelin-mc1.7.10")
+                    }
                 }
-                exclusive(mavenpattern()) {
-                    includeModule("com.falsepattern", "falsepatternlib-mc1.7.10")
+                wellKnownMaven("mavenpattern_fplib", "https://mvn.falsepattern.com/releases/") {
+                    content {
+                        includeModule("com.falsepattern", "falsepatternlib-mc1.7.10")
+                    }
                 }
             }
             dependencies {

@@ -24,6 +24,7 @@ package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.fp_ctx_internal
+import com.falsepattern.fpgradle.internal.Stubs.Companion.JAR_STUB_TASK
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import org.gradle.api.Project
 import org.gradle.api.file.ArchiveOperations
@@ -44,7 +45,7 @@ abstract class JarInJar: FPPlugin() {
             if (this != "mergeJarPreReobf") {
                 return@addRule
             }
-            val jarTask = tasks.named<Jar>("jar")
+            val jarTask = tasks.named<Jar>(JAR_STUB_TASK)
             val srcJar = jarTask.flatMap { it.archiveFile }
             val specs = fp_ctx_internal.mergedJarExcludeSpecs
             val textResourceFactory = resources.text
@@ -58,7 +59,7 @@ abstract class JarInJar: FPPlugin() {
                 textResourceFactory.fromString(str)
             }
             val mergeJarTask = tasks.register<Jar>(this) {
-                dependsOn("jar")
+                dependsOn(JAR_STUB_TASK)
                 group = "falsepattern"
                 description = "Merges nested jars before reobfuscation"
                 archiveClassifier.set("merged-pre-reobf")

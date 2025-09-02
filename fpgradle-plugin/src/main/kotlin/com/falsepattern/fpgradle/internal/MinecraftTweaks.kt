@@ -23,13 +23,19 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.*
+import com.falsepattern.fpgradle.internal.JvmDG.Companion.JVMDG_CONFIG
+import com.falsepattern.fpgradle.internal.Stubs.Companion.JAR_STUB_TASK
+import com.falsepattern.jtweaker.RemoveStubsJar
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
+import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
+import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import org.gradle.api.Project
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.expand
 import org.gradle.kotlin.dsl.invoke
 import org.gradle.kotlin.dsl.named
+import org.gradle.kotlin.dsl.withType
 import org.gradle.language.jvm.tasks.ProcessResources
 
 class MinecraftTweaks: FPPlugin() {
@@ -115,6 +121,20 @@ class MinecraftTweaks: FPPlugin() {
             }
 
             base.archivesName = mc.publish.maven.artifact
+
+            val jar = tasks.named<Jar>("jar")
+            val jarRemoveStub = tasks.named<RemoveStubsJar>(JAR_STUB_TASK)
+            tasks.named<ReobfuscatedJar>("reobfJar") {
+                inputJar = jarRemoveStub.flatMap { it.archiveFile }
+            }
+            withType<RunMinecraftTask> {
+                if (McRun.standardNonObf().any { it.taskName == this@withType.name } or
+                    McRun.modern().any { it.taskName == this@withType.name }) {
+                    val oldClasspath = classpath
+                    setClasspath(oldClasspath.minus(files().from( jar)))
+                    classpath(jarRemoveStub)
+                }
+            }
         }
     }
 }

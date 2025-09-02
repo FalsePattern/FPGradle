@@ -75,7 +75,7 @@ class ModernJavaTweaks: FPPlugin() {
                     when(mc.java.compatibility.get()) {
                         LegacyJava -> {}
                         Jabel -> options.release = 8
-                        ModernJava -> {
+                        JvmDowngrader, ModernJava -> {
                             targetCompatibility = mc.java.version.map { it.majorVersion }.get()
                         }
                     }
@@ -87,13 +87,7 @@ class ModernJavaTweaks: FPPlugin() {
         val compat = mc.java.compatibility.get()
         injectLwjgl3ifyForSetInternal(provider{null}, compat, null)
         when(compat) {
-            LegacyJava -> {
-                McRun.standardNonObf().forEach { createModernCloneFor(tasks.named<RunMinecraftTask>(it.taskName), it.side) }
-                for (it in McRun.modern()) {
-                    modifyMinecraftRunTaskModern(it)
-                }
-            }
-            Jabel -> {
+            LegacyJava, Jabel, JvmDowngrader -> {
                 McRun.standardNonObf().forEach { createModernCloneFor(tasks.named<RunMinecraftTask>(it.taskName), it.side) }
                 for (it in McRun.modern()) {
                     modifyMinecraftRunTaskModern(it)
@@ -265,17 +259,19 @@ class ModernJavaTweaks: FPPlugin() {
             when(compat) {
                 LegacyJava -> {
                     setToolchainVersionLegacy(javaVersion, set)
-                    setupJavaConfigsModern(false, set)
                     injectLWJGL3ifyModern(false, set)
                 }
                 Jabel -> {
                     setToolchainVersionJabel(javaVersion, set)
-                    setupJavaConfigsModern(false, set)
+                    injectLWJGL3ifyModern(false, set)
+                }
+                JvmDowngrader -> {
+                    setToolchainVersionModern(javaVersion, set)
                     injectLWJGL3ifyModern(false, set)
                 }
                 ModernJava -> {
                     setToolchainVersionModern(javaVersion, set)
-                    setupJavaConfigsModern(true, set)
+                    setupJavaConfigsModern(set)
                     swapLWJGLVersionModern(set)
                     injectLWJGL3ifyModern(true, set)
                     if (set == null) {
@@ -358,15 +354,13 @@ class ModernJavaTweaks: FPPlugin() {
             }
         }
 
-        private fun Project.setupJavaConfigsModern(modernCompile: Boolean, set: SourceSet?) {
+        private fun Project.setupJavaConfigsModern(set: SourceSet?) {
             with(configurations) {
-                if (modernCompile) {
-                    val modernJavaPatchDependencies = create((set?.name ?: "") + MODERN_PATCH_DEPS_COMPILE_ONLY) {
-                        attributes.attribute(ObfuscationAttribute.OBFUSCATION_ATTRIBUTE, ObfuscationAttribute.getMcp(objects))
-                    }
-                    getByName(set?.compileOnlyConfigurationName ?: "compileOnly") {
-                        extendsFrom(modernJavaPatchDependencies)
-                    }
+                val modernJavaPatchDependencies = create((set?.name ?: "") + MODERN_PATCH_DEPS_COMPILE_ONLY) {
+                    attributes.attribute(ObfuscationAttribute.OBFUSCATION_ATTRIBUTE, ObfuscationAttribute.getMcp(objects))
+                }
+                getByName(set?.compileOnlyConfigurationName ?: "compileOnly") {
+                    extendsFrom(modernJavaPatchDependencies)
                 }
             }
         }
