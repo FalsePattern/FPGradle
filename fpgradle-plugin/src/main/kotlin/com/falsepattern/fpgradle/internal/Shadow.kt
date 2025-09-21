@@ -45,7 +45,6 @@ class Shadow: FPPlugin() {
     }
 
     private fun Project.setupShadowJarTask() {
-        val shadowRuntimeElements = configurations.getByName("shadowRuntimeElements")
         val shadowImplementation = configurations.maybeCreate("shadowImplementation")
         shadowImplementation.isCanBeConsumed = false
         shadowImplementation.isCanBeResolved = true
@@ -90,7 +89,10 @@ class Shadow: FPPlugin() {
                 }
             }
         }
-        val javaComponent = components.findByName("java") as AdhocComponentWithVariants
-        javaComponent.withVariantsFromConfiguration(shadowRuntimeElements, ConfigurationVariantDetails::skip)
+        afterEvaluate {
+            val javaComponent = components.findByName("java") as AdhocComponentWithVariants
+            val shadowRuntimeElements = configurations.getByName("shadowRuntimeElements")
+            javaComponent.withVariantsFromConfiguration(shadowRuntimeElements, ConfigurationVariantDetails::skip)
+        }
     }
 }

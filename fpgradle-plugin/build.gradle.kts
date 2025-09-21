@@ -3,10 +3,10 @@ import org.jetbrains.kotlin.gradle.utils.extendsFrom
 
 plugins {
     idea
-    id("com.gradle.plugin-publish") version "1.3.1"
+    id("com.gradle.plugin-publish") version "2.0.0"
     `maven-publish`
     `kotlin-dsl`
-    id("com.gradleup.shadow") version "9.0.1"
+    id("com.gradleup.shadow") version "9.1.0"
 }
 
 val buildscriptVersion = "2.0.0"
@@ -101,13 +101,6 @@ repositories {
             includeModule("io.github.LegacyModdingMC.MappingGenerator", "MappingGenerator")
         }
     }
-    maven {
-        url = uri("https://maven.wagyourtail.xyz/releases")
-        name = "wagyourtail"
-        content {
-            includeGroup("xyz.wagyourtail.jvmdowngrader")
-        }
-    }
     mavenCentral()
     gradlePluginPortal()
 }
@@ -117,10 +110,10 @@ dependencies {
     compileOnly("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:2.2.0")
 
     // JetBrains Java Annotations
-    implementation("org.jetbrains:annotations:26.0.2")
+    implementation("org.jetbrains:annotations:26.0.2-1")
 
     // Lombok Gradle Plugin
-    implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:8.14")
+    implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:9.0.0-rc2")
 
     // JGit
     implementation("org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r")
@@ -138,20 +131,19 @@ dependencies {
     implementation("org.tukaani:xz:1.10")
 
     // Gson
-    implementation("com.google.code.gson:gson:2.13.1")
+    implementation("com.google.code.gson:gson:2.13.2")
 
     // RFG
     add("shadowImplementation", "com.gtnewhorizons:retrofuturagradle:1.4.6-fp4")
 
     // Shadow
-    implementation("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.0.1")
+    implementation("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.1.0")
 
     // JTweaker (stubpackage)
     add("shadowImplementation", "com.falsepattern:jtweaker:0.6.0") {
         isTransitive = false
     }
     implementation("org.apache.bcel:bcel:6.10.0")
-    implementation("org.apache.commons:commons-compress:1.28.0")
 
     // MappingGenerator
     add("shadowImplementation", "io.github.LegacyModdingMC.MappingGenerator:MappingGenerator:0.1.2") {
@@ -159,16 +151,16 @@ dependencies {
     }
 
     // JVMDowngrader
-    add("shadowImplementation", "xyz.wagyourtail.jvmdowngrader:gradle-plugin:1.3.3")
+    implementation("xyz.wagyourtail.jvmdowngrader:gradle-plugin:1.3.3")
 
     // IntelliJ
-    implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.2")
+    implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.3")
 
     // CurseForgeGradle
     implementation("net.darkhax.curseforgegradle:CurseForgeGradle:1.1.26")
 
     // Minotaur
-    implementation("com.modrinth.minotaur:Minotaur:2.8.8")
+    implementation("com.modrinth.minotaur:Minotaur:2.8.10")
 
     // Maven metadata
     implementation("org.apache.maven:maven-repository-metadata:3.9.11")

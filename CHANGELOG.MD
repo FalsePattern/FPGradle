@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Updated gradle 9.0.0 -> 9.1.0
+- Updated JetBrains Annotations 26.0.2 -> 26.0.2-1
+- Updated Lombok gradle plugin 8.14 -> 9.0.0-rc2
+- Updated shadow plugin 9.0.1 -> 9.1.0
+- Un-shaded jvmdowngrader
+- Updated Modrinth Minotaur 2.8.8 -> 2.8.10
+- Updated UniMixins 0.1.22 -> 0.1.23
+- Updated Lombok 1.18.38 -> 1.18.42
+- (Internal) Updated gson 2.13.1 -> 2.13.2
+- (Internal) Updated gradle publish 1.3.1 -> 2.0.0
+
 ## [2.0.0] - 2025-09-02
 
 ### Changed
