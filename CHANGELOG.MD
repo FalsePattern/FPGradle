@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+## [2.1.1] - 2025-10-26
+
+### Fixed
+
+- Removed logspam from JarInJar module
+
 ## [2.1.0] - 2025-09-21
 
 ### Changed
