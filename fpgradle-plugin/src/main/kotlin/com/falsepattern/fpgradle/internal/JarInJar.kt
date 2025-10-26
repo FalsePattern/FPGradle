@@ -66,7 +66,6 @@ abstract class JarInJar: FPPlugin() {
 
                 from(archiveOperations.zipTree(srcJar)) {
                     exclude { file ->
-                        println(file.relativePath.pathString)
                         specs.get().all { spec -> spec.apply(file) }
                     }
                 }
