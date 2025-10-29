@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Configuration Cache regressions in 2.2.0
+
 ## [2.2.0] - 2025-10-29
 
 ### Added

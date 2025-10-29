@@ -41,7 +41,7 @@ import org.gradle.language.jvm.tasks.ProcessResources
 class MinecraftTweaks: FPPlugin() {
 
     override fun Project.onPluginInit() {
-        jar()
+        jar(this)
     }
 
     override fun Project.onPluginPostInitAfterDeps() {
@@ -53,85 +53,93 @@ class MinecraftTweaks: FPPlugin() {
             verifyPackage("", "mod -> rootPkg", false)
     }
 
-    private fun Project.jar() {
-        val mc = project.mc
+    private fun jar(project: Project) {
+        val mcMod = project.mc.mod
+        val mcTokens = project.mc.tokens
         val minecraft = project.minecraft
-        tasks {
+        project.tasks {
             named<ProcessResources>("processResources").configure {
-                inputs.property("version", mc.mod.version)
-                inputs.property("mcversion", minecraft.mcVersion)
+                val minecraftVersion = minecraft.mcVersion
+                val modVersion = mcMod.version
+                val modId = mcMod.modid
+                val modName = mcMod.name
+                inputs.property("minecraftVersion", minecraftVersion)
+                inputs.property("modVersion", modVersion)
+                inputs.property("modId", modId)
+                inputs.property("modName", modName)
                 filesMatching("mcmod.info") {
                     expand(
-                        "minecraftVersion" to minecraft.mcVersion.get(),
-                        "modVersion" to mc.mod.version.get(),
-                        "modId" to mc.mod.modid.get(),
-                        "modName" to mc.mod.name.get()
+                        "minecraftVersion" to minecraftVersion.get(),
+                        "modVersion" to modVersion.get(),
+                        "modId" to modId.get(),
+                        "modName" to modName.get()
                     )
                 }
                 filesMatching("META-INF/rfb-plugin/*") {
                     expand(
-                        "modVersion" to mc.mod.version.get(),
-                        "modName" to mc.mod.name.get()
+                        "modVersion" to modVersion.get(),
+                        "modName" to modName.get()
                     )
                 }
             }
 
-            minecraft.injectedTags.putAll(provider {
-                if (mc.tokens.tokenClass.isPresent) {
+            minecraft.injectedTags.putAll(project.provider {
+                if (mcTokens.tokenClass.isPresent) {
                     val result = HashMap<String, String>()
 
-                    if (mc.tokens.modid.isPresent)
-                        result[mc.tokens.modid.get()] = mc.mod.modid.get()
+                    if (mcTokens.modid.isPresent)
+                        result[mcTokens.modid.get()] = mcMod.modid.get()
 
-                    if (mc.tokens.name.isPresent)
-                        result[mc.tokens.name.get()] = mc.mod.name.get()
+                    if (mcTokens.name.isPresent)
+                        result[mcTokens.name.get()] = mcMod.name.get()
 
-                    if (mc.tokens.version.isPresent)
-                        result[mc.tokens.version.get()] = mc.mod.version.get()
+                    if (mcTokens.version.isPresent)
+                        result[mcTokens.version.get()] = mcMod.version.get()
 
-                    if (mc.tokens.rootPkg.isPresent)
-                        result[mc.tokens.rootPkg.get()] = mc.mod.rootPkg.get()
+                    if (mcTokens.rootPkg.isPresent)
+                        result[mcTokens.rootPkg.get()] = mcMod.rootPkg.get()
 
                     result
                 } else mapOf()
             })
 
             named<InjectTagsTask>("injectTags").configure {
-                inputs.property("tokenId", mc.tokens.modid)
-                inputs.property("tokenName", mc.tokens.name)
-                inputs.property("tokenVersion", mc.tokens.version)
-                inputs.property("tokenGroup", mc.tokens.rootPkg)
-                if (mc.tokens.tokenClass.isPresent) {
-                    inputs.property("tokenClass", mc.tokens.tokenClass.get())
-                    if (mc.tokens.tokenClassIgnoreRootPkg.get()) {
-                        outputClassName = mc.tokens.tokenClass
+                inputs.property("tokenId", mcTokens.modid)
+                inputs.property("tokenName", mcTokens.name)
+                inputs.property("tokenVersion", mcTokens.version)
+                inputs.property("tokenGroup", mcTokens.rootPkg)
+                if (mcTokens.tokenClass.isPresent) {
+                    inputs.property("tokenClass", mcTokens.tokenClass.get())
+                    if (mcTokens.tokenClassIgnoreRootPkg.get()) {
+                        outputClassName = mcTokens.tokenClass
                     } else {
-                        outputClassName = mc.tokens.tokenClass.map { "${mc.mod.rootPkg.get()}.$it" }
+                        outputClassName = mcTokens.tokenClass.map { "${mcMod.rootPkg.get()}.$it" }
                     }
                 }
+                val tokenClass = mcTokens.tokenClass
                 onlyIf {
-                    mc.tokens.tokenClass.isPresent
+                    tokenClass.isPresent
                 }
             }
 
             named<Jar>("jar").configure {
                 manifest {
-                    attributes(manifestAttributes.get())
+                    attributes(project.manifestAttributes.get())
                 }
             }
 
-            base.archivesName = mc.publish.maven.artifact
+            project.base.archivesName = project.mc.publish.maven.artifact
 
-            val jar = tasks.named<Jar>("jar")
-            val jarRemoveStub = tasks.named<RemoveStubsJar>(JAR_STUB_TASK)
-            tasks.named<ReobfuscatedJar>("reobfJar") {
+            val jar = project.tasks.named<Jar>("jar")
+            val jarRemoveStub = project.tasks.named<RemoveStubsJar>(JAR_STUB_TASK)
+            project.tasks.named<ReobfuscatedJar>("reobfJar") {
                 inputJar = jarRemoveStub.flatMap { it.archiveFile }
             }
             withType<RunMinecraftTask> {
                 if (McRun.standardNonObf().any { it.taskName == this@withType.name } or
                     McRun.modern().any { it.taskName == this@withType.name }) {
                     val oldClasspath = classpath
-                    setClasspath(oldClasspath.minus(files().from( jar)))
+                    setClasspath(oldClasspath.minus(project.files().from( jar)))
                     classpath(jarRemoveStub)
                 }
             }

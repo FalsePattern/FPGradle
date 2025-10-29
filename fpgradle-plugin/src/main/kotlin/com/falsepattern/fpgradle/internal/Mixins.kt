@@ -116,16 +116,22 @@ class Mixins: FPPlugin() {
     }
 
     private fun Project.setupGenerateMixinsTask() {
+        val mcMixin = project.mc.mixin
+        val pluginClass = mcMixin.pluginClass
+        val pkg = mcMixin.pkg
+        val ignoreRootPkg = mcMixin.ignoreRootPkg
+        val rootPkg = project.mc.mod.rootPkg
+        val javaCompat = project.mc.java.compatibility
+        val modId = project.mc.mod.modid
         tasks {
             register("generateMixins").configure {
                 group = "falsepattern"
                 description = "Generates a mixin config file at /src/main/resources/mixins.modid.json if needed"
-                val mc = project.mc
                 val resDir = file("src/main/resources");
                 onlyIf {
-                    mc.mixin.use && mc.mixin.pluginClass.isPresent
+                    pkg.isPresent && pluginClass.isPresent
                 }
-                doLast { generateMixinConfigFile(mc, resDir.resolve("mixins.${mc.mod.modid.get()}.json")) }
+                doLast { generateMixinConfigFile(pluginClass, pkg, ignoreRootPkg, rootPkg, javaCompat, resDir.resolve("mixins.${modId.get()}.json")) }
             }
             named("processResources").configure {
                 dependsOn("generateMixins", "compileJava")
@@ -167,20 +173,20 @@ class Mixins: FPPlugin() {
         })
     }
 
-    private fun Task.generateMixinConfigFile(mc: FPMinecraftProjectExtension, mixinConfigFile: File) {
+    private fun generateMixinConfigFile(pluginClass: Provider<String>, pkg: Provider<String>, ignoreRootPkg: Provider<Boolean>, rootPkg: Provider<String>, javaCompat: Property<FPMinecraftProjectExtension.Java.Compatibility>, mixinConfigFile: File) {
         if (!mixinConfigFile.exists()) {
-            val mixinPluginLine = if (mc.mixin.pluginClass.isPresent) {
-                if (mc.mixin.ignoreRootPkg.get()) {
-                    "\"plugin\": \"${mc.mixin.pluginClass.get()}\","
+            val mixinPluginLine = if (pluginClass.isPresent) {
+                if (ignoreRootPkg.get()) {
+                    "\"plugin\": \"${pluginClass.get()}\","
                 } else {
-                    "\"plugin\": \"${mc.mod.rootPkg.get()}.${mc.mixin.pluginClass.get()}\","
+                    "\"plugin\": \"${rootPkg.get()}.${pluginClass.get()}\","
                 }
             } else
                 ""
-            val pkg = if (mc.mixin.ignoreRootPkg.get())
-                mc.mixin.pkg.get()
+            val pkg = if (ignoreRootPkg.get())
+                pkg.get()
             else
-                "${mc.mod.rootPkg.get()}.${mc.mixin.pkg.get()}"
+                "${rootPkg.get()}.${pkg.get()}"
             mixinConfigFile.writeText("""
                 {
                   "required": true,
@@ -189,7 +195,7 @@ class Mixins: FPPlugin() {
                   $mixinPluginLine
                   "refmap": "${mixinConfigRefMap.get()}",
                   "target": "@env(DEFAULT)",
-                  "compatibilityLevel": "${if (mc.java.compatibility.get() == FPMinecraftProjectExtension.Java.Compatibility.ModernJava) "JAVA_8" else "JAVA_18"}",
+                  "compatibilityLevel": "${if (javaCompat.get() == FPMinecraftProjectExtension.Java.Compatibility.ModernJava) "JAVA_8" else "JAVA_18"}",
                   "mixins": [],
                   "client": [],
                   "server": []
