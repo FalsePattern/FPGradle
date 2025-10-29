@@ -41,6 +41,7 @@ class ModrinthPublish: FPPlugin() {
     override fun Project.onPluginPostInitBeforeDeps() {
         val projectId = mc.publish.modrinth.projectId
         val token = mc.publish.modrinth.tokenEnv.map { System.getenv(it) }
+        val toUpload = mc.publish.modrinth.toUpload
         if (projectId.isPresent) {
             with(modrinth) {
                 this.token = token.orElse("")
@@ -54,7 +55,7 @@ class ModrinthPublish: FPPlugin() {
                     }
                 }
                 changelog = mc.publish.changelog
-                uploadFile.set(tasks.named<ReobfuscatedJar>("reobfJar"))
+                uploadFile.set(toUpload)
                 gameVersions.add(minecraft.mcVersion)
                 loaders.add("forge")
                 for (dep in mc.publish.modrinth.dependencies.get()) {

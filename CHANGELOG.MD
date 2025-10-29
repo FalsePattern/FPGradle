@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Support for changing the uploaded artifact on curseforge/modrinth
+
 ## [2.1.1] - 2025-10-26
 
 ### Fixed

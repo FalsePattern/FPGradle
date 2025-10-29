@@ -40,15 +40,15 @@ class CursePublish: FPPlugin() {
     override fun Project.onPluginPostInitBeforeDeps() {
         val projectId = mc.publish.curseforge.projectId
         val token = mc.publish.curseforge.tokenEnv.map { System.getenv(it) }
+        val toUpload = mc.publish.curseforge.toUpload
         if (projectId.isPresent) {
             val publishCurseForge = tasks.register<TaskPublishCurseForge>("curseforge") {
                 group = PublishingPlugin.PUBLISH_TASK_GROUP
                 description = "Publish the mod to CurseForge"
                 dependsOn("build")
-                val theFile = tasks.named<ReobfuscatedJar>("reobfJar").flatMap { it.archiveFile }
                 apiToken = token
                 disableVersionDetection()
-                upload(projectId.get(), theFile) {
+                upload(projectId.get(), toUpload) {
                     changelogType = Constants.CHANGELOG_MARKDOWN
                     changelog = mc.publish.changelog
                     val version = mc.mod.version

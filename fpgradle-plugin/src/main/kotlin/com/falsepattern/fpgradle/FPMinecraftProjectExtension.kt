@@ -22,6 +22,7 @@
 
 package com.falsepattern.fpgradle
 
+import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import com.modrinth.minotaur.dependencies.Dependency
 import com.modrinth.minotaur.dependencies.DependencyType
 import com.modrinth.minotaur.dependencies.ModDependency
@@ -35,6 +36,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
 import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmVendorSpec
+import org.gradle.kotlin.dsl.*
 import java.util.*
 
 @Suppress("unused", "LeakingThis", "PropertyName")
@@ -103,8 +105,11 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         publish.maven.userEnv.convention("MAVEN_DEPLOY_USER")
         publish.maven.passEnv.convention("MAVEN_DEPLOY_PASSWORD")
 
+        val reobfJar = project.provider{}.flatMap { project.tasks.named<ReobfuscatedJar>("reobfJar") }
         publish.curseforge.tokenEnv.convention("CURSEFORGE_TOKEN")
+        publish.curseforge.toUpload.convention(reobfJar.flatMap { it.archiveFile })
         publish.modrinth.tokenEnv.convention("MODRINTH_TOKEN")
+        publish.modrinth.toUpload.convention(reobfJar)
 
         updates.check.convention(true)
     }
@@ -303,6 +308,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             abstract val projectId: Property<String>
             abstract val tokenEnv: Property<String>
             abstract val relations: ListProperty<UploadArtifact.() -> Unit>
+            abstract val toUpload: Property<Any>
 
             inner class Dependencies {
                 fun required(id: String) = relations.add { addRequirement(id) }
@@ -325,6 +331,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             abstract val projectId: Property<String>
             abstract val tokenEnv: Property<String>
             abstract val dependencies: ListProperty<() -> Dependency>
+            abstract val toUpload: Property<Any>
 
             inner class Dependencies(val variant: (String, DependencyType) -> Dependency) {
                 fun required(id: String) = dependencies.add { variant(id, DependencyType.REQUIRED) }
