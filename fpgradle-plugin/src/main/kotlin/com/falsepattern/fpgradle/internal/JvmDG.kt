@@ -32,6 +32,7 @@ import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import org.gradle.api.Project
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
 import xyz.wagyourtail.jvmdg.gradle.JVMDowngraderPlugin
@@ -104,6 +105,7 @@ class JvmDG: FPPlugin() {
             jarRemoveStub.configure {
                 if (hasJvmDG.get()) {
                     archiveClassifier = "dev-predowngrade"
+                    destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
                 }
             }
 
@@ -112,6 +114,7 @@ class JvmDG: FPPlugin() {
                 dependsOn(jarRemoveStub)
                 if (shadeRuntime.get()) {
                     archiveClassifier = "dev-predgshade"
+                    destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
                 } else {
                     archiveClassifier = "dev"
                 }
@@ -129,7 +132,8 @@ class JvmDG: FPPlugin() {
 
             reobfJar.configure {
                 dependsOn(shadeDowngradeJar)
-                inputJar = shadeDowngradeJar.flatMap { it.archiveFile }
+                @Suppress("UNCHECKED_CAST")
+                setInputJarFromTask(shadeDowngradeJar as TaskProvider<org.gradle.jvm.tasks.Jar>)
             }
 
             for (outgoingConfig in listOf("runtimeElements", "apiElements")) {

@@ -66,6 +66,7 @@ class Shadow: FPPlugin() {
                 configurations = listOf(shadowImplementation)
 
                 archiveClassifier = "dev-prestub"
+                destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
 
                 if (mc.shadow.relocate.get()) {
                     relocationPrefix = "${mc.mod.rootPkg.get()}.shadow"
@@ -78,8 +79,10 @@ class Shadow: FPPlugin() {
             }
 
             named<Jar>("jar").configure {
-                if (!empty.get())
+                if (!empty.get()) {
                     archiveClassifier = "dev-preshadow"
+                    destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
+                }
             }
 
             named<RemoveStubsJar>(JAR_STUB_TASK).configure {

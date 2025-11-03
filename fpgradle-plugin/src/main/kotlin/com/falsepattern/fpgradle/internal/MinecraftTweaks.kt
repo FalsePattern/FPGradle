@@ -30,6 +30,7 @@ import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import org.gradle.api.Project
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.expand
@@ -133,7 +134,8 @@ class MinecraftTweaks: FPPlugin() {
             val jar = project.tasks.named<Jar>("jar")
             val jarRemoveStub = project.tasks.named<RemoveStubsJar>(JAR_STUB_TASK)
             project.tasks.named<ReobfuscatedJar>("reobfJar") {
-                inputJar = jarRemoveStub.flatMap { it.archiveFile }
+                @Suppress("UNCHECKED_CAST")
+                setInputJarFromTask(jarRemoveStub as TaskProvider<Jar>)
             }
             withType<RunMinecraftTask> {
                 if (McRun.standardNonObf().any { it.taskName == this@withType.name } or

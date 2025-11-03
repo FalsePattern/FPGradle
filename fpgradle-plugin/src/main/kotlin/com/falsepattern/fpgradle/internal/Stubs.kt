@@ -37,6 +37,7 @@ class Stubs: FPPlugin() {
     override fun Project.onPluginInit() {
         val jar = tasks.named<Jar>("jar") {
             archiveClassifier = "dev-prestub"
+            destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
         }
         val jarRemoveStubs = tasks.register<RemoveStubsJar>(JAR_STUB_TASK) {
             inputFile = jar.flatMap { it.archiveFile }

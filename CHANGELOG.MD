@@ -19,6 +19,7 @@
 ### Fixed
 
 - Migrated deprecated "archives" configuration to assemble dependency
+- Clean up build/libs directory output
 
 ## [2.2.1] - 2025-10-29
 

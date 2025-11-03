@@ -30,6 +30,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 import java.io.ByteArrayOutputStream
@@ -63,6 +64,7 @@ abstract class JarInJar: FPPlugin() {
                 group = "falsepattern"
                 description = "Merges nested jars before reobfuscation"
                 archiveClassifier.set("merged-pre-reobf")
+                destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
 
                 from(archiveOperations.zipTree(srcJar)) {
                     exclude { file ->
@@ -75,7 +77,7 @@ abstract class JarInJar: FPPlugin() {
             }
             tasks.named<ReobfuscatedJar>("reobfJar") {
                 @Suppress("UNCHECKED_CAST")
-                setInputJarFromTask(mergeJarTask as TaskProvider<org.gradle.jvm.tasks.Jar>)
+                inputJar = mergeJarTask.flatMap { it.archiveFile }
                 dependsOn(mergeJarTask)
             }
         }
