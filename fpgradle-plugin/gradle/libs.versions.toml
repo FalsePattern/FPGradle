@@ -1,0 +1,47 @@
+[versions]
+gradlePublish = "2.0.0"
+shadow = "9.2.2"
+kotlin = "2.2.20"
+annotations = "26.0.2-1"
+lombokPlugin = "9.0.0"
+jgit = "7.4.0.202509020913-r"
+commonsLang3 = "3.19.0"
+commonsIo = "2.20.0"
+commonsCompress = "1.28.0"
+xz = "1.10"
+gson = "2.13.2"
+rfg = "1.4.6-fp4"
+jtweaker = "0.6.0"
+bcel = "6.11.0"
+mappingGenerator = "0.1.2"
+jvmDowngraderPlugin = "1.3.3"
+gradleIdeaExt = "1.3"
+curseForgeGradle = "1.1.26"
+minotaur = "2.8.10"
+mavenRepoMetadata = "3.9.11"
+
+[libraries]
+kotlinPlugin = { module = "org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin", version.ref = "kotlin" }
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+lombokPlugin = { module = "io.freefair.lombok:io.freefair.lombok.gradle.plugin", version.ref = "lombokPlugin" }
+jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commonsLang3" }
+commons-io = { module = "commons-io:commons-io", version.ref = "commonsIo" }
+commons-compress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
+xz = { module = "org.tukaani:xz", version.ref = "xz" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+rfg = { module = "com.gtnewhorizons:retrofuturagradle", version.ref = "rfg" }
+shadow = { module = "com.gradleup.shadow:com.gradleup.shadow.gradle.plugin", version.ref = "shadow" }
+jtweaker = { module = "com.falsepattern:jtweaker", version.ref = "jtweaker" }
+bcel = { module = "org.apache.bcel:bcel", version.ref = "bcel" }
+mappingGenerator = { module = "io.github.LegacyModdingMC.MappingGenerator:MappingGenerator", version.ref = "mappingGenerator" }
+jvmDowngraderPlugin = { module = "xyz.wagyourtail.jvmdowngrader:gradle-plugin", version.ref = "jvmDowngraderPlugin" }
+gradleIdeaExt = { module = "gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext", version.ref = "gradleIdeaExt" }
+curseForgeGradle = { module = "net.darkhax.curseforgegradle:CurseForgeGradle", version.ref = "curseForgeGradle" }
+minotaur = { module = "com.modrinth.minotaur:Minotaur", version.ref = "minotaur" }
+mavenRepoMetadata = { module = "org.apache.maven:maven-repository-metadata", version.ref = "mavenRepoMetadata" }
+
+
+[plugins]
+gradlePublish = { id = "com.gradle.plugin-publish", version.ref = "gradlePublish" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

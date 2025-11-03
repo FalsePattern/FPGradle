@@ -6,6 +6,11 @@
 
 - Updated gradle 9.1.0 -> 9.2.0
 - Updated yarn mappings 1.7.10+build.571 -> 1.7.10+build.575
+- Updated kotlin 2.2.0 -> 2.2.20
+- Updated lombok gradle plugin 9.0.0-rc2 -> 9.0.0
+- Updated jgit 7.3.0.202506031305-r -> 7.4.0.202509020913-r
+- Updated commons-lang3 3.18.0 -> 3.19.0
+- Updated shadow plugin 9.1.0 -> 9.2.2
 
 ### Fixed
 

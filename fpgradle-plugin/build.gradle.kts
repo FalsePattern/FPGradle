@@ -1,12 +1,13 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.gradle.kotlin.dsl.accessors.runtime.addConfiguredDependencyTo
 import org.jetbrains.kotlin.gradle.utils.extendsFrom
 
 plugins {
     idea
-    id("com.gradle.plugin-publish") version "2.0.0"
+    alias(libs.plugins.gradlePublish)
     `maven-publish`
     `kotlin-dsl`
-    id("com.gradleup.shadow") version "9.1.0"
+    alias(libs.plugins.shadow)
 }
 
 val buildscriptVersion = "2.2.1"
@@ -106,64 +107,29 @@ repositories {
 }
 
 dependencies {
-    // Kotlin Plugin
-    compileOnly("org.jetbrains.kotlin.jvm:org.jetbrains.kotlin.jvm.gradle.plugin:2.2.0")
-
-    // JetBrains Java Annotations
-    implementation("org.jetbrains:annotations:26.0.2-1")
-
-    // Lombok Gradle Plugin
-    implementation("io.freefair.lombok:io.freefair.lombok.gradle.plugin:9.0.0-rc2")
-
-    // JGit
-    implementation("org.eclipse.jgit:org.eclipse.jgit:7.3.0.202506031305-r")
-
-    // Apache Commons Lang
-    implementation("org.apache.commons:commons-lang3:3.18.0")
-
-    // Apache Commons IO
-    implementation("commons-io:commons-io:2.20.0")
-
-    // Apache Commons Compress
-    implementation("org.apache.commons:commons-compress:1.28.0")
-
-    // XZ
-    implementation("org.tukaani:xz:1.10")
-
-    // Gson
-    implementation("com.google.code.gson:gson:2.13.2")
-
-    // RFG
-    add("shadowImplementation", "com.gtnewhorizons:retrofuturagradle:1.4.6-fp4")
-
-    // Shadow
-    implementation("com.gradleup.shadow:com.gradleup.shadow.gradle.plugin:9.1.0")
-
-    // JTweaker (stubpackage)
-    add("shadowImplementation", "com.falsepattern:jtweaker:0.6.0") {
+    compileOnly(libs.kotlinPlugin)
+    implementation(libs.annotations)
+    implementation(libs.lombokPlugin)
+    implementation(libs.jgit)
+    implementation(libs.commons.lang3)
+    implementation(libs.commons.io)
+    implementation(libs.commons.compress)
+    implementation(libs.xz)
+    implementation(libs.gson)
+    add("shadowImplementation", libs.rfg)
+    implementation(libs.shadow)
+    addConfiguredDependencyTo(this, "shadowImplementation", libs.jtweaker) {
         isTransitive = false
     }
-    implementation("org.apache.bcel:bcel:6.10.0")
-
-    // MappingGenerator
-    add("shadowImplementation", "io.github.LegacyModdingMC.MappingGenerator:MappingGenerator:0.1.2") {
+    implementation(libs.bcel)
+    addConfiguredDependencyTo(this, "shadowImplementation", libs.mappingGenerator) {
         isTransitive = false
     }
-
-    // JVMDowngrader
-    implementation("xyz.wagyourtail.jvmdowngrader:gradle-plugin:1.3.3")
-
-    // IntelliJ
-    implementation("gradle.plugin.org.jetbrains.gradle.plugin.idea-ext:gradle-idea-ext:1.3")
-
-    // CurseForgeGradle
-    implementation("net.darkhax.curseforgegradle:CurseForgeGradle:1.1.26")
-
-    // Minotaur
-    implementation("com.modrinth.minotaur:Minotaur:2.8.10")
-
-    // Maven metadata
-    implementation("org.apache.maven:maven-repository-metadata:3.9.11")
+    implementation(libs.jvmDowngraderPlugin)
+    implementation(libs.gradleIdeaExt)
+    implementation(libs.curseForgeGradle)
+    implementation(libs.minotaur)
+    implementation(libs.mavenRepoMetadata)
 }
 
 gradlePlugin {

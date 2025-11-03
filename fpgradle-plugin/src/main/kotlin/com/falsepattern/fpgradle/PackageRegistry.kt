@@ -33,7 +33,7 @@ internal object PackageRegistry {
     const val MIXINS_AP_GUAVA = "com.google.guava:guava:24.1.1-jre"
     const val MIXINS_AP_GSON = "com.google.code.gson:gson:2.8.6"
     const val RFB_VERSION = "1.0.11"
-    const val LWJGL3IFY_VERSION = "2.1.14"
+    const val LWJGL3IFY_VERSION = "2.1.17"
     const val MODERN_JAVA_ASM_VERSION = "9.8"
     const val MODERN_JAVA_COMMONS_LANG = "org.apache.commons:commons-lang3:3.14.0"
     const val MODERN_JAVA_COMMONS_COMPRESS = "org.apache.commons:commons-compress:1.26.2"
