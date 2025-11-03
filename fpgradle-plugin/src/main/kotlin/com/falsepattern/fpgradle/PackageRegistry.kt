@@ -38,6 +38,6 @@ internal object PackageRegistry {
     const val MODERN_JAVA_COMMONS_LANG = "org.apache.commons:commons-lang3:3.14.0"
     const val MODERN_JAVA_COMMONS_COMPRESS = "org.apache.commons:commons-compress:1.26.2"
     const val MODERN_JAVA_COMMONS_IO = "commons-io:commons-io:2.15.1"
-    const val LEGACY_YARN_VERSION = "1.7.10+build.571"
+    const val LEGACY_YARN_VERSION = "1.7.10+build.575"
     const val LOMBOK_VERSION = "1.18.42"
 }

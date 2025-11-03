@@ -5,6 +5,7 @@
 ### Changed
 
 - Updated gradle 9.1.0 -> 9.2.0
+- Updated yarn mappings 1.7.10+build.571 -> 1.7.10+build.575
 
 ### Fixed
 
