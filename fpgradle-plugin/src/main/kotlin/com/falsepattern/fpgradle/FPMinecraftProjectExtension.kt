@@ -45,14 +45,12 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         java.compatibility.convention(Java.Compatibility.LegacyJava)
         java.version.convention(java.compatibility.map { when(it) {
             Java.Compatibility.LegacyJava -> JavaVersion.VERSION_1_8
-            Java.Compatibility.Jabel -> JavaVersion.VERSION_17
             Java.Compatibility.JvmDowngrader -> JavaVersion.VERSION_21
             Java.Compatibility.ModernJava -> JavaVersion.VERSION_21
         } })
         java.vendor.convention(JvmVendorSpec.ADOPTIUM)
         java.modernRuntimeVersion.convention(java.compatibility.map { when(it) {
             Java.Compatibility.LegacyJava -> JavaVersion.VERSION_21
-            Java.Compatibility.Jabel -> JavaVersion.VERSION_21
             Java.Compatibility.JvmDowngrader -> java.version.get()
             Java.Compatibility.ModernJava -> java.version.get()
         } })
@@ -124,15 +122,11 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
 
         enum class Compatibility {
             LegacyJava,
-            @Deprecated("Use JvmDowngrader")
-            Jabel,
             JvmDowngrader,
             ModernJava
         }
 
         val legacy = Compatibility.LegacyJava
-        @Deprecated("Use JvmDowngrader")
-        val jabel = Compatibility.Jabel
         val jvmDowngrader = Compatibility.JvmDowngrader
         val modern = Compatibility.ModernJava
     }

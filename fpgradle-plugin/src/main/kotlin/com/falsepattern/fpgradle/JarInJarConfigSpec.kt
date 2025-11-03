@@ -44,7 +44,6 @@ abstract class JarInJarConfigSpec @Inject constructor(project: Project) {
             javaCompatibility.convention(mc.java.compatibility)
             val javaGenerated = javaCompatibility.map { when(it) {
                 Compatibility.LegacyJava -> JavaVersion.VERSION_1_8
-                Compatibility.Jabel -> JavaVersion.VERSION_17
                 Compatibility.JvmDowngrader -> JavaVersion.VERSION_21
                 Compatibility.ModernJava -> JavaVersion.VERSION_21
             } }
@@ -67,7 +66,6 @@ abstract class JarInJarConfigSpec @Inject constructor(project: Project) {
     }
 
     val legacy = Compatibility.LegacyJava
-    val jabel = Compatibility.Jabel
     @Deprecated("Not yet supported", level = DeprecationLevel.HIDDEN)
     val jvmDowngrader = Compatibility.JvmDowngrader
     val modern = Compatibility.ModernJava

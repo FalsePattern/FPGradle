@@ -74,7 +74,6 @@ class ModernJavaTweaks: FPPlugin() {
                     sourceCompatibility = mc.java.version.map { it.majorVersion }.get()
                     when(mc.java.compatibility.get()) {
                         LegacyJava -> {}
-                        Jabel -> options.release = 8
                         JvmDowngrader, ModernJava -> {
                             targetCompatibility = mc.java.version.map { it.majorVersion }.get()
                         }
@@ -87,7 +86,7 @@ class ModernJavaTweaks: FPPlugin() {
         val compat = mc.java.compatibility.get()
         injectLwjgl3ifyForSetInternal(provider{null}, compat, null)
         when(compat) {
-            LegacyJava, Jabel, JvmDowngrader -> {
+            LegacyJava, JvmDowngrader -> {
                 McRun.standardNonObf().forEach { createModernCloneFor(tasks.named<RunMinecraftTask>(it.taskName), it.side) }
                 for (it in McRun.modern()) {
                     modifyMinecraftRunTaskModern(it)
@@ -239,8 +238,6 @@ class ModernJavaTweaks: FPPlugin() {
         val MODERN_PATCH_DEPS_OBF = "modernJavaPatchDepsObf"
         private val MODERN_PATCH_DEPS_COMPILE_ONLY = "modernJavaPatchDepsCompileOnly"
 
-        private val JABEL = "com.github.bsideup.jabel:jabel-javac-plugin:1.0.1"
-
         private val BLACKLISTED_TASKS = listOf("compileMcLauncherJava", "compilePatchedMcJava")
 
         private fun <T: Task> TaskCollection<T>.configureEachFiltered(action: T.() -> Unit) {
@@ -259,10 +256,6 @@ class ModernJavaTweaks: FPPlugin() {
             when(compat) {
                 LegacyJava -> {
                     setToolchainVersionLegacy(javaVersion, set)
-                    injectLWJGL3ifyModern(false, set)
-                }
-                Jabel -> {
-                    setToolchainVersionJabel(javaVersion, set)
                     injectLWJGL3ifyModern(false, set)
                 }
                 JvmDowngrader -> {
@@ -295,52 +288,6 @@ class ModernJavaTweaks: FPPlugin() {
                     options.release = null
                 }
 
-            }
-        }
-
-        private fun Project.setToolchainVersionJabel(javaVersion: Provider<JavaVersion>, set: SourceSet?) {
-            repositories {
-                mavenNamed("mavenCentral_java8Unsupported", {name, _ ->
-                    val repo = repositories.mavenCentral {
-                        this.name = name
-                    }
-                    exclusiveContent {
-                        forRepositories(repo)
-                        filter {
-                            includeGroup("me.eigenraven.java8unsupported")
-                        }
-                    }
-                    repo
-                })
-                mavenNamed("horizon_jabel", {name, _ ->
-                    maven {
-                        this.name = name
-                        url = uri("https://mvn.falsepattern.com/horizon/")
-                        content {
-                            includeModule("com.github.bsideup.jabel", "jabel-javac-plugin")
-                        }
-                    }
-                })
-            }
-            dependencies {
-                add(set?.annotationProcessorConfigurationName ?: ANNOTATION_PROCESSOR, JABEL)
-                add(set?.compileOnlyConfigurationName ?: COMPILE_ONLY, JABEL) {
-                    isTransitive = false
-                }
-                // Workaround for https://github.com/bsideup/jabel/issues/174
-                add(set?.annotationProcessorConfigurationName ?: ANNOTATION_PROCESSOR, "net.java.dev.jna:jna-platform:5.13.0")
-                // Allow using jdk.unsupported classes like sun.misc.Unsafe in the compiled code, working around
-                // JDK-8206937.
-                if (set == null) {
-                    add(MCPTasks.PATCHED_MINECRAFT_CONFIGURATION_NAME, "me.eigenraven.java8unsupported:java-8-unsupported-shim:1.0.0")
-                }
-            }
-            if (set != null) {
-                tasks.named<JavaCompile>(set.compileJavaTaskName) {
-                    sourceCompatibility = javaVersion.map { it.majorVersion }.get()
-                    targetCompatibility = null
-                    options.release = 8
-                }
             }
         }
 

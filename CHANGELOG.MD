@@ -12,6 +12,10 @@
 - Updated commons-lang3 3.18.0 -> 3.19.0
 - Updated shadow plugin 9.1.0 -> 9.2.2
 
+### Removed
+
+- Removed Jabel
+
 ### Fixed
 
 - Migrated deprecated "archives" configuration to assemble dependency

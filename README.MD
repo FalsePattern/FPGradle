@@ -16,7 +16,7 @@ template for your own projects.
 settings.gradle.kts
 ```kotlin
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version("0.9.0")
+    id("org.gradle.toolchains.foojay-resolver-convention") version("1.0.0")
 }
 
 rootProject.name = "examplemod"
@@ -34,9 +34,9 @@ gradle.properties
 build.gradle.kts
 ```kotlin
 plugins {
-    id("com.falsepattern.fpgradle-mc") version "0.19.4"
+    id("com.falsepattern.fpgradle-mc") version "FPGRADLE_VERSION"
 //    kotlin("jvm") version "2.2.0"  //If you want Kotlin. You need to also uncomment the scala line in gradle.properties, and enable Forgelin in the minecraft_fp block!
-//    scala  //If you want Scala, not compatible with jabel/modern java!
+//    scala  //If you want Scala, not compatible with jvmdowngrader/modern java!
 }
 
 group = "com.example"
@@ -87,7 +87,7 @@ minecraft_fp {
 
     // optional
 //    kotlin {
-//        forgelinVersion = "2.1.1-2.2.0"
+//        forgelinVersion = "2.2.0-2.2.21"
 //    }
 
 
@@ -263,4 +263,4 @@ dependencies {
 # Structure
 
 Under the hood, this plugin uses RetroFuturaGradle to handle the core minecraft dev env logic, but wraps it with a lot of additional helpers to make it convenient to use.
-Namely, FPGradle handles publishing to curseforge, modrinth, and maven for you, as well as setting up things like coremodding, jabel, mixins, and so on.
+Namely, FPGradle handles publishing to curseforge, modrinth, and maven for you, as well as setting up things like coremodding, JVMDowngrader, mixins, and so on.

@@ -24,7 +24,6 @@ package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.FPPlugin
-import com.falsepattern.fpgradle.internal.KotlinHelper.patchKotlinToolchainJabel
 import com.falsepattern.fpgradle.kotlin
 import com.falsepattern.fpgradle.mc
 import org.gradle.api.Project
@@ -49,9 +48,6 @@ class Kotlin: FPPlugin() {
             }
             dependencies {
                 add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "mega:forgelin-mc1.7.10:${mc.kotlin.forgelinVersion.get()}")
-            }
-            if (mc.java.compatibility.get() == FPMinecraftProjectExtension.Java.Compatibility.Jabel) {
-                patchKotlinToolchainJabel()
             }
         } else {
             //joml moment
@@ -85,15 +81,6 @@ class Kotlin: FPPlugin() {
                     enabled = false
                 }
             }
-        }
-    }
-}
-
-// Classloading stuff
-private object KotlinHelper {
-    fun Project.patchKotlinToolchainJabel() {
-        kotlin.compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_1_8)
         }
     }
 }
