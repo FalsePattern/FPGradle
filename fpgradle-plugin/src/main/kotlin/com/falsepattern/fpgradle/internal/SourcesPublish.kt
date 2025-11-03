@@ -34,8 +34,8 @@ class SourcesPublish: FPPlugin() {
 
         java.withSourcesJar()
 
-        artifacts {
-            add("archives", tasks.named("sourcesJar"))
+        tasks.named("assemble") {
+            dependsOn("sourcesJar")
         }
     }
 

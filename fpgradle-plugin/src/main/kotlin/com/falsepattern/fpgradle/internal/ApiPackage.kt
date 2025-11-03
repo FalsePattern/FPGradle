@@ -77,8 +77,8 @@ class ApiPackage: FPPlugin() {
             verifyPackage(pkg, "api -> packages", ignoreRootPkg)
         for (pkg in packagesNoRecurse)
             verifyPackage(pkg, "api -> packagesNoRecurse", ignoreRootPkg)
-        artifacts {
-            add("archives", tasks.named("apiJar"))
+        tasks.named("assemble") {
+            dependsOn("apiJar")
         }
     }
 }
