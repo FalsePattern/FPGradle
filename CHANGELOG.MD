@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.1.0] - 2025-11-09
+
 ### Changed
 
 - Replaced jvmdowngrader shading option boolean with an enum
