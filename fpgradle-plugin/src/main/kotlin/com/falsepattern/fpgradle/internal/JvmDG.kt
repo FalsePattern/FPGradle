@@ -27,13 +27,11 @@ import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.internal.Stubs.Companion.JAR_STUB_TASK
 import com.falsepattern.fpgradle.mc
 import com.falsepattern.jtweaker.RemoveStubsJar
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import org.gradle.api.Project
 import org.gradle.api.attributes.Attribute
 import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.tasks.bundling.Jar
 import org.gradle.kotlin.dsl.*
 import xyz.wagyourtail.jvmdg.gradle.JVMDowngraderPlugin
 import xyz.wagyourtail.jvmdg.gradle.jvmdg
@@ -63,26 +61,20 @@ class JvmDG: FPPlugin() {
                 repo
             })
         }
-        configurations.create(JVMDG_CONFIG)
     }
 
     override fun Project.onPluginPostInitBeforeDeps() {
         if (mc.java.compatibility.get() == FPMinecraftProjectExtension.Java.Compatibility.JvmDowngrader) {
             val downgradeJar = tasks.named<DowngradeJar>("downgradeJar")
-            val shadeRuntime = mc.java.jvm_downgrader_shade_runtime_my_project_is_compatible_with_lgpl2_1_plus
+            val shadeDowngradeJar = tasks.named<ShadeJar>("shadeDowngradedApi")
+            val shadeRuntime = mc.java.jvmDowngraderShade.map { it != FPMinecraftProjectExtension.Java.JvmDowngraderShade.DoNotShade }
             val removeStubJar = tasks.named<RemoveStubsJar>(JAR_STUB_TASK)
-            dependencies {
-                add(if (shadeRuntime.get()) JVMDG_CONFIG else "implementation", "xyz.wagyourtail.jvmdowngrader:jvmdowngrader-java-api:1.3.3:downgraded-8")
-            }
             tasks.withType<RunMinecraftTask> {
                 if (McRun.standardNonObf().any { it.taskName == this@withType.name } or
                     McRun.modern().any { it.taskName == this@withType.name }) {
                     val oldClasspath = classpath
                     setClasspath(oldClasspath.minus(files().from(removeStubJar)))
-                    classpath(downgradeJar)
-                    if (shadeRuntime.get()) {
-                        classpath(configurations.named(JVMDG_CONFIG))
-                    }
+                    classpath(shadeRuntime.flatMap { if (it) shadeDowngradeJar else downgradeJar })
                 }
             }
         }
@@ -90,7 +82,9 @@ class JvmDG: FPPlugin() {
 
     private fun Project.setupMainJarTasks() {
         val hasJvmDG = mc.java.compatibility.map { it == FPMinecraftProjectExtension.Java.Compatibility.JvmDowngrader }
-        val shadeRuntime = mc.java.jvm_downgrader_shade_runtime_my_project_is_compatible_with_lgpl2_1_plus
+        val shadeRuntimeProp = mc.java.jvmDowngraderShade
+        val shadeRuntimeCompatible = shadeRuntimeProp.map { it == FPMinecraftProjectExtension.Java.JvmDowngraderShade.ProjectIsLgpl21PlusCompatible }
+        val shadeRuntime = shadeRuntimeProp.map { it != FPMinecraftProjectExtension.Java.JvmDowngraderShade.DoNotShade }
         val rootPkg = mc.mod.rootPkg
         jvmdg.shadePath = {
             rootPkg.get().replace('.', '/')
@@ -113,8 +107,22 @@ class JvmDG: FPPlugin() {
                 inputFile = jarRemoveStub.flatMap { it.archiveFile }
                 dependsOn(jarRemoveStub)
                 if (shadeRuntime.get()) {
+                    //Only put the pre-shaded jar in tmp if it is safe to do so.
+                    //
+                    //Excerpt from JVMDowngrader license:
+                    //
+                    //For the purpose of Licensing, the produced jar from this task, or the downgrading task
+                    // should be considered a "Combined Work", as it contains the original code from the input
+                    // jar and the shaded code from jvmdowngrader's api.
+                    //
+                    //And this does, usually, mean that you shouldn't need to use the exact same license.
+                    // Running this tool, should be a thing the end-user is capable of doing, thus section 6.a should
+                    // be satisfied as long as your project provides the unshaded/undowngraded jar as well,
+                    // or alternatively provides source code to build said jar, or the post-shaded jar.
                     archiveClassifier = "dev-predgshade"
-                    destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
+                    if (shadeRuntimeCompatible.get()) {
+                        destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
+                    }
                 } else {
                     archiveClassifier = "dev"
                 }
@@ -150,9 +158,5 @@ class JvmDG: FPPlugin() {
                 }
             }
         }
-    }
-
-    companion object {
-        const val JVMDG_CONFIG = "jvmDowngraderMcRunDeps"
     }
 }

@@ -23,7 +23,6 @@
 package com.falsepattern.fpgradle.internal
 
 import com.falsepattern.fpgradle.*
-import com.falsepattern.fpgradle.internal.JvmDG.Companion.JVMDG_CONFIG
 import com.falsepattern.fpgradle.internal.Stubs.Companion.JAR_STUB_TASK
 import com.falsepattern.jtweaker.RemoveStubsJar
 import com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask

@@ -34,7 +34,6 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Nested
-import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.jvm.toolchain.JvmVendorSpec
 import org.gradle.kotlin.dsl.*
 import java.util.*
@@ -54,7 +53,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             Java.Compatibility.JvmDowngrader -> java.version.get()
             Java.Compatibility.ModernJava -> java.version.get()
         } })
-        java.jvm_downgrader_shade_runtime_my_project_is_compatible_with_lgpl2_1_plus.convention(false)
+        java.jvmDowngraderShade.convention(Java.JvmDowngraderShade.DoNotShade)
 
         mod.version.convention(project.provider { project.version.toString() })
 
@@ -118,7 +117,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         abstract val vendor: Property<JvmVendorSpec>
         abstract val modernRuntimeVersion: Property<JavaVersion>
         abstract val compatibility: Property<Compatibility>
-        abstract val jvm_downgrader_shade_runtime_my_project_is_compatible_with_lgpl2_1_plus: Property<Boolean>
+        abstract val jvmDowngraderShade: Property<JvmDowngraderShade>
 
         enum class Compatibility {
             LegacyJava,
@@ -126,9 +125,19 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             ModernJava
         }
 
+        enum class JvmDowngraderShade {
+            DoNotShade,
+            ProjectIsLgpl21PlusCompatible,
+            IWillPublishTheUnshadedJarForLgpl21PlusCompliance,
+        }
+
         val legacy = Compatibility.LegacyJava
         val jvmDowngrader = Compatibility.JvmDowngrader
         val modern = Compatibility.ModernJava
+
+        val doNotShade = JvmDowngraderShade.DoNotShade
+        val projectIsLgpl21PlusCompatible = JvmDowngraderShade.ProjectIsLgpl21PlusCompatible
+        val iWillPublishTheUnshadedJarForLgpl21PlusCompliance = JvmDowngraderShade.IWillPublishTheUnshadedJarForLgpl21PlusCompliance
     }
     @get:Nested
     abstract val java: Java

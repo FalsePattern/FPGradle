@@ -2,6 +2,16 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Replaced jvmdowngrader shading option boolean with an enum
+  - The user can now decide whether the shaded jar can be published alone, or also have to publish the unshaded jar for
+    license compliance
+
+### Fixed
+
+- JvmDowngrader runClient was loading asm 9.8 in the classpath
+
 ## [3.0.0] - 2025-11-03
 
 ### Changed
