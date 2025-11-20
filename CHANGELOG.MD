@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Changelog URL in the update checker
+
 ## [3.1.1] - 2025-11-20
 
 ### Fixed

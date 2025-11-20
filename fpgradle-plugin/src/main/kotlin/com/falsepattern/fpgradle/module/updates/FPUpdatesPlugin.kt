@@ -60,8 +60,9 @@ abstract class FPUpdatesPlugin: FPPlugin() {
             if (localVersion != releaseVersion) {
                 println("""
 A new FPGradle version is available!
-Current: $localVersion
-Latest:  $releaseVersion
+Current:   $localVersion
+Latest:    $releaseVersion
+Changelog: https://github.com/FalsePattern/FPGradle/blob/master/CHANGELOG.MD
             """)
             }
         }
