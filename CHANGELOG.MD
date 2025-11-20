@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.1.2] - 2025-11-20
+
 ### Added
 
 - Changelog URL in the update checker
