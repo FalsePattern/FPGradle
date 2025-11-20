@@ -22,6 +22,7 @@
 
 package com.falsepattern.fpgradle.internal
 
+import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.mc
 import com.falsepattern.fpgradle.publishing
@@ -41,8 +42,13 @@ class MavenPublish: FPPlugin() {
             publications {
                 create<MavenPublication>("maven") {
                     from(components.getByName("java"))
-                    if (mc.api.classes.get().isNotEmpty() || mc.api.packages.get().isNotEmpty() || mc.api.packagesNoRecurse.get().isNotEmpty())
-                        artifact(tasks.named("apiJar"))
+                    if (mc.api.classes.get().isNotEmpty() || mc.api.packages.get().isNotEmpty() || mc.api.packagesNoRecurse.get().isNotEmpty()) {
+                        if (mc.java.compatibility.map { it == FPMinecraftProjectExtension.Java.Compatibility.JvmDowngrader }.get()) {
+                            artifact(tasks.named("downgradeApiJar"))
+                        } else {
+                            artifact(tasks.named("apiJar"))
+                        }
+                    }
 
                     groupId = mvn.group.get()
                     artifactId = mvn.artifact.get()

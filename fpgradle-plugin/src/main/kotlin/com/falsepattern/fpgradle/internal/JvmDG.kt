@@ -31,8 +31,11 @@ import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import com.gtnewhorizons.retrofuturagradle.minecraft.RunMinecraftTask
 import org.gradle.api.Project
 import org.gradle.api.attributes.Attribute
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.*
+import org.gradle.kotlin.dsl.assign
 import xyz.wagyourtail.jvmdg.gradle.JVMDowngraderPlugin
 import xyz.wagyourtail.jvmdg.gradle.jvmdg
 import xyz.wagyourtail.jvmdg.gradle.task.DowngradeJar
@@ -77,6 +80,17 @@ class JvmDG: FPPlugin() {
                     classpath(shadeRuntime.flatMap { if (it) shadeDowngradeJar else downgradeJar })
                 }
             }
+
+            tasks {
+                val downgradeApiJar = register<DowngradeJar>("downgradeApiJar")
+                val apiJar = named<Jar>("apiJar")
+
+                named("assemble") {
+                    dependsOn(downgradeApiJar)
+                }
+
+                wireDowngrade(provider { true }, apiJar, downgradeApiJar, null, "api")
+            }
         }
     }
 
@@ -96,47 +110,16 @@ class JvmDG: FPPlugin() {
             val jarRemoveStub = named<RemoveStubsJar>(JAR_STUB_TASK)
             val reobfJar = named<ReobfuscatedJar>("reobfJar")
 
-            jarRemoveStub.configure {
-                if (hasJvmDG.get()) {
-                    archiveClassifier = "dev-predowngrade"
-                    destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
-                }
-            }
-
-            downgradeJar.configure {
-                inputFile = jarRemoveStub.flatMap { it.archiveFile }
-                dependsOn(jarRemoveStub)
-                if (shadeRuntime.get()) {
-                    //Only put the pre-shaded jar in tmp if it is safe to do so.
-                    //
-                    //Excerpt from JVMDowngrader license:
-                    //
-                    //For the purpose of Licensing, the produced jar from this task, or the downgrading task
-                    // should be considered a "Combined Work", as it contains the original code from the input
-                    // jar and the shaded code from jvmdowngrader's api.
-                    //
-                    //And this does, usually, mean that you shouldn't need to use the exact same license.
-                    // Running this tool, should be a thing the end-user is capable of doing, thus section 6.a should
-                    // be satisfied as long as your project provides the unshaded/undowngraded jar as well,
-                    // or alternatively provides source code to build said jar, or the post-shaded jar.
-                    archiveClassifier = "dev-predgshade"
-                    if (shadeRuntimeCompatible.get()) {
-                        destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
-                    }
-                } else {
-                    archiveClassifier = "dev"
-                }
-                onlyIf {
-                    hasJvmDG.get()
-                }
-            }
-
-            shadeDowngradeJar.configure {
-                archiveClassifier = "dev"
-                onlyIf {
-                    hasJvmDG.get() && shadeRuntime.get()
-                }
-            }
+            wireDowngrade(
+                hasJvmDG,
+                jarRemoveStub,
+                downgradeJar,
+                ShadeParams(
+                    shadeRuntime,
+                    shadeRuntimeCompatible,
+                    shadeDowngradeJar
+                ),
+                "dev")
 
             reobfJar.configure {
                 dependsOn(shadeDowngradeJar)
@@ -156,6 +139,62 @@ class JvmDG: FPPlugin() {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private data class ShadeParams(
+        val shadeRuntime: Provider<Boolean>,
+        val shadeRuntimeCompatible: Provider<Boolean>,
+        val shadeDowngradeJar: TaskProvider<ShadeJar>)
+
+    private fun Project.wireDowngrade(
+        hasJvmDG: Provider<Boolean>,
+        input: TaskProvider<out Jar>,
+        downgradeJar: TaskProvider<DowngradeJar>,
+        shade: ShadeParams?,
+        classifier: String
+    ) {
+        input.configure {
+            if (hasJvmDG.get()) {
+                archiveClassifier = "$classifier-predowngrade"
+                destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
+            }
+        }
+
+        downgradeJar.configure {
+            inputFile = input.flatMap { it.archiveFile }
+            dependsOn(input)
+            if (shade != null && shade.shadeRuntime.get()) {
+                //Only put the pre-shaded jar in tmp if it is safe to do so.
+                //
+                //Excerpt from JVMDowngrader license:
+                //
+                //For the purpose of Licensing, the produced jar from this task, or the downgrading task
+                // should be considered a "Combined Work", as it contains the original code from the input
+                // jar and the shaded code from jvmdowngrader's api.
+                //
+                //And this does, usually, mean that you shouldn't need to use the exact same license.
+                // Running this tool, should be a thing the end-user is capable of doing, thus section 6.a should
+                // be satisfied as long as your project provides the unshaded/undowngraded jar as well,
+                // or alternatively provides source code to build said jar, or the post-shaded jar.
+                archiveClassifier = "$classifier-predgshade"
+                if (shade.shadeRuntimeCompatible.get()) {
+                    destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
+                }
+            } else {
+                archiveClassifier = classifier
+            }
+            onlyIf {
+                hasJvmDG.get()
+            }
+        }
+
+        shade?.shadeDowngradeJar?.configure {
+            val shadeRuntime = shade.shadeRuntime
+            archiveClassifier = classifier
+            onlyIf {
+                hasJvmDG.get() && shadeRuntime.get()
             }
         }
     }

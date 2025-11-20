@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- JvmDowngrader support for api jar
+
 ## [3.1.0] - 2025-11-09
 
 ### Changed
