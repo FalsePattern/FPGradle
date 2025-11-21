@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.2.2] - 2025-11-21
+
 ### Fixed
 
 - downgradeApiJar being added to `assemble` when api jar is not present and jvmdowngrader is active
