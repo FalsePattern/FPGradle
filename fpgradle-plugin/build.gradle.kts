@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
-val buildscriptVersion = "3.1.2"
+val buildscriptVersion = "3.2.0"
 
 group = "com.falsepattern"
 version = buildscriptVersion
