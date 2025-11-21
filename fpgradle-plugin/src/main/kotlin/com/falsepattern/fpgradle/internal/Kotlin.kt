@@ -34,20 +34,44 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 class Kotlin: FPPlugin() {
     override fun Project.onPluginPostInitAfterDeps() {
         if (mc.kotlin.forgelinVersion.isPresent) {
-            repositories {
-                wellKnownMaven("mega_forgelin", "https://mvn.falsepattern.com/gtmega_releases/") {
-                    content {
-                        includeModule("mega", "forgelin-mc1.7.10")
+            val ver = mc.kotlin.forgelinVersion.get()
+            val megaForgelin = listOf(
+                "2.0.0-2.1.10",
+                "2.1.0-2.1.21",
+                "2.1.1-2.2.0",
+                "2.2.0-2.2.21",
+                "2.3.0-2.2.21"
+                )
+            if (ver in megaForgelin) {
+                repositories {
+                    wellKnownMaven("mega_forgelin", "https://mvn.falsepattern.com/gtmega_releases/") {
+                        content {
+                            includeModule("mega", "forgelin-mc1.7.10")
+                        }
+                    }
+                    wellKnownMaven("mavenpattern_fplib", "https://mvn.falsepattern.com/releases/") {
+                        content {
+                            includeModule("com.falsepattern", "falsepatternlib-mc1.7.10")
+                        }
                     }
                 }
-                wellKnownMaven("mavenpattern_fplib", "https://mvn.falsepattern.com/releases/") {
-                    content {
-                        includeModule("com.falsepattern", "falsepatternlib-mc1.7.10")
+                dependencies {
+                    add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "mega:forgelin-mc1.7.10:$ver")
+                }
+            } else {
+                repositories {
+                    wellKnownMaven("mavenpattern_forgelin", "https://mvn.falsepattern.com/releases/") {
+                        content {
+                            includeModule("com.falsepattern", "forgelin-mc1.7.10")
+                        }
                     }
                 }
-            }
-            dependencies {
-                add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "mega:forgelin-mc1.7.10:${mc.kotlin.forgelinVersion.get()}")
+                dependencies {
+                    add(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME, "com.falsepattern:forgelin-mc1.7.10:$ver")
+                }
+                configurations.configureEach {
+                    exclude("mega", "forgelin-mc1.7.10")
+                }
             }
         } else {
             //joml moment
