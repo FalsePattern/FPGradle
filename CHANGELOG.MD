@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Support for additional artifacts in curseforge/modrinth releases
+
 ## [3.1.2] - 2025-11-20
 
 ### Added

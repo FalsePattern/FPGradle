@@ -42,6 +42,7 @@ class ModrinthPublish: FPPlugin() {
         val projectId = mc.publish.modrinth.projectId
         val token = mc.publish.modrinth.tokenEnv.map { System.getenv(it) }
         val toUpload = mc.publish.modrinth.toUpload
+        val add = mc.publish.modrinth.additionalFiles
         if (projectId.isPresent) {
             with(modrinth) {
                 this.token = token.orElse("")
@@ -56,6 +57,7 @@ class ModrinthPublish: FPPlugin() {
                 }
                 changelog = mc.publish.changelog
                 uploadFile.set(toUpload)
+                additionalFiles.set(add)
                 gameVersions.add(minecraft.mcVersion)
                 loaders.add("forge")
                 for (dep in mc.publish.modrinth.dependencies.get()) {

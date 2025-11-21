@@ -103,10 +103,14 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         publish.maven.passEnv.convention("MAVEN_DEPLOY_PASSWORD")
 
         val reobfJar = project.provider{}.flatMap { project.tasks.named<ReobfuscatedJar>("reobfJar") }
+
         publish.curseforge.tokenEnv.convention("CURSEFORGE_TOKEN")
         publish.curseforge.toUpload.convention(reobfJar.flatMap { it.archiveFile })
+        publish.curseforge.additionalFiles.convention(emptyList())
+
         publish.modrinth.tokenEnv.convention("MODRINTH_TOKEN")
         publish.modrinth.toUpload.convention(reobfJar)
+        publish.modrinth.additionalFiles.convention(emptyList())
 
         updates.check.convention(true)
     }
@@ -312,6 +316,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             abstract val tokenEnv: Property<String>
             abstract val relations: ListProperty<UploadArtifact.() -> Unit>
             abstract val toUpload: Property<Any>
+            abstract val additionalFiles: ListProperty<Any>
 
             inner class Dependencies {
                 fun required(id: String) = relations.add { addRequirement(id) }
@@ -335,6 +340,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             abstract val tokenEnv: Property<String>
             abstract val dependencies: ListProperty<() -> Dependency>
             abstract val toUpload: Property<Any>
+            abstract val additionalFiles: ListProperty<Any>
 
             inner class Dependencies(val variant: (String, DependencyType) -> Dependency) {
                 fun required(id: String) = dependencies.add { variant(id, DependencyType.REQUIRED) }

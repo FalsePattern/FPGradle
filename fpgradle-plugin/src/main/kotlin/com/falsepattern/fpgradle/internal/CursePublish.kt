@@ -41,6 +41,7 @@ class CursePublish: FPPlugin() {
         val projectId = mc.publish.curseforge.projectId
         val token = mc.publish.curseforge.tokenEnv.map { System.getenv(it) }
         val toUpload = mc.publish.curseforge.toUpload
+        val add = mc.publish.curseforge.additionalFiles
         if (projectId.isPresent) {
             val publishCurseForge = tasks.register<TaskPublishCurseForge>("curseforge") {
                 group = PublishingPlugin.PUBLISH_TASK_GROUP
@@ -48,7 +49,7 @@ class CursePublish: FPPlugin() {
                 dependsOn("build")
                 apiToken = token
                 disableVersionDetection()
-                upload(projectId.get(), toUpload) {
+                val root = upload(projectId.get(), toUpload) {
                     changelogType = Constants.CHANGELOG_MARKDOWN
                     changelog = mc.publish.changelog
                     val version = mc.mod.version
@@ -65,6 +66,9 @@ class CursePublish: FPPlugin() {
 
                     if (mc.mixin.use) {
                         addRequirement("unimixins")
+                    }
+                    add.get().forEach { additionalFile ->
+                        withAdditionalFile(additionalFile)
                     }
                 }
             }
