@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.2.1] - 2025-11-21
+
 ### Added
 
 - Support for new forgelin releases under the `com.falsepattern` group
