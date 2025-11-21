@@ -77,8 +77,15 @@ class ApiPackage: FPPlugin() {
             verifyPackage(pkg, "api -> packages", ignoreRootPkg)
         for (pkg in packagesNoRecurse)
             verifyPackage(pkg, "api -> packagesNoRecurse", ignoreRootPkg)
-        tasks.named("assemble") {
-            dependsOn("apiJar")
+        val jvmdg = mc.java.compatibility.get() == FPMinecraftProjectExtension.Java.Compatibility.JvmDowngrader
+        afterEvaluate {
+            tasks.named("assemble") {
+                if (jvmdg) {
+                    dependsOn("downgradeApiJar")
+                } else {
+                    dependsOn("apiJar")
+                }
+            }
         }
     }
 }

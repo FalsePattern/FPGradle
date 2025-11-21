@@ -85,10 +85,6 @@ class JvmDG: FPPlugin() {
                 val downgradeApiJar = register<DowngradeJar>("downgradeApiJar")
                 val apiJar = named<Jar>("apiJar")
 
-                named("assemble") {
-                    dependsOn(downgradeApiJar)
-                }
-
                 wireDowngrade(provider { true }, apiJar, downgradeApiJar, null, "api")
             }
         }
