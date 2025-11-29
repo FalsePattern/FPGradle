@@ -23,6 +23,7 @@
 package com.falsepattern.fpgradle
 
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.Compatibility
+import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Java.JvmDowngraderShade
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.provider.Property
@@ -33,6 +34,8 @@ abstract class JarInJarConfigSpec @Inject constructor(project: Project) {
     abstract val javaCompatibility: Property<Compatibility>
     abstract val javaVersion: Property<JavaVersion>
     abstract val javaVendor: Property<JvmVendorSpec>
+    abstract val jvmDowngraderShade: Property<JvmDowngraderShade>
+    abstract val jvmDowngraderShadePackage: Property<String>
     abstract val artifactGroup: Property<String>
     abstract val artifactName: Property<String>
     abstract val artifactVersion: Property<String>
@@ -57,6 +60,8 @@ abstract class JarInJarConfigSpec @Inject constructor(project: Project) {
                 }
             })
             javaVendor.convention(mc.java.vendor)
+            jvmDowngraderShade.convention(mc.java.jvmDowngraderShade)
+            jvmDowngraderShadePackage.convention(mc.java.jvmDowngraderShadePackage)
             artifactGroup.convention(mc.publish.maven.group)
             artifactName.convention(mc.publish.maven.artifact)
             artifactVersion.convention(mc.publish.maven.version)
@@ -66,7 +71,10 @@ abstract class JarInJarConfigSpec @Inject constructor(project: Project) {
     }
 
     val legacy = Compatibility.LegacyJava
-    @Deprecated("Not yet supported", level = DeprecationLevel.HIDDEN)
     val jvmDowngrader = Compatibility.JvmDowngrader
     val modern = Compatibility.ModernJava
+
+    val doNotShade = JvmDowngraderShade.DoNotShade
+    val projectIsLgpl21PlusCompatible = JvmDowngraderShade.ProjectIsLgpl21PlusCompatible
+    val iWillPublishTheUnshadedJarForLgpl21PlusCompliance = JvmDowngraderShade.IWillPublishTheUnshadedJarForLgpl21PlusCompliance
 }

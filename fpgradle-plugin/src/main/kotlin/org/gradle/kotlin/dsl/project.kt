@@ -25,17 +25,21 @@ package org.gradle.kotlin.dsl
 import com.falsepattern.fpgradle.FPMinecraftProjectExtension
 import com.falsepattern.fpgradle.JarInJarConfigSpec
 import com.falsepattern.fpgradle.fp_ctx_internal
+import com.falsepattern.fpgradle.internal.JvmDG.Companion.setupDowngradeTasksForSet
 import com.falsepattern.fpgradle.internal.ModernJavaTweaks.Companion.injectLwjgl3ifyForSet
+import com.falsepattern.fpgradle.internal.Stubs
 import com.falsepattern.fpgradle.sourceSets
 import com.falsepattern.fpgradle.toolchains
+import com.falsepattern.jtweaker.RemoveStubsJar
 import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.jvm.toolchain.JavaLanguageVersion
+import org.gradle.language.jvm.tasks.ProcessResources
 import java.util.function.Function
 
 fun Project.jarInJar_fp(
@@ -63,9 +67,6 @@ fun Project.jarInJar_fp(
     }
 
     afterEvaluate {
-        if (spec.javaCompatibility.get() == FPMinecraftProjectExtension.Java.Compatibility.JvmDowngrader) {
-            throw GradleException("JvmDowngrader is not yet compatible with JarInJar!")
-        }
         injectLwjgl3ifyForSet(spec.javaVersion, spec.javaCompatibility.get(), sourceSet)
     }
 
@@ -89,10 +90,21 @@ fun Project.jarInJar_fp(
         from(sourceSet.output)
         archiveBaseName = spec.artifactName
         archiveVersion = spec.artifactVersion
-        archiveClassifier = if(dependsOnMinecraft) "dev" else ""
+        archiveClassifier = if(dependsOnMinecraft) "dev-prestub" else "prestub"
+        destinationDirectory.set(layout.buildDirectory.dir("tmp/fpgradle-libs"))
     }
 
-    val artifactFileName = thisJar.flatMap { it.archiveFileName }
+    val removeStubsTaskName = "${sourceSet.jarTaskName}RemoveStubs"
+
+    val stubJar = tasks.register<RemoveStubsJar>(removeStubsTaskName) {
+        dependsOn(thisJar)
+        inputFile = thisJar.flatMap { it.archiveFile }
+        archiveBaseName = spec.artifactName
+        archiveVersion = spec.artifactVersion
+        archiveClassifier = if (dependsOnMinecraft) "dev" else ""
+    }
+
+    val artifactFileName = stubJar.flatMap { it.archiveFileName }
 
     val artifactPath = spec.artifactGroup.flatMap { group -> spec.artifactName.flatMap { name -> spec.artifactVersion.map { version ->
         "META-INF/falsepatternlib_repo/${group.replace('.', '/')}/$name/$version"
@@ -100,13 +112,7 @@ fun Project.jarInJar_fp(
 
     val artifactFullPath = artifactPath.flatMap { path -> artifactFileName.map { name -> "$path/$name" }}
 
-    val outputJar = thisJar.flatMap { it.archiveFile }
-    tasks.named<Jar>("jar") {
-        dependsOn(sourceSet.jarTaskName)
-        from(outputJar) {
-            into(artifactPath)
-        }
-    }
+    val isJvmDG = spec.javaCompatibility.map { it == FPMinecraftProjectExtension.Java.Compatibility.JvmDowngrader }
 
     if (dependsOnMinecraft) {
         val reobfInputs = configurations.register("reobf${sourceSetName}Inputs") {
@@ -116,7 +122,10 @@ fun Project.jarInJar_fp(
         val name = "reobf${sourceSet.jarTaskName}"
 
         val reobfThisJar = tasks.named<ReobfuscatedJar>(name) {
+            dependsOn(stubJar, tasks.named(Stubs.JAR_STUB_TASK))
             referenceClasspath.from(sourceSets.named("main").map { it.output }, reobfInputs)
+            @Suppress("UNCHECKED_CAST")
+            setInputJarFromTask(stubJar as TaskProvider<org.gradle.jvm.tasks.Jar>)
         }
 
         val reobfOutputJar = reobfThisJar.flatMap { it.archiveFile }
@@ -130,6 +139,19 @@ fun Project.jarInJar_fp(
 
         fp_ctx_internal.mergedJarExcludeSpecs.add(artifactFullPath.map { theFullPath -> Function<FileTreeElement, Boolean> { it.relativePath.pathString == theFullPath } })
     }
+
+
+    val outputTask = if (isJvmDG.get())
+        setupDowngradeTasksForSet(spec.javaCompatibility, spec.jvmDowngraderShade, spec.artifactName, spec.artifactVersion, if (spec.dependsOnMinecraft) "dev" else "", spec.jvmDowngraderShadePackage, spec.dependsOnMinecraft, sourceSet)
+    else stubJar
+    tasks.named<ProcessResources>("processResources") {
+        dependsOn(outputTask)
+        from(outputTask.map { it.archiveFile }) {
+            into(artifactPath)
+        }
+    }
+
+
 
     return sourceSet
 }

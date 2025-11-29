@@ -133,6 +133,7 @@ class MinecraftTweaks: FPPlugin() {
             val jar = project.tasks.named<Jar>("jar")
             val jarRemoveStub = project.tasks.named<RemoveStubsJar>(JAR_STUB_TASK)
             project.tasks.named<ReobfuscatedJar>("reobfJar") {
+                dependsOn(jarRemoveStub)
                 @Suppress("UNCHECKED_CAST")
                 setInputJarFromTask(jarRemoveStub as TaskProvider<Jar>)
             }

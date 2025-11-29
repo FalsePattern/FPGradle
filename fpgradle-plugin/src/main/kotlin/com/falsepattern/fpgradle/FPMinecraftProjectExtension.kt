@@ -54,6 +54,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             Java.Compatibility.ModernJava -> java.version.get()
         } })
         java.jvmDowngraderShade.convention(Java.JvmDowngraderShade.DoNotShade)
+        java.jvmDowngraderShadePackage.convention(mod.rootPkg)
 
         mod.version.convention(project.provider { project.version.toString() })
 
@@ -122,6 +123,7 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         abstract val modernRuntimeVersion: Property<JavaVersion>
         abstract val compatibility: Property<Compatibility>
         abstract val jvmDowngraderShade: Property<JvmDowngraderShade>
+        abstract val jvmDowngraderShadePackage: Property<String>
 
         enum class Compatibility {
             LegacyJava,

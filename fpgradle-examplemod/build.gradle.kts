@@ -1,6 +1,6 @@
 plugins {
     id("com.falsepattern.fpgradle-mc")
-    kotlin("jvm") version "2.2.0"
+    kotlin("jvm") version "2.2.21"
     //scala
 }
 
@@ -10,8 +10,14 @@ minecraft_fp {
     // optional
     // If you want to use modern java
     java {
-        compatibility = modern //Convention: legacy
-//        version       = JavaVersion.VERSION_XYZ //Convention, determined by compatibility
+        //Valid values: legacy, jvmDowngrader, modern
+        compatibility = modern                                 //Convention: legacy
+//        version       = JavaVersion.VERSION_XYZ              //Convention, determined by compatibility
+//        vendor = JvmVendorSpec.ADOPTIUM                      //Convention
+//        modernRuntimeVersion = JavaVersion.VERSION_XYZ       //Convention, determined by compatibility
+//        //Valid values: doNotShade, projectIsLgpl21PlusCompatible, iWillPublishTheUnshadedJarForLgpl21PlusCompliance
+//        jvmDowngraderShade = doNotShade                      //Convention
+//        jvmDowngraderShadePackage = minecraft_fp.mod.rootPkg //Convention
     }
 
     // REQUIRED
@@ -37,7 +43,7 @@ minecraft_fp {
 //        packages          = listOf() //Convention
 //        packagesNoRecurse = listOf() //Convention
 //        ignoreRootPkg     = false    //Convention
-//        includeSources    = false     //Convention
+//        includeSources    = false    //Convention
 //    }
 
     // optional
@@ -51,7 +57,7 @@ minecraft_fp {
 //    }
 
     kotlin {
-        forgelinVersion = "2.1.1-2.2.0"
+        forgelinVersion = "2.4.0-2.2.21"
 //        hasKotlinDeps = false //Convention
     }
 

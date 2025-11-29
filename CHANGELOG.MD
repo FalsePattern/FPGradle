@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- JVMDowngrader support in JarInJar
+
+### Fixed
+
+- JarInJar files sometimes do not get included in mod jar
+
 ## [3.2.2] - 2025-11-21
 
 ### Fixed
