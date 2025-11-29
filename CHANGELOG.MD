@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.3.0] - 2025-11-29
+
 ### Added
 
 - JVMDowngrader support in JarInJar
