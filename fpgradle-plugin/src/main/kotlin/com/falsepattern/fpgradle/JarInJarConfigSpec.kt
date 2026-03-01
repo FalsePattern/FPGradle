@@ -47,8 +47,8 @@ abstract class JarInJarConfigSpec @Inject constructor(project: Project) {
             javaCompatibility.convention(mc.java.compatibility)
             val javaGenerated = javaCompatibility.map { when(it) {
                 Compatibility.LegacyJava -> JavaVersion.VERSION_1_8
-                Compatibility.JvmDowngrader -> JavaVersion.VERSION_21
-                Compatibility.ModernJava -> JavaVersion.VERSION_21
+                Compatibility.JvmDowngrader -> JavaVersion.VERSION_25
+                Compatibility.ModernJava -> JavaVersion.VERSION_25
             } }
             javaVersion.convention(javaCompatibility.flatMap { thisComp ->
                 mc.java.compatibility.flatMap { mcComp ->

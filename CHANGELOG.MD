@@ -4,8 +4,12 @@
 
 ### Changed
 
+- Java 25 is now required to run the buildscript
+- Changed default modern java compile target to java 25 (BREAKING CHANGE)
+
 - Updated Gradle 9.2.0 → 9.3.1
 - Updated Kotlin 2.2.20 → 2.3.10
+- Updated RFG 1.4.6 → 2.0.2
 
 ## [3.3.0] - 2025-11-29
 

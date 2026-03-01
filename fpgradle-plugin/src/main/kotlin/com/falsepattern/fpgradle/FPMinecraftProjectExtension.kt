@@ -44,12 +44,12 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
         java.compatibility.convention(Java.Compatibility.LegacyJava)
         java.version.convention(java.compatibility.map { when(it) {
             Java.Compatibility.LegacyJava -> JavaVersion.VERSION_1_8
-            Java.Compatibility.JvmDowngrader -> JavaVersion.VERSION_21
-            Java.Compatibility.ModernJava -> JavaVersion.VERSION_21
+            Java.Compatibility.JvmDowngrader -> JavaVersion.VERSION_25
+            Java.Compatibility.ModernJava -> JavaVersion.VERSION_25
         } })
         java.vendor.convention(JvmVendorSpec.ADOPTIUM)
         java.modernRuntimeVersion.convention(java.compatibility.map { when(it) {
-            Java.Compatibility.LegacyJava -> JavaVersion.VERSION_21
+            Java.Compatibility.LegacyJava -> JavaVersion.VERSION_25
             Java.Compatibility.JvmDowngrader -> java.version.get()
             Java.Compatibility.ModernJava -> java.version.get()
         } })
