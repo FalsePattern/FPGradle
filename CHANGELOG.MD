@@ -11,6 +11,7 @@
 - Updated JetBrains Annotations 26.0.2-1 → 26.1.0
 - Updated Kotlin 2.2.20 → 2.3.10
 - Updated RFG 1.4.6 → 2.0.2
+- Updated UniMixins 0.1.23 → 0.2.1
 
 ## [3.3.0] - 2025-11-29
 
