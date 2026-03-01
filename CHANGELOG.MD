@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Updated Gradle 9.2.0 → 9.3.1
 - Updated Kotlin 2.2.20 → 2.3.10
 
 ## [3.3.0] - 2025-11-29
