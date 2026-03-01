@@ -1,7 +1,7 @@
 /*
  * FPGradle
  *
- * Copyright (C) 2024-2025 FalsePattern
+ * Copyright (C) 2024-2026 FalsePattern
  * All Rights Reserved
  *
  * The above copyright notice and this permission notice
