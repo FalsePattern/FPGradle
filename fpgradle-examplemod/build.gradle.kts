@@ -1,6 +1,6 @@
 plugins {
     id("com.falsepattern.fpgradle-mc")
-    kotlin("jvm") version "2.2.21"
+    kotlin("jvm") version "2.3.10"
     //scala
 }
 
@@ -57,7 +57,7 @@ minecraft_fp {
 //    }
 
     kotlin {
-        forgelinVersion = "2.4.0-2.2.21"
+        forgelinVersion = "2.4.1-2.3.10"
 //        hasKotlinDeps = false //Convention
     }
 

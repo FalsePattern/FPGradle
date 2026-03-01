@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Updated Kotlin 2.2.20 → 2.3.10
+
 ## [3.3.0] - 2025-11-29
 
 ### Added

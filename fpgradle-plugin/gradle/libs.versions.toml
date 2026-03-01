@@ -1,7 +1,7 @@
 [versions]
 gradlePublish = "2.0.0"
 shadow = "9.2.2"
-kotlin = "2.2.20"
+kotlin = "2.3.10"
 annotations = "26.0.2-1"
 lombokPlugin = "9.0.0"
 jgit = "7.4.0.202509020913-r"
