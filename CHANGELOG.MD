@@ -8,6 +8,7 @@
 - Changed default modern java compile target to java 25 (BREAKING CHANGE)
 
 - Updated Gradle 9.2.0 → 9.3.1
+- Updated JetBrains Annotations 26.0.2-1 → 26.1.0
 - Updated Kotlin 2.2.20 → 2.3.10
 - Updated RFG 1.4.6 → 2.0.2
 
