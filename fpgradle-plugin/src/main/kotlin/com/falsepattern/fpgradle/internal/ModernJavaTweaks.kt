@@ -61,6 +61,20 @@ class ModernJavaTweaks: FPPlugin() {
 
         tweakMappingGenerator()
         minecraft.injectMissingGenerics = true
+        minecraft.lwjgl3Version = "3.4.2-20260225.192616-2"
+        minecraft.lwjgl3Bindings = listOf(
+            "freetype",
+            "jemalloc",
+            "nuklear",
+            "openal",
+            "opengl",
+            "sdl",
+            "spng",
+            "stb",
+            "tinyfd",
+            "zstd"
+        )
+        minecraft.lwjgl3BindingsWithoutNatives = listOf("harfbuzz")
         project.java.toolchain {
             languageVersion.convention(mc.java.version.map { JavaLanguageVersion.of(it.majorVersion) })
             vendor.convention(mc.java.vendor)
@@ -140,12 +154,12 @@ class ModernJavaTweaks: FPPlugin() {
             extraJvmArgs.addAll(javaArgs)
             if (mcRun.obfuscated) {
                 mainClass = when(mcRun.side) {
-                    Distribution.CLIENT -> "com.gtnewhorizons.retrofuturabootstrap.Main"
+                    Distribution.CLIENT -> "com.gtnewhorizons.retrofuturabootstrap.MainStartOnFirstThread"
                     Distribution.DEDICATED_SERVER -> "me.eigenraven.lwjgl3ify.rfb.entry.ServerMain"
                 }
             } else {
                 when(mcRun.side) {
-                    Distribution.CLIENT -> systemProperty("gradlestart.bouncerClient", "com.gtnewhorizons.retrofuturabootstrap.Main")
+                    Distribution.CLIENT -> systemProperty("gradlestart.bouncerClient", "com.gtnewhorizons.retrofuturabootstrap.MainStartOnFirstThread")
                     Distribution.DEDICATED_SERVER -> systemProperty("gradlestart.bouncerServer", "com.gtnewhorizons.retrofuturabootstrap.Main")
                 }
             }
@@ -204,7 +218,7 @@ class ModernJavaTweaks: FPPlugin() {
             "java.base/java.time.temporal=ALL-UNNAMED",
             "java.base/java.time.zone=ALL-UNNAMED",
             "java.base/java.time=ALL-UNNAMED",
-            "java.base/java.util.concurrent.atomics=ALL-UNNAMED",
+            "java.base/java.util.concurrent.atomic=ALL-UNNAMED",
             "java.base/java.util.concurrent.locks=ALL-UNNAMED",
             "java.base/java.util.jar=ALL-UNNAMED",
             "java.base/java.util.zip=ALL-UNNAMED",
@@ -217,6 +231,7 @@ class ModernJavaTweaks: FPPlugin() {
             "java.desktop/com.sun.imageio.plugins.png=ALL-UNNAMED",
             "java.desktop/sun.awt.image=ALL-UNNAMED",
             "java.desktop/sun.awt=ALL-UNNAMED",
+            "java.desktop/sun.lwawt.macosx=ALL-UNNAMED",
             "java.sql.rowset/javax.sql.rowset.serial=ALL-UNNAMED",
             "jdk.dynalink/jdk.dynalink.beans=ALL-UNNAMED",
             "jdk.naming.dns/com.sun.jndi.dns=ALL-UNNAMED,java.naming",
@@ -227,7 +242,9 @@ class ModernJavaTweaks: FPPlugin() {
         )
 
         private val MODERN_JAVA_ARGS_EXTRA = listOf(
-            "-XX:+UseZGC"
+            "-XX:+UseZGC",
+            "--enable-native-access",
+            "ALL-UNNAMED"
         )
 
         private val javaArgs = MODERN_JAVA_ARGS_EXTRA +
@@ -333,6 +350,15 @@ class ModernJavaTweaks: FPPlugin() {
                             includeGroup("com.gtnewhorizons")
                             includeGroup("com.gtnewhorizons.retrofuturabootstrap")
                             includeGroup("com.github.GTNewHorizons")
+                        }
+                    }
+                })
+                mavenNamed("horizon_lwjgl", { name, _ ->
+                    maven {
+                        this.name = name
+                        url = uri("https://mvn.falsepattern.com/horizon_lwjgl")
+                        content {
+                            includeGroup("org.lwjgl")
                         }
                     }
                 })

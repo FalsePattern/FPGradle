@@ -10,6 +10,7 @@
 - Updated Gradle 9.2.0 → 9.3.1
 - Updated JetBrains Annotations 26.0.2-1 → 26.1.0
 - Updated Kotlin 2.2.20 → 2.3.10
+- Updated LWJGL3Ify 2.1.17 → 3.0.14 (BREAKING CHANGE for modern compile, GLFW removed)
 - Updated RFG 1.4.6 → 2.0.2
 - Updated UniMixins 0.1.23 → 0.2.1
 
