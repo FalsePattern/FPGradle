@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [4.0.0] - 2026-03-01
+
 ### Changed
 
 - Java 25 is now required to run the buildscript
