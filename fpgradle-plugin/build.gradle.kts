@@ -8,6 +8,7 @@ plugins {
     `maven-publish`
     `kotlin-dsl`
     alias(libs.plugins.shadow)
+    alias(libs.plugins.versionCatalogUpdate)
 }
 
 val buildscriptVersion = "4.0.0"
