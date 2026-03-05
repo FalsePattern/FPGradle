@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Updated plugin internal dependencies
+
+### Added
+
+- Added gradle version catalog updater to plugin buildscript (repo change, does not affect mods that use the plugin)
+
 ## [3.3.1] - 2026-03-05
 
 ### Changed
