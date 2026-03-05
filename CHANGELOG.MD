@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Updated JVMDowngrader 1.3.3 -> 1.3.6
+
+### Fixed
+
+- JVMDowngrader breaking when running gradle on java 25
+
 ## [3.3.0] - 2025-11-29
 
 ### Added
