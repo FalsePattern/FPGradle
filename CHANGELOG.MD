@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [3.3.1] - 2026-03-05
+
 ### Changed
 
 - Updated JVMDowngrader 1.3.3 -> 1.3.6
