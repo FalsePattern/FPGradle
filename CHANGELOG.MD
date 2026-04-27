@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Changed
+
+- Updated UniMixins 0.2.1 -> 0.3.0
+- Updated RetroFuturaBootstrap 1.0.15 -> 1.0.16
+- Updated Lwjgl3ify 3.0.14 -> 3.0.16
+
 ### Fixed
 
 - Circular task dependency with JarInJar
