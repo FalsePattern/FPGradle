@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+## [4.0.2] - 2026-04-27
+
 ### Changed
 
 - Updated UniMixins 0.2.1 -> 0.3.0
