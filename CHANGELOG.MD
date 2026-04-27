@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Fixed
+
+- Circular task dependency with JarInJar
+
 ## [4.0.1] - 2026-03-05
 
 ### Changed

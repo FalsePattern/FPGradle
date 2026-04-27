@@ -55,11 +55,16 @@ fun Project.jarInJar_fp(
             compileClasspath += sourceSets["patchedMc"].output
         }
         if (dependsOnMain) {
-            compileClasspath += sourceSets["main"].output
+            afterEvaluate {
+                compileClasspath += tasks.named<JavaCompile>("compileJava").map { it.outputs.files }.get()
+            }
         }
     }
 
     tasks.named<JavaCompile>(sourceSet.compileJavaTaskName) {
+        if (dependsOnMain) {
+            dependsOn("compileJava")
+        }
         javaCompiler = toolchains.compilerFor {
             languageVersion.set(spec.javaVersion.map { JavaLanguageVersion.of(it.majorVersion) })
             vendor.set(spec.javaVendor)
