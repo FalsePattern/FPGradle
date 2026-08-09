@@ -106,11 +106,8 @@ class JvmDG: FPPlugin() {
             val hasJvmDG = javaCompatibility.map { it == Java.Compatibility.JvmDowngrader }
             val shadeRuntimeCompatible = jvmDowngraderShade.map { it == FPMinecraftProjectExtension.Java.JvmDowngraderShade.ProjectIsLgpl21PlusCompatible }
             val shadeRuntime = jvmDowngraderShade.map { it != FPMinecraftProjectExtension.Java.JvmDowngraderShade.DoNotShade }
-            val shadePath: (String) -> String = {
-                shadePkg.get().replace('.', '/')
-            }
+            val shadePath = shadePkg.map { it.replace('.', '/') }
             if (set == null) {
-                jvmdg.shadePath = shadePath
                 jvmdg.shadeInlining = shadeRuntime
             }
             val shadeDowngradeJar = set?.let { tasks.register<ShadeJar>("shadeDowngradedApi${it.name}") } ?: tasks.named<ShadeJar>("shadeDowngradedApi")
@@ -119,6 +116,7 @@ class JvmDG: FPPlugin() {
             val reobfJar = if (hasReobfJar) tasks.named<ReobfuscatedJar>(set?.let { "reobf${it.jarTaskName}" } ?: "reobfJar") else null
 
             shadeDowngradeJar.configure {
+                this.shadePath = shadePath
                 archiveBaseName?.let { this.archiveBaseName = it }
                 archiveVersion?.let { this.archiveVersion = it }
             }
