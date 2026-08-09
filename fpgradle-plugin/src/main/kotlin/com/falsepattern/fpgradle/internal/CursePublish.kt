@@ -22,16 +22,16 @@
 
 package com.falsepattern.fpgradle.internal
 
+import com.falsepattern.fpgradle.FPMinecraftProjectExtension.Publish.CurseForge
 import com.falsepattern.fpgradle.FPPlugin
 import com.falsepattern.fpgradle.mc
 import com.falsepattern.fpgradle.minecraft
-import com.gtnewhorizons.retrofuturagradle.mcp.ReobfuscatedJar
 import net.darkhax.curseforgegradle.Constants
 import net.darkhax.curseforgegradle.CurseForgeGradlePlugin
 import net.darkhax.curseforgegradle.TaskPublishCurseForge
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.publish.plugins.PublishingPlugin
-import org.gradle.kotlin.dsl.named
 import org.gradle.kotlin.dsl.register
 
 class CursePublish: FPPlugin() {
@@ -43,6 +43,9 @@ class CursePublish: FPPlugin() {
         val toUpload = mc.publish.curseforge.toUpload
         val add = mc.publish.curseforge.additionalFiles
         if (projectId.isPresent) {
+            val side = mc.publish.curseforge.side
+            if (!side.isPresent)
+                throw GradleException("minecraft_fp.publish.curseforge.side is REQUIRED when publishing to CurseForge!")
             val publishCurseForge = tasks.register<TaskPublishCurseForge>("curseforge") {
                 group = PublishingPlugin.PUBLISH_TASK_GROUP
                 description = "Publish the mod to CurseForge"
@@ -63,6 +66,12 @@ class CursePublish: FPPlugin() {
                     addModLoader("Forge")
                     for (relation in mc.publish.curseforge.relations.get())
                         relation()
+
+                    when(side.get()) {
+                        CurseForge.Side.Client -> this.addEnvironment("Client")
+                        CurseForge.Side.Server -> this.addEnvironment("Server")
+                        CurseForge.Side.Both -> this.addEnvironment("Client", "Server")
+                    }
 
                     if (mc.mixin.use) {
                         addRequirement("unimixins")

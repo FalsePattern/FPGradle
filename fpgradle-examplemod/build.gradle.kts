@@ -119,6 +119,7 @@ minecraft_fp {
 //        curseforge {
 //            projectId = "123456"
 //            tokenEnv = "CURSEFORGE_TOKEN" //Convention
+//            side = Client // one of [Client, Server, Both]
 //
 //            // optional
 //            dependencies {

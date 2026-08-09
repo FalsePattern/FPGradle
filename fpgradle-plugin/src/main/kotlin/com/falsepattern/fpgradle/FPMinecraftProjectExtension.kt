@@ -320,6 +320,12 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             abstract val toUpload: Property<Any>
             abstract val additionalFiles: ListProperty<Any>
 
+            abstract val side: Property<Side>
+
+            val Client = Side.Client
+            val Server = Side.Server
+            val Both = Side.Both
+
             inner class Dependencies {
                 fun required(id: String) = relations.add { addRequirement(id) }
                 fun optional(id: String) = relations.add { addOptional(id) }
@@ -329,6 +335,12 @@ abstract class FPMinecraftProjectExtension(project: Project): ExtensionAware {
             }
             fun dependencies(action: Dependencies.() -> Unit) {
                 action(Dependencies())
+            }
+
+            enum class Side {
+                Client,
+                Server,
+                Both,
             }
         }
         @get:Nested
