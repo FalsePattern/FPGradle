@@ -11,7 +11,7 @@ plugins {
     alias(libs.plugins.versionCatalogUpdate)
 }
 
-val buildscriptVersion = "4.0.2"
+val buildscriptVersion = "4.1.0"
 
 group = "com.falsepattern"
 version = buildscriptVersion

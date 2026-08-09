@@ -2,6 +2,14 @@
 
 ## [Unreleased]
 
+## [4.1.0] - 2026-08-09
+
+### Changed
+
+- Updated to Java 25 for Gradle runtime
+- Updated plugin dependencies
+- Publishing to CurseForge now requires specifying the environment (new curseforge requirement)
+
 ## [4.0.2] - 2026-04-27
 
 ### Changed
