@@ -149,6 +149,7 @@ minecraft_fp {
 //        curseforge {
 //            projectId = "123456"
 //            tokenEnv = "CURSEFORGE_TOKEN" //Convention
+//            side = Client // one of [Client, Server, Both]
 //
 //            // optional
 //            dependencies {
@@ -182,7 +183,7 @@ minecraft_fp {
 //val myJarInJar = jarInJar_fp("jarjar") {
 //    artifactName = "examplemod-jarinjar"
 //    javaCompiler = javaToolchains.compilerFor {
-//        languageVersion = JavaLanguageVersion.of(21)
+//        languageVersion = JavaLanguageVersion.of(25)
 //        vendor = minecraft_fp.java.vendor
 //    }
 //}

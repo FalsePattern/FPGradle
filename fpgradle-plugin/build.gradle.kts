@@ -17,12 +17,12 @@ group = "com.falsepattern"
 version = buildscriptVersion
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
 }
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_21.majorVersion)
+        languageVersion = JavaLanguageVersion.of(JavaVersion.VERSION_25.majorVersion)
         vendor = JvmVendorSpec.ADOPTIUM
     }
     withSourcesJar()
